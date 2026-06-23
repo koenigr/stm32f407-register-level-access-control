@@ -1,2 +1,19 @@
-# stm32f407-register-level-access-control
-Bare-metal STM32F407 access control system featuring custom register-level GPIO drivers, keypad scanning, PIN authentication, lockout protection, and hardware abstraction without HAL/CubeMX.
+# STM32F407 Register-Level Access Control System
+
+Features
+- Register-level GPIO programming
+- Custom GPIO driver
+- Matrix keypad driver
+- PIN authentication
+- Lockout protection
+- Admin reset button
+- No HAL / No CubeMX
+
+Concepts Demonstrated
+- Memory-Mapped I/O
+- Pointer Casting
+- Bitwise Operations
+- Struct-Based Register Mapping
+- Volatile Qualifier
+- Embedded Driver Architecture
+- State Machine Design
