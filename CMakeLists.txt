@@ -30,4 +30,5 @@ target_link_options(${PROJECT_NAME}
         -T${CMAKE_SOURCE_DIR}/Startup/STM32F407VGTx_FLASH.ld
         -mcpu=cortex-m4
         -mthumb
+        -nostartfiles
 )

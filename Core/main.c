@@ -1,10 +1,10 @@
 int main(void)
 {
-    GPIO_Init();
-    Keypad_Init();
 
-    while(1)
-    {
-        AccessControl_Run();
+    while(1) {
+        __asm__("nop");
     }
+
+    return 0;
+
 }
