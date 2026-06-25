@@ -9,22 +9,12 @@ set(CMAKE_C_STANDARD 11)
 
 add_executable(${PROJECT_NAME}
     Core/main.c
-
-    Platform/stm32f407xx_gpio.c
-
-    Drivers/keypad.c
-
-    App/access_control.c
-
     Startup/startup_stm32f407xx.s
 )
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         Core
-        Platform
-        Drivers
-        App
 )
 
 target_compile_options(${PROJECT_NAME}
