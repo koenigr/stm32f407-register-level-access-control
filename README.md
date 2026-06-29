@@ -10,13 +10,39 @@ Bare-metal STM32F407 access control system implemented without HAL or CubeMX.
 - CMake
 - ST-LINK
 - OpenOCD
-- GDB
+- gdb-multiarch (Ubuntu) or arm-none-eabi-gdb
 
 ## Build
-```
+```bash
 cmake -B build -DCMAKE_TOOLCHAIN_FILE=cmake/arm-gcc-toolchain.cmake
 cmake --build build
 ```
+
+## Flash and Debug
+
+Start OpenOCD:
+```bash
+openocd \
+  -f /usr/share/openocd/scripts/interface/stlink.cfg \
+  -f /usr/share/openocd/scripts/target/stm32f4x.cfg
+```
+
+In a second terminal, start GDB:
+
+```bash
+gdb-multiarch build/stm32f407_access_control
+```
+
+Inside GDB:
+
+```gdb
+target remote localhost:3333
+load
+break main
+monitor reset halt
+continue
+```
+
 
 ## Features
 - Register-level GPIO programming
@@ -35,3 +61,14 @@ cmake --build build
 - Volatile Qualifier
 - Embedded Driver Architecture
 - State Machine Design
+
+## Project Status
+
+- [x] Bare-metal project setup
+- [x] Custom startup code
+- [x] Linker script
+- [x] CMake build system
+- [x] Flash and debug with ST-LINK/OpenOCD
+- [ ] Register-level GPIO driver
+- [ ] Matrix keypad driver
+- [ ] Access control application
