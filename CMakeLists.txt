@@ -15,6 +15,7 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         Core
+        Platform
 )
 
 target_compile_options(${PROJECT_NAME}
@@ -23,6 +24,8 @@ target_compile_options(${PROJECT_NAME}
         -mthumb
         -Wall
         -Wextra
+        -g
+        -O0
 )
 
 target_link_options(${PROJECT_NAME}

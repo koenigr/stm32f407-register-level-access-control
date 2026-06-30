@@ -1,10 +1,14 @@
+#include <stdint.h>
+#include "stm32f407xx.h"
+#include "stm32f407xx_gpio.h"
+
 int main(void)
 {
 
-    while(1) {
-        __asm__("nop");
-    }
+	volatile uint32_t moder = GPIOA->MODER;
 
-    return 0;
+	GPIO_RegDef_t *gpio = GPIOA;
+
+	return 0;
 
 }

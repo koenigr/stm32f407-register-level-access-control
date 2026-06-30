@@ -14,7 +14,7 @@ Bare-metal STM32F407 access control system implemented without HAL or CubeMX.
 
 ## Build
 ```bash
-cmake -B build -DCMAKE_TOOLCHAIN_FILE=cmake/arm-gcc-toolchain.cmake
+cmake -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=cmake/arm-gcc-toolchain.cmake
 cmake --build build
 ```
 

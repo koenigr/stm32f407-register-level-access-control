@@ -1,0 +1,1 @@
+/usr/bin/cc -g -T/home/koenigr/git/stm32f407-register-level-access-control/Startup/STM32F407VGTx_FLASH.ld -mcpu=cortex-m4 -mthumb -nostartfiles CMakeFiles/stm32f407_access_control.dir/Core/main.c.o CMakeFiles/stm32f407_access_control.dir/Startup/startup_stm32f407xx.s.o -o stm32f407_access_control 
