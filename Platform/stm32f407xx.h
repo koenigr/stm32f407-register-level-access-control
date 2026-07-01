@@ -26,7 +26,7 @@
 #define PIN_STATE_HIGH		( 1 )
 #define PIN_STATE_LOW		( 0 )
 
-#define DELAY_COUNT			( 30000UL )
+#define DELAY_COUNT			( 300000UL )
 
 // Reference Manual 6.3.10
 // RCC AHB1 peripheral clock register (RCC_AHB1ENR)
