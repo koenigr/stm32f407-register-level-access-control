@@ -10,5 +10,4 @@ int main(void)
 	GPIO_RegDef_t *gpio = GPIOA;
 
 	return 0;
-
 }
