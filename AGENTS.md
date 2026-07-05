@@ -19,6 +19,7 @@ The project is fully operational at bare-metal level and currently transitioning
 
 ### Toolchain & Build
 - CMake-based build system (arm-none-eabi-gcc)
+- Out-of-source builds (build/ directory)
 - Compiles successfully to ELF
 - GitHub Actions CI builds successfully
 
@@ -61,20 +62,24 @@ Responsible for direct hardware mapping.
 - Memory-mapped base address macros
 - Direct register-to-struct mapping
 
-Two approaches currently exist in the codebase:
+This layer deifnes the hardware reality and must stay minimal and hardware-accurate
 
-- Raw pointer-based register access (legacy / CubeIDE style)
-- Typed struct-based register abstraction (current direction)
+### 3. Driver Layer (In Progress)
 
-### 3. Driver Layer (Planned/Starting Next)
-- GPIO driver API
-  - GPIO_WritePin()
-  - GPIO_ReadPin()
-  - GPIO_TogglePin()
-- Future: GPIO_Init()
+Current GPIO driver API:
+- GPIO_periClockControl()_
+- GPIO_WritePin()
+- GPIO_ReadPin()
+- GPIO_TogglePin()
+- GPIO_Init()
 
-### 4. Application Layer
-- Access control logic (future)
+Design goal:
+- Hide register manipulation behind simple API
+- Keep implementation minimal and explicit
+- Avoid HAL-style complexity
+
+### 4. Application Layer (Future)
+- Access control logic
 - Keypad scanning logic (to be migrated from CubeIDE code)
 - PIN validation
 - Lockout mechanism
@@ -105,34 +110,61 @@ Two approaches currently exist in the codebase:
 - [x] Execution reaches `main()`
 - [x] GPIO register struct abstraction introduced
 - [x] GDB-based register inspecton working
+- [x] First GPIO driver functions implemented
 
 ---
 
 ## Next Step (CURRENT FOCUS)
+### Keypad Driver Integration (Application Layer Start)
 
-### GPIO Platform Layer Completion
-- Define complete GPIO register mapping (GPIOA, GPIOB, ...)
-- Validate GPIO_RegDef_t against STM32F407 reference manual
-- Ensure correct volatile usage for all registers
-- Clean separation between:
-  - raw register access
-  - future GPIO driver API
-### Preparation for Driver Layer
-- Replace CubeIDE-style register code with structured GPIO API
-- Prepare migration path for keypad driver integration
+GPIO driver layer is considered functionally complete for basic output/input use cases.
+
+Next milestone focuses on migrating from LED test to real input handling:
+
+- Port CubeIDE keypad scanning code into current architecture
+- Implement 4x4 keypad scanning using GPIO_ReadPin / GPIO_WritePin
+- Define keypad matrix mapping (rows / columns)
+- Add basic debounce handling (simple delay-based approach)
+- Validate correct key detection via GDB / simple output
+
+### GPIO Layer Status
+GPIO driver is stable for:
+- Clock control
+  - Basic output (LED control)
+  - Basic input read
+- No further GPIO abstraction changes planned at this stage
+
+## Preparation for Application Layer
+- Remove remaining raw register access from keypad-related logic (future step)
+- Replace CubeIDE-style scanning with GPIO driver API
+- Define keypad module interface (Keypad_Init / Keypad_Scan)
+- Prepare structure for access control logic (PIN entry system)
+
+## Design Focus (Shifted)
+- GPIO layer is now treated as stable platform abstraction
+- Focus shifts to input handling + system logic
+- Keep driver API unchanged unless hardware requirement forces it
 
 ---
 
-## Design Principles
+## Build Workflow Reminder
 
-- Prefer register-level clarity over abstraction
-- Keep drivers minimal and explicit
-- Avoid hidden initialization magic
-- Debug via GDB/register inspection, not prints (initially)
-- Each layer must be testable independently
-- Platform layer defines hardware reality, drivers consume it
+Build only:
+```bash
+cmake --build build
+```
 
----
+Reconfigure (if CMakeLists changed):
+```bash
+cmake -S . -B build
+cmake --build build
+```
+
+Flash without GDB:
+```bash
+openocd -f interface/stlink.cfg -f target/stm32f4x.cfg \
+    -c "program build/stm32f407_access_control.elf verify reset exit"
+```
 
 ## Debug Workflow Reminder
 
