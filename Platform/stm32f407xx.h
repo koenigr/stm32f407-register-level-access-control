@@ -15,8 +15,8 @@
 #define GPIOJ_BASE 0x40022400
 #define GPIOK_BASE 0x40022800
 
-// some macros
-#define ADDR_REG_AHB1ENR 	( (RCC_AHB1ENR_t*)0x40023830 )
+#define RCC_BASE   0x40023800
+#define RCC ((RCC_RegDef_t *)RCC_BASE)
 
 #define CLOCK_ENABLE 		( 1 )
 #define MODE_CONF_OUTPUT	( 1 )
@@ -100,5 +100,23 @@ typedef struct {
 	uint32_t none :16;
 
 } GPIOx_ODR_t;
+
+
+// Reference Manual 6.3.26
+// RCC register map
+typedef struct {
+	volatile uint32_t CR;
+	volatile uint32_t PLLCFGR;
+	volatile uint32_t CFGR;
+	volatile uint32_t CIR;
+	volatile uint32_t AHB1RSTR;
+	volatile uint32_t AHB2RSTR;
+	volatile uint32_t AHB3RSTR;
+	uint32_t RESERVED0;
+	volatile uint32_t APB1RSTR;
+	volatile uint32_t APB2RSTR;
+	uint32_t RESERVED1[2];
+	volatile uint32_t AHB1ENR;
+} RCC_RegDef_t;
 
 #endif /* STM32F407XX_H_ */
