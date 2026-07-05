@@ -18,17 +18,14 @@
 #define RCC_BASE   0x40023800
 #define RCC ((RCC_RegDef_t *)RCC_BASE)
 
-#define CLOCK_ENABLE 		( 1 )
-#define MODE_CONF_OUTPUT	( 1 )
-
-#define PIN_STATE_HIGH		( 1 )
-#define PIN_STATE_LOW		( 0 )
+#define ENABLE 		( 1 )
+#define DISABLE		( 0 )
 
 #define DELAY_COUNT			( 300000UL )
 
 // Reference Manual 6.3.10
 // RCC AHB1 peripheral clock register (RCC_AHB1ENR)
-typedef struct {
+/*typedef struct {
 
 	uint32_t gpioa_en	:1;
 	uint32_t gpiob_en	:1;
@@ -57,7 +54,7 @@ typedef struct {
 	uint32_t otghsulpi_en :1;
 	uint32_t reserved_6	:1;
 
-} RCC_AHB1ENR_t;
+} RCC_AHB1ENR_t;*/
 
 // Reference Manual 8.4.1
 // GPIO port mode register (GPIOx_MODER) (x=A...i/j/K)

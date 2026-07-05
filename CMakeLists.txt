@@ -10,6 +10,7 @@ set(CMAKE_C_STANDARD 11)
 add_executable(${PROJECT_NAME}
     Core/main.c
     Startup/startup_stm32f407xx.s
+    Platform/stm32f407xx_gpio.c
 )
 
 target_include_directories(${PROJECT_NAME}

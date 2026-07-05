@@ -5,18 +5,14 @@
 int main(void)
 {
 
-	RCC->AHB1ENR |= (1 << 3);
+	GPIO_PeriClockControl(GPIOD, ENABLE);
 
-	GPIOD->MODER &= ~(0x3 << (12 * 2));
-	GPIOD->MODER |=  (0x1 << (12 * 2));
+	GPIO_Init(GPIOD, 12);
 
 	while(1) {
-		GPIOD->ODR |= (1 << 12);
 
+		GPIO_TogglePin(GPIOD, 12);
 		for(uint32_t i = 0; i < DELAY_COUNT; i++);
 
-		GPIOD->ODR &= ~(1 << 12);
-
-		for(uint32_t i = 0; i < DELAY_COUNT; i++);
 	}
 }

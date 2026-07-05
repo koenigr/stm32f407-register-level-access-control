@@ -1,5 +1,8 @@
-// void GPIO_Init(...);
-// void GPIO_WritePin(...);
+#ifndef STM32F407XX_GPIO_H_
+#define STM32F407XX_GPIO_H_
+
+#include <stdint.h>
+#include "stm32f407xx.h"
 
 typedef struct {
 	volatile uint32_t MODER;
@@ -22,3 +25,11 @@ typedef struct {
 #define GPIOI ((GPIO_RegDef_t *)GPIOI_BASE)
 #define GPIOJ ((GPIO_RegDef_t *)GPIOJ_BASE)
 #define GPIOK ((GPIO_RegDef_t *)GPIOK_BASE)
+
+void GPIO_PeriClockControl(GPIO_RegDef_t *GPIOx, uint8_t Enable);
+void GPIO_Init(GPIO_RegDef_t *GPIOx, uint8_t PinNumber);
+uint8_t GPIO_ReadPin(GPIO_RegDef_t *GPIOx, uint8_t PinNumber);
+void GPIO_WritePin(GPIO_RegDef_t *GPIOx, uint8_t PinNumber, uint8_t Value);
+void GPIO_TogglePin(GPIO_RegDef_t *GPIOx, uint8_t PinNumber);
+
+#endif /* STM32F407XX_GPIO_H_ */
