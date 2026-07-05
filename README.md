@@ -72,6 +72,6 @@ continue
 - [x] Linker script
 - [x] CMake build system
 - [x] Flash and debug with ST-LINK/OpenOCD
-- [ ] Register-level GPIO driver
+- [x] Register-level GPIO driver
 - [ ] Matrix keypad driver
 - [ ] Access control application
