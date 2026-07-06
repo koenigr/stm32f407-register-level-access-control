@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "keypad.h"
+#include "stm32f407xx.h"
+#include "stm32f407xx_gpio.h"
 
 void delay(void) {
 	for(uint32_t i = 0; i < 300000; i++);
@@ -10,16 +12,24 @@ void delay(void) {
 uint32_t volatile *const pGPIODModeReg = (uint32_t*)(0x40020C00);
 uint32_t volatile *const pInPutDataReg = (uint32_t*)(0x40020C00+0x10);
 uint32_t volatile *const pOutPutDataReg = (uint32_t*)(0x40020C00+0x14);
-uint32_t volatile *const pClockCtrlReg = (uint32_t*)(0x40023800+0x30);
 uint32_t volatile *const pPullupDownReg = (uint32_t*)(0x40020C00+0x0C);
+
+static const char keypad[4][4] = {
+	{'1','2','3','A'},
+	{'4','5','6','B'},
+	{'7','8','9','C'},
+	{'*','0','#','D'},
+};
 
 void Keypad_Init(void) {
 	//1. Enable the peripheral clock of GPIOD peripheral
-	*pClockCtrlReg |= ( 1 << 3 ); // -> GPIO_periClockControl(...)
+	GPIO_periClockControl(GPIOOD, ENABLE);
 
 	//2. Configure PD0, PD1, PD2, PD3 as output (rows)
-	*pGPIODModeReg &= ~(0xFF); // clear // --> GPIO_Init(...)
-	*pGPIODModeReg |= 0x55; // set  --> GPIO_Init(...)
+	GPIO_Init(GPIOD, 0);
+	GPIO_Init(GPIOD, 1);
+	GPIO_Init(GPIOD, 2);
+	GPIO_Init(GPIOD, 3);
 
 	//3. configure PD8, PD9, PD10, PD11 as input (columns)
 	*pGPIODModeReg &= ~(0xFF << 16);  --> GPIO_Init(...)

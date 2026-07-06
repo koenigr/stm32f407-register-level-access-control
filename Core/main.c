@@ -16,3 +16,19 @@ int main(void)
 
 	}
 }
+
+/*
+int main(void)
+{
+    Keypad_Init();
+
+    while(1)
+    {
+        char key = Keypad_Scan();
+
+        if(key)
+        {
+            // Debug
+        }
+    }
+}*/
