@@ -1,10 +1,9 @@
 #include <stdint.h>
-#include <stdio.h>
 #include "keypad.h"
 #include "stm32f407xx.h"
 #include "stm32f407xx_gpio.h"
 
-void delay(void) {
+static void delay(void) {
 	for(uint32_t i = 0; i < 300000; i++);
 }
 
@@ -55,6 +54,7 @@ char Keypad_Scan(void) {
 			if(GPIO_ReadPin(GPIOD, column + 8) == 0) {
 				// Key is pressed
 				delay();
+				while (GPIO_ReadPin(GPIOD, column + 8) == 0){}
 				return keypad[row][column];
 			}
 		}
