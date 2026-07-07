@@ -23,7 +23,7 @@ void GPIO_InitOutput(GPIO_RegDef_t *GPIOx, uint8_t PinNumber) {
 }
 
 void GPIO_InitInput(GPIO_RegDef_t *GPIOx, uint8_t PinNumber) {
-
+	GPIOx->MODER &= ~(3U << (PinNumber * 2));
 }
 
 void GPIO_EnablePullUp(GPIO_RegDef_t *GPIOx, uint8_t PinNumber) {

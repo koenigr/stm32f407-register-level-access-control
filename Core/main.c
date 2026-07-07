@@ -7,7 +7,7 @@ int main(void)
 
 	GPIO_PeriClockControl(GPIOD, ENABLE);
 
-	GPIO_Init(GPIOD, 12);
+	GPIO_InitOutput(GPIOD, 12);
 
 	while(1) {
 
@@ -19,7 +19,7 @@ int main(void)
 
 /*
 int main(void)
-{
+{_init(GPIOD, )
     Keypad_Init();
 
     while(1)
