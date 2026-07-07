@@ -9,13 +9,26 @@ It is implemented completely without:
 - STM32CubeMX
 - CMSIS drivers (except startup/linker basics)
 
-The goal is to build a register-level embedded system from scratch, including GPIO drivers, keypad input, and simple access control logic.
+The goal is to build a register-level embedded system from scratch, including
+- startup code
+- GPIO drivers
+- keypad input handling
+- access control application logic
 
 ---
 
 ## Current State (IMPORTANT)
 
-The project is fully operational at bare-metal level and currently transitioning from raw register access to a structured GPIO abstraction layer.
+The project is fully operational at bare-metal level.
+
+The low-level hardware abstraction is stable, and the project has moved from GPIO development into driver and application-layer development.
+
+Current working features:
+- MCU startup
+- GPIO abstraction
+- LED output test
+- GPIO input handling
+- 4x4 matrix keypad scanning
 
 ### Toolchain & Build
 - CMake-based build system (arm-none-eabi-gcc)
@@ -46,7 +59,7 @@ The project is fully operational at bare-metal level and currently transitioning
 
 ---
 
-## Architecture (Current + Evolving)
+## Architecture
 
 The project is structured in layers:
 
@@ -54,6 +67,8 @@ The project is structured in layers:
 - Reset handler
 - Vector table
 - Linker script
+- Memory initialization
+
 
 ### 2. Platform Layer (Low-Level Hardware Access)
 Responsible for direct hardware mapping.
@@ -64,21 +79,38 @@ Responsible for direct hardware mapping.
 
 This layer deifnes the hardware reality and must stay minimal and hardware-accurate
 
-### 3. Driver Layer (In Progress)
+### 3. Driver Layer
 
 Current GPIO driver API:
 - GPIO_periClockControl()_
 - GPIO_WritePin()
 - GPIO_ReadPin()
 - GPIO_TogglePin()
-- GPIO_Init()
+- GPIO_InitOutput()
+- GPIO_InitInput()
+- GPIO_EnablePullUp()
 
-Design goal:
-- Hide register manipulation behind simple API
-- Keep implementation minimal and explicit
-- Avoid HAL-style complexity
+### 4. Keypad Driver
+Current Interface:
+- void Keypad_Init(void)
+- char Keypad_Scan(void)
 
-### 4. Application Layer (Future)
+Features:
+- 4x4 matrix scanning
+- Row output control
+- Column input reading
+- Pull-up configuration
+- Simple debounce handling
+- Key mapping:
+```text
+1 2 3 A
+4 5 6 B
+7 8 9 C
+* 0 # D
+```
+
+
+### 5. Application Layer (Future)
 - Access control logic
 - Keypad scanning logic (to be migrated from CubeIDE code)
 - PIN validation
