@@ -11,12 +11,14 @@ add_executable(${PROJECT_NAME}
     Core/main.c
     Startup/startup_stm32f407xx.s
     Platform/stm32f407xx_gpio.c
+    Drivers/keypad.c
 )
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         Core
         Platform
+        Drivers
 )
 
 target_compile_options(${PROJECT_NAME}

@@ -17,10 +17,20 @@ void GPIO_PeriClockControl(GPIO_RegDef_t *GPIOx, uint8_t Enable) {
 
 }
 
-void GPIO_Init(GPIO_RegDef_t *GPIOx, uint8_t PinNumber) {
+void GPIO_InitOutput(GPIO_RegDef_t *GPIOx, uint8_t PinNumber) {
 	GPIOx->MODER &= ~(3U << (PinNumber * 2));
 	GPIOx->MODER |=  (1U << (PinNumber * 2));
 }
+
+void GPIO_InitInput(GPIO_RegDef_t *GPIOx, uint8_t PinNumber) {
+	GPIOx->MODER &= ~(3U << (PinNumber * 2));
+}
+
+void GPIO_EnablePullUp(GPIO_RegDef_t *GPIOx, uint8_t PinNumber) {
+	GPIOx->PUPDR &= ~(3U << (PinNumber * 2));
+	GPIOx->PUPDR |=  (1U << (PinNumber * 2));
+}
+
 uint8_t GPIO_ReadPin(GPIO_RegDef_t *GPIOx, uint8_t PinNumber) {
 	return (uint8_t)((GPIOx->IDR >> PinNumber) & 1U);
 }

@@ -27,7 +27,11 @@ typedef struct {
 #define GPIOK ((GPIO_RegDef_t *)GPIOK_BASE)
 
 void GPIO_PeriClockControl(GPIO_RegDef_t *GPIOx, uint8_t Enable);
-void GPIO_Init(GPIO_RegDef_t *GPIOx, uint8_t PinNumber);
+
+void GPIO_InitOutput(GPIO_RegDef_t *GPIOx, uint8_t pin);
+void GPIO_InitInput(GPIO_RegDef_t *GPIOx, uint8_t pin);
+void GPIO_EnablePullUp(GPIO_RegDef_t *GPIOx, uint8_t pin);
+
 uint8_t GPIO_ReadPin(GPIO_RegDef_t *GPIOx, uint8_t PinNumber);
 void GPIO_WritePin(GPIO_RegDef_t *GPIOx, uint8_t PinNumber, uint8_t Value);
 void GPIO_TogglePin(GPIO_RegDef_t *GPIOx, uint8_t PinNumber);
