@@ -26,17 +26,22 @@ void Keypad_Init(void) {
 	GPIO_periClockControl(GPIOOD, ENABLE);
 
 	//2. Configure PD0, PD1, PD2, PD3 as output (rows)
-	GPIO_Init(GPIOD, 0);
-	GPIO_Init(GPIOD, 1);
-	GPIO_Init(GPIOD, 2);
-	GPIO_Init(GPIOD, 3);
+	GPIO_InitOutput(GPIOD, 0);
+	GPIO_InitOutput(GPIOD, 1);
+	GPIO_InitOutput(GPIOD, 2);
+	GPIO_InitOutput(GPIOD, 3);
 
 	//3. configure PD8, PD9, PD10, PD11 as input (columns)
-	*pGPIODModeReg &= ~(0xFF << 16);  --> GPIO_Init(...)
+	GPIO_InitInput(GPIOD, 8);
+	GPIO_InitInput(GPIOD, 9);
+	GPIO_InitInput(GPIOD, 10);
+	GPIO_InitInput(GPIOD, 11);
 
 	//4. Enable internal pull-up resistors for PD8, PD9, PD10, PD11
-	*pPullupDownReg &= ~(0xFF << 16);  --> GPIO_Init(...)
-	*pPullupDownReg |=  (0x55 << 16);  --> GPIO_Init(...)
+	GPIO_EnablePullUp(GPIOD, 8);
+	GPIO_EnablePullUp(GPIOD, 9);
+	GPIO_EnablePullUp(GPIOD, 10);
+	GPIO_EnablePullUp(GPIOD, 11);
 }
 
 char Keypad_Scan(void) {
