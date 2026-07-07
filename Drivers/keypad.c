@@ -55,7 +55,7 @@ char Keypad_Scan(void) {
 				// Key is pressed
 				delay();
 				while (GPIO_ReadPin(GPIOD, column + 8) == 0){}
-				return keypad[row][column];
+				return keypad[column][row];
 			}
 		}
 	}
