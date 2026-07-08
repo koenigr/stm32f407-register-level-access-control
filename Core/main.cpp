@@ -1,36 +1,20 @@
-#include <stdint.h>
-#include "stm32f407xx.h"
-#include "stm32f407xx_gpio.h"
-#include "keypad.h"
+#include "KeypadAdapter.hpp"
+#include "LockOutputAdapter.hpp"
 
-
-int main(void) {
-
-	GPIO_PeriClockControl(GPIOD, ENABLE);
-
-	GPIO_InitOutput(GPIOD, 12); // LED
-
-	Keypad_Init();
-
-	while(1) {
-		char key = Keypad_Scan();
-
-		if(key) {
-			volatile char pressed_key = key;
-			GPIO_TogglePin(GPIOD, 12);
-		}
-	}
-}
-
-/*int main()
+int main()
 {
     KeypadAdapter keypad;
     LockOutputAdapter lock;
 
-    AccessController controller(keypad, lock);
+    lock.Unlock();
 
-    while (true)
+    while(true)
     {
-        controller.Update();
+        volatile char pressed_key = keypad.Scan();
+
+        if(key == '#') {
+            lock.Lock();
+        }
+
     }
-}*/
+}

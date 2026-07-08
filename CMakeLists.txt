@@ -17,6 +17,9 @@ add_executable(${PROJECT_NAME}
     Startup/startup_stm32f407xx.s
     Platform/stm32f407xx_gpio.c
     Drivers/keypad.c
+
+    App/Adapters/KeypadAdapter.cpp
+    App/Adapters/LockOutputAdapter.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -24,6 +27,9 @@ target_include_directories(${PROJECT_NAME}
         Core
         Platform
         Drivers
+        App
+        App/Interfaces
+        App/Adapters
 )
 
 target_compile_options(${PROJECT_NAME}
@@ -37,6 +43,8 @@ target_compile_options(${PROJECT_NAME}
     $<$<COMPILE_LANGUAGE:CXX>:
         -fno-exceptions
         -fno-rtti
+        -fno-unwind-tables
+        -fno-asynchronous-unwind-tables
     >
 )
 
@@ -46,4 +54,11 @@ target_link_options(${PROJECT_NAME}
         -mcpu=cortex-m4
         -mthumb
         -nostartfiles
+        -nostdlib
+)
+
+target_link_libraries(${PROJECT_NAME}
+    gcc
+    c
+    nosys
 )
