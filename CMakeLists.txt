@@ -2,13 +2,18 @@ cmake_minimum_required(VERSION 3.20)
 
 project(
     stm32f407_access_control
-    LANGUAGES C ASM
+    LANGUAGES C CXX ASM
 )
 
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(${PROJECT_NAME}
-    Core/main.c
+    Core/main.cpp
     Startup/startup_stm32f407xx.s
     Platform/stm32f407xx_gpio.c
     Drivers/keypad.c
@@ -29,6 +34,10 @@ target_compile_options(${PROJECT_NAME}
         -Wextra
         -g
         -O0
+    $<$<COMPILE_LANGUAGE:CXX>:
+        -fno-exceptions
+        -fno-rtti
+    >
 )
 
 target_link_options(${PROJECT_NAME}

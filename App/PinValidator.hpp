@@ -1,1 +1,1 @@
-bool Validate()
+bool Validate();

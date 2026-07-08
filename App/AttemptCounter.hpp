@@ -1,3 +1,3 @@
-Increment()
-Reset()
-LockedOut()
+counter.Increment();
+counter.Reset();
+counter.IsLockerOut();
