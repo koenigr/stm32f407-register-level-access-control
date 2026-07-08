@@ -12,7 +12,7 @@ int main()
     {
         volatile char pressed_key = keypad.Scan();
 
-        if(key == '#') {
+        if(pressed_key == '#') {
             lock.Lock();
         }
 
