@@ -1,6 +1,10 @@
 #ifndef STM32F407XX_H_
 #define STM32F407XX_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 #define GPIOA_BASE 0x40020000
@@ -115,5 +119,9 @@ typedef struct {
 	uint32_t RESERVED1[2];
 	volatile uint32_t AHB1ENR;
 } RCC_RegDef_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* STM32F407XX_H_ */
