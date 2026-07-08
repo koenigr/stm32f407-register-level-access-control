@@ -21,3 +21,16 @@ int main(void) {
 		}
 	}
 }
+
+/*int main()
+{
+    KeypadAdapter keypad;
+    LockOutputAdapter lock;
+
+    AccessController controller(keypad, lock);
+
+    while (true)
+    {
+        controller.Update();
+    }
+}*/
