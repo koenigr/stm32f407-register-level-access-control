@@ -1,3 +1,0 @@
-/home/koenigr/git/stm32f407-register-level-access-control/CMakeFiles/stm32f407_access_control.dir
-/home/koenigr/git/stm32f407-register-level-access-control/CMakeFiles/edit_cache.dir
-/home/koenigr/git/stm32f407-register-level-access-control/CMakeFiles/rebuild_cache.dir
