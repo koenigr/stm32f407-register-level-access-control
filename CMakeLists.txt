@@ -20,6 +20,8 @@ add_executable(${PROJECT_NAME}
 
     App/Adapters/KeypadAdapter.cpp
     App/Adapters/LockOutputAdapter.cpp
+    App/PinValidator.cpp
+    App/AttemptCounter.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
