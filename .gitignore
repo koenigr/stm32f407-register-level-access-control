@@ -1,5 +1,7 @@
 # CMake - generated output
 build/
+build-firmware/
+build-tests/
 
 # Prerequisites
 *.d

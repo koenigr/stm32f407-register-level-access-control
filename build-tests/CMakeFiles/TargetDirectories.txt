@@ -1,5 +1,0 @@
-/home/koenigr/git/stm32f407-register-level-access-control/build-tests/CMakeFiles/edit_cache.dir
-/home/koenigr/git/stm32f407-register-level-access-control/build-tests/CMakeFiles/rebuild_cache.dir
-/home/koenigr/git/stm32f407-register-level-access-control/build-tests/Tests/CMakeFiles/unit_tests.dir
-/home/koenigr/git/stm32f407-register-level-access-control/build-tests/Tests/CMakeFiles/edit_cache.dir
-/home/koenigr/git/stm32f407-register-level-access-control/build-tests/Tests/CMakeFiles/rebuild_cache.dir
