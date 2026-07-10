@@ -12,13 +12,19 @@ Bare-metal STM32F407 access control system implemented without HAL or CubeMX.
 - OpenOCD
 - gdb-multiarch (Ubuntu) or arm-none-eabi-gdb
 
-## Build
+## Build Firmware
 ```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=cmake/arm-gcc-toolchain.cmake
+cmake -B build-firmware -DCMAKE_TOOLCHAIN_FILE=cmake/arm-gcc-toolchain.cmake
 or
-cmake -S . -B build
+cmake -S . -B build-firmware
 
-cmake --build build
+cmake --build build-firmware
+```
+
+## Build Tests
+````bash
+cmake -S . -B build-tests -D BUILD_TESTS=ON
+cmake --build --build-tests
 ```
 
 ## Flash and Debug
