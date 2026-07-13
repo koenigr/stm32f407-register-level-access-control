@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ILockOutput.hpp"
+#include "Interfaces/ILockOutput.hpp"
 
 class MockLockOutput : public ILockOutput {
 public:
