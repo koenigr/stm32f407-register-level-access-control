@@ -5,6 +5,6 @@ public:
 	virtual void Unlock() = 0;
 
 protected:
-	~ILockOutput() = default;
+	virtual ~ILockOutput() = default;
 
 };
