@@ -29,6 +29,7 @@ else()
         App/Adapters/LockOutputAdapter.cpp
         App/PinValidator.cpp
         App/AttemptCounter.cpp
+        App/AccessController.cpp
     )
 
     target_include_directories(${PROJECT_NAME}
