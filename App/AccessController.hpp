@@ -4,6 +4,7 @@
 #include "Interfaces/ILockOutput.hpp"
 #include "PinValidator.hpp"
 #include "AttemptCounter.hpp"
+#include "LockState.hpp"
 
 class AccessController {
 public:
@@ -24,4 +25,6 @@ private:
 
 	char pin_[5];
 	unsigned int length_;
+
+	LockState state_;
 };
