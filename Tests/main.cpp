@@ -8,7 +8,7 @@ void RunAccessControllerLockoutTest();
 int main()
 {
     RunPinValidatorTests();
-    // RunAttemptCounterTests();
+    RunAttemptCounterTests();
     RunAccessControllerTests();
     RunAccessControllerLockoutTest();
 
