@@ -13,4 +13,4 @@ public:
 	void Unlock() override {
 		unlocked = true;
 	}
-}
+};
