@@ -44,6 +44,12 @@ void AccessController::AppendDigit(char digit) {
 }
 
 void AccessController::ValidatePin() {
+
+	if (length_ != 4) {
+		ClearPin();
+		return;
+	}
+
 	pin_[length_] = '\0';
 
 	if (validator_.Validate(pin_)) {

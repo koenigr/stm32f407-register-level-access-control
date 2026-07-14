@@ -104,3 +104,23 @@ void RunAccessControllerLockoutTest() {
 	// should stay locked
 	assert(lock.unlocked == false);
 }
+
+void RunAccessControllerShortPinTest() {
+	MockKeypad keypad;
+	MockLockOutput lock;
+
+	AccessController controller(keypad, lock);
+
+
+	keypad.nextKey = '1';
+	controller.Update();
+
+	keypad.nextKey = '2';
+	controller.Update();
+
+	keypad.nextKey = '#';
+	controller.Update();
+
+
+	assert(lock.unlocked == false);
+}
