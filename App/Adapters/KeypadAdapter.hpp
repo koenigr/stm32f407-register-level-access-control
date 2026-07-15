@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Interfaces/IKeypad.hpp"
+#include "IKeypad.hpp"
 
 class KeypadAdapter : public IKeypad {
 

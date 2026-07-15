@@ -1,20 +1,23 @@
+#include "AccessController.hpp"
+
 #include "KeypadAdapter.hpp"
 #include "LockOutputAdapter.hpp"
 
-int main()
-{
-    KeypadAdapter keypad;
-    LockOutputAdapter lock;
+int main() {
 
-    lock.Unlock();
+	KeypadAdapter keypad;
+	LockOutputAdapter lock;
 
-    while(true)
-    {
-        volatile char pressed_key = keypad.Scan();
+	AccessController controller(
+		keypad,
+		lock
+	);
 
-        if(pressed_key == '#') {
-            lock.Lock();
-        }
+	lock.Unlock();
 
-    }
+	while(true) {
+		controller.Update();
+	}
+
+	return 0;
 }

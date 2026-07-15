@@ -94,7 +94,7 @@ gdb:
 	gdb-multiarch $(ELF) -ex "target remote localhost:3333" -ex "monitor reset halt"
 
 openocd:
-	$(OPENOCD) -f $(INTERFACE_CFG)-f $(TARGET_CFG)
+	$(OPENOCD) -f $(INTERFACE_CFG) -f $(TARGET_CFG)
 
 size:
 	arm-none-eabi-size $(ELF)

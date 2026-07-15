@@ -30,6 +30,8 @@ else()
         App/PinValidator.cpp
         App/AttemptCounter.cpp
         App/AccessController.cpp
+
+        App/cpp_runtime.cpp
     )
 
     target_include_directories(${PROJECT_NAME}
