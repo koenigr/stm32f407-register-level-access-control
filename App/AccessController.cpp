@@ -8,7 +8,7 @@ AccessController::AccessController(IKeypad& keypad, ILockOutput& lock)
 	  length_(0),
 	  state_(LockState::Locked)
 	  {
-	  	lock.Lock();
+	  	lock_.Lock();
 	  }
 
 
