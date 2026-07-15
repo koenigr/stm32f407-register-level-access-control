@@ -5,6 +5,9 @@
 class KeypadAdapter : public IKeypad {
 
 public:
+
+	KeypadAdapter();
+
 	char Scan() override;
 
 };
