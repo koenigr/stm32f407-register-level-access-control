@@ -11,47 +11,63 @@ Bare-metal STM32F407 access control system implemented without HAL or CubeMX.
 - ST-LINK
 - OpenOCD
 - gdb-multiarch (Ubuntu) or arm-none-eabi-gdb
+- GNU Make
 
-## Build Firmware
+## Build
+
+The project provides a Makefile as the main entry point.
+
+Show available commands:
 ```bash
-cmake -B build-firmware -DCMAKE_TOOLCHAIN_FILE=cmake/arm-gcc-toolchain.cmake
-or
-cmake -S . -B build-firmware
-
-cmake --build build-firmware
+make help
 ```
 
-## Build Tests
-````bash
-cmake -S . -B build-tests -D BUILD_TESTS=ON
-cmake --build --build-tests
+### Build Firmware
+```bash
+make firmware
+```
+
+### Build and run host tests
+```bash
+make tests
+```
+
+### Rebuild firmware
+```bash
+make rebuild-firmware
+```
+
+### Rebuild tests
+```bash
+make rebuild-tests
+```
+
+### Clean build artifact
+```bash
+make clean
+```
+
+### Remove all build directories
+```bash
+make clean-all
 ```
 
 ## Flash and Debug
 
-Start OpenOCD:
+### Flash firmware
 ```bash
-openocd \
-  -f /usr/share/openocd/scripts/interface/stlink.cfg \
-  -f /usr/share/openocd/scripts/target/stm32f4x.cfg
+make flash
 ```
 
-In a second terminal, start GDB:
-
+### Start OpenOCD
 ```bash
-gdb-multiarch build/stm32f407_access_control
+make openocd
 ```
 
-Inside GDB:
-
-```gdb
-target remote localhost:3333
-load
-break main
-monitor reset halt
-continue
+### Start GDB
+```bash
+make gdb
 ```
-
 
 ## Features
 - Register-level GPIO programming
@@ -59,8 +75,30 @@ continue
 - Matrix keypad driver
 - PIN authentication
 - Lockout protection
-- Admin reset button
-- No HAL / No CubeMX
+- LED Feedback
+  - Green LED: valid PIN
+  - Red LED: invalid PIN
+  - Red blinking LED: lockout state
+- Host-based unit tests for application logic
+
+## Architecture
+
+The project separates application logic from hardware-specific code.
+
+### Application layer
+- AccessController
+- PinValidator
+- AttemptCounter
+
+### Hardware interfaces
+- IKeypad
+- ILedOutput
+
+### Hardware adapters
+- KeypadAdapter
+- LedOutputAdapter
+
+The application layer does not directly access STM32 registers.
 
 ## Concepts Demonstrated
 - Memory-Mapped I/O
@@ -77,7 +115,15 @@ continue
 - [x] Custom startup code
 - [x] Linker script
 - [x] CMake build system
+- [x] Makefile build workflow
 - [x] Flash and debug with ST-LINK/OpenOCD
 - [x] Register-level GPIO driver
 - [x] Matrix keypad driver
-- [ ] Access control application
+- [x] Access control application
+- [x] Hardware validation on STM32F407
+
+## Roadmap
+- [ ] Complete unit tests with mocks
+- [ ] Create GDB debug scripts
+- [ ] Implement SWO debug output
+- [ ] Prepare v1.0 release
