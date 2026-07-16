@@ -1,12 +1,12 @@
 #include "AccessController.hpp"
 
 #include "KeypadAdapter.hpp"
-#include "LockOutputAdapter.hpp"
+#include "LedOutputAdapter.hpp"
 
 int main() {
 
 	KeypadAdapter keypad;
-	LockOutputAdapter lock;
+	LedOutputAdapter lock;
 
 	AccessController controller(
 		keypad,

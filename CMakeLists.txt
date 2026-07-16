@@ -26,7 +26,7 @@ else()
         Drivers/keypad.c
 
         App/Adapters/KeypadAdapter.cpp
-        App/Adapters/LockOutputAdapter.cpp
+        App/Adapters/LedOutputAdapter.cpp
         App/PinValidator.cpp
         App/AttemptCounter.cpp
         App/AccessController.cpp
