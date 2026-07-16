@@ -19,10 +19,25 @@ void LedOutputAdapter::Green() {
 }
 
 void LedOutputAdapter::BlinkRed() {
-	// todo
+	blinking_ = true;
 }
 
 void LedOutputAdapter::Off() {
 	GPIO_WritePin(GPIOD, 12, 0);
 	GPIO_WritePin(GPIOD, 14, 0);
+}
+
+void LedOutputAdapter::Update() {
+	if (!blinking_) return;
+
+	counter_++;
+
+	if (counter_ > 50000) {
+		counter_ = 0;
+
+		ledState_ = !ledState_;
+
+		GPIO_WritePin(GPIOD, 14, ledState_);
+		GPIO_WritePin(GPIOD, 12, 0);
+	}
 }

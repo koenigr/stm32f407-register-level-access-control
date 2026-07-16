@@ -1,14 +1,14 @@
 #pragma once
 
 #include "Interfaces/IKeypad.hpp"
-#include "Interfaces/ILockOutput.hpp"
+#include "Interfaces/ILedOutput.hpp"
 #include "PinValidator.hpp"
 #include "AttemptCounter.hpp"
 #include "LockState.hpp"
 
 class AccessController {
 public:
-	AccessController(IKeypad& keypad, ILockOutput& lock);
+	AccessController(IKeypad& keypad, ILedOutput& leds);
 
 	void Update();
 
@@ -18,7 +18,7 @@ private:
 	void ClearPin();
 
 	IKeypad& keypad_;
-	ILockOutput& lock_;
+	ILedOutput& leds_;
 
 	PinValidator validator_;
 	AttemptCounter attempts_;

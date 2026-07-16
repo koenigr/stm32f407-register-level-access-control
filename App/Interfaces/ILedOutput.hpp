@@ -9,4 +9,4 @@ public:
 
 protected:
 	virtual ~ILedOutput() = default;
-}
+};

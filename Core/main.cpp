@@ -6,17 +6,18 @@
 int main() {
 
 	KeypadAdapter keypad;
-	LedOutputAdapter lock;
+	LedOutputAdapter leds;
 
 	AccessController controller(
 		keypad,
-		lock
+		leds
 	);
 
-	lock.Unlock();
+	leds.Red();
 
 	while(true) {
 		controller.Update();
+		leds.Update();
 	}
 
 	return 0;

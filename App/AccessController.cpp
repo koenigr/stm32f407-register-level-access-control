@@ -1,14 +1,14 @@
 #include "AccessController.hpp"
 
 
-AccessController::AccessController(IKeypad& keypad, ILockOutput& lock)
+AccessController::AccessController(IKeypad& keypad, ILedOutput& leds)
 	: keypad_(keypad),
-	  lock_(lock),
+	  leds_(leds),
 	  pin_{},
 	  length_(0),
 	  state_(LockState::Locked)
 	  {
-	  	lock_.Lock();
+	  	leds_.Red();
 	  }
 
 
@@ -16,8 +16,6 @@ void AccessController::Update() {
 
 	if (state_ == LockState::LockedOut) return;
 
-	if (attempts_.IsLockedOut()) return;
-	
 	char key = keypad_.Scan();
 
 	if (key == '\0')
@@ -53,14 +51,16 @@ void AccessController::ValidatePin() {
 	pin_[length_] = '\0';
 
 	if (validator_.Validate(pin_)) {
-		lock_.Unlock();
+		leds_.Green();
 		attempts_.Reset();
 		state_ = LockState::Unlocked;
 	} else {
+		leds_.Red();
 		attempts_.Increment();
 
 		if (attempts_.IsLockedOut()) {
 			state_ = LockState::LockedOut;
+			leds_.BlinkRed();
 		}
 	}
 

@@ -1,15 +1,15 @@
 #include "AccessController.hpp"
 
 #include "Mocks/MockKeypad.hpp"
-#include "Mocks/MockLockOutput.hpp"
+#include "Mocks/MockLedOutput.hpp"
 
 #include <cassert>
 
 void RunAccessControllerTests() {
 	MockKeypad keypad;
-	MockLockOutput lock;
+	MockLedOutput leds;
 
-	AccessController controller(keypad, lock);
+	AccessController controller(keypad, leds);
 
 	keypad.nextKey = '1';
 	controller.Update();
@@ -26,14 +26,16 @@ void RunAccessControllerTests() {
 	keypad.nextKey = '#';
 	controller.Update();
 
-	assert(lock.unlocked);
+	assert(leds.green);
+	assert(!leds.red);
+	assert(!leds.blinkRed);
 }
 
 void RunAccessControllerLockoutTest() {
 	MockKeypad keypad;
-	MockLockOutput lock;
+	MockLedOutput leds;
 
-	AccessController controller(keypad, lock);
+	AccessController controller(keypad, leds);
 
 	//first wrong PIN 9999
 	keypad.nextKey = '9';
@@ -102,14 +104,14 @@ void RunAccessControllerLockoutTest() {
 
 
 	// should stay locked
-	assert(lock.unlocked == false);
+	assert(leds.blinkRed);
 }
 
 void RunAccessControllerShortPinTest() {
 	MockKeypad keypad;
-	MockLockOutput lock;
+	MockLedOutput leds;
 
-	AccessController controller(keypad, lock);
+	AccessController controller(keypad, leds);
 
 
 	keypad.nextKey = '1';
@@ -122,5 +124,6 @@ void RunAccessControllerShortPinTest() {
 	controller.Update();
 
 
-	assert(lock.unlocked == false);
+	assert(!leds.green);
+	assert(!leds.blinkRed);
 }
