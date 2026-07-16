@@ -1,14 +1,16 @@
 #pragma once
 
-#include "ILockOutput.hpp"
+#include "ILedOutput.hpp"
 
-class LedOutputAdapter : public ILockOutput {
+class LedOutputAdapter : public ILedOutput {
 
 public:
 
 	LedOutputAdapter();
 
-	void Lock() override;
-	void Unlock() override;
+	void Green();
+	void Red();
+	void BlinkRed();
+	void Off();
 
 };
