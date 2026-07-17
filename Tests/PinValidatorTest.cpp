@@ -8,4 +8,5 @@ void RunPinValidatorTests()
 
 	assert(validator.Validate("1234"));
 	assert(!validator.Validate("0000"));
+	assert(!validator.Validate("12345"));
 }
