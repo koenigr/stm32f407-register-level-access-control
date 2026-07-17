@@ -82,3 +82,25 @@ void RunAccessControllerClearPinTest() {
 	assert(!ctx.leds.red);
 	assert(!ctx.leds.blinkRed);
 }
+
+void RunAccessControllerLockoutIgnoresInputTest() {
+	TestContext ctx;
+
+	ctx.EnterKeys("9999#9999#9999#");
+
+	// try correct PIN after lockout
+	ctx.EnterKeys("1234#");
+
+	assert(ctx.leds.blinkRed);
+	assert(!ctx.leds.green);
+}
+
+
+void RunAccessControllerInvalidKeysTest() {
+	TestContext ctx;
+
+	ctx.EnterKeys("AB*1234#");
+
+	assert(ctx.leds.green);
+	assert(!ctx.leds.red);
+}

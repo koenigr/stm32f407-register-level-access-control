@@ -9,6 +9,8 @@ void RunAccessControllerLockoutTest();
 void RunAccessControllerShortPinTest();
 void RunAccessControllerLongPinTest();
 void RunAccessControllerClearPinTest();
+void RunAccessControllerLockoutIgnoresInputTest();
+void RunAccessControllerInvalidKeysTest();
 
 int main()
 {
@@ -21,6 +23,8 @@ int main()
 	RunAccessControllerShortPinTest();
 	RunAccessControllerLongPinTest();
 	RunAccessControllerClearPinTest();
+	RunAccessControllerLockoutIgnoresInputTest();
+	RunAccessControllerInvalidKeysTest();
 
 	std::cout << "All tests passed\n";
 
