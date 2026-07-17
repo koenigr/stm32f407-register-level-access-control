@@ -1,18 +1,28 @@
 #include <iostream>
 
 void RunPinValidatorTests();
+
 void RunAttemptCounterTests();
+
 void RunAccessControllerTests();
 void RunAccessControllerLockoutTest();
+void RunAccessControllerShortPinTest();
+void RunAccessControllerLongPinTest();
+void RunAccessControllerClearPinTest();
 
 int main()
 {
-    RunPinValidatorTests();
-    RunAttemptCounterTests();
-    RunAccessControllerTests();
-    RunAccessControllerLockoutTest();
+	RunPinValidatorTests();
+	
+	RunAttemptCounterTests();
 
-    std::cout << "All tests passed\n";
+	RunAccessControllerTests();
+	RunAccessControllerLockoutTest();
+	RunAccessControllerShortPinTest();
+	RunAccessControllerLongPinTest();
+	RunAccessControllerClearPinTest();
 
-    return 0;
+	std::cout << "All tests passed\n";
+
+	return 0;
 }

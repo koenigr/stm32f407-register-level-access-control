@@ -127,3 +127,82 @@ void RunAccessControllerShortPinTest() {
 	assert(!leds.green);
 	assert(!leds.blinkRed);
 }
+
+void RunAccessControllerLongPinTest() {
+	MockKeypad keypad;
+	MockLedOutput leds;
+
+	AccessController controller(keypad, leds);
+
+
+	keypad.nextKey = '1';
+	controller.Update();
+
+	keypad.nextKey = '2';
+	controller.Update();
+
+	keypad.nextKey = '3';
+	controller.Update();
+
+	keypad.nextKey = '4';
+	controller.Update();
+
+	keypad.nextKey = '5';
+	controller.Update();
+
+	keypad.nextKey = '#';
+	controller.Update();
+
+	// the last number shall be ignored and only 1234 gets validated
+	assert(leds.green);
+	assert(!leds.red);
+	assert(!leds.blinkRed);
+}
+
+void RunAccessControllerClearPinTest() {
+	MockKeypad keypad;
+	MockLedOutput leds;
+
+	AccessController controller(keypad, leds);
+
+
+	keypad.nextKey = '9';
+	controller.Update();
+
+	keypad.nextKey = '9';
+	controller.Update();
+
+	keypad.nextKey = '9';
+	controller.Update();
+
+	keypad.nextKey = '9';
+	controller.Update();
+
+	keypad.nextKey = '#';
+	controller.Update();
+
+	assert(!leds.green);
+	assert(leds.red);
+	assert(!leds.blinkRed);
+
+	// The Pin-buffer shall get cleared
+
+	keypad.nextKey = '1';
+	controller.Update();
+
+	keypad.nextKey = '2';
+	controller.Update();
+
+	keypad.nextKey = '3';
+	controller.Update();
+
+	keypad.nextKey = '4';
+	controller.Update();
+
+	keypad.nextKey = '#';
+	controller.Update();
+
+	assert(leds.green);
+	assert(!leds.red);
+	assert(!leds.blinkRed);
+}
