@@ -5,204 +5,80 @@
 
 #include <cassert>
 
-void RunAccessControllerTests() {
+struct TestContext {
 	MockKeypad keypad;
 	MockLedOutput leds;
+	AccessController controller;
 
-	AccessController controller(keypad, leds);
+	TestContext()
+		: controller(keypad, leds)
+		{}
 
-	keypad.nextKey = '1';
-	controller.Update();
+	void EnterKeys(const char* keys) {
+		while (*keys) {
+			keypad.nextKey = *keys++;
+			controller.Update();
+		}
+	}
+};
 
-	keypad.nextKey = '2';
-	controller.Update();
+void RunAccessControllerTests() {
+	TestContext ctx;
 
-	keypad.nextKey = '3';
-	controller.Update();
+	ctx.EnterKeys("1234#");
 
-	keypad.nextKey = '4';
-	controller.Update();
-
-	keypad.nextKey = '#';
-	controller.Update();
-
-	assert(leds.green);
-	assert(!leds.red);
-	assert(!leds.blinkRed);
+	assert(ctx.leds.green);
+	assert(!ctx.leds.red);
+	assert(!ctx.leds.blinkRed);
 }
 
 void RunAccessControllerLockoutTest() {
-	MockKeypad keypad;
-	MockLedOutput leds;
+	TestContext ctx;
 
-	AccessController controller(keypad, leds);
-
-	//first wrong PIN 9999
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '#';
-	controller.Update();
-
-	//second wrong PIN 9999
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '#';
-	controller.Update();
-
-	//third wrong PIN 9999
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '#';
-	controller.Update();
-
+	// wrong pin
+	ctx.EnterKeys("9999#9999#9999#");
 
 	// correct PIN
-	keypad.nextKey = '1';
-	controller.Update();
-
-	keypad.nextKey = '2';
-	controller.Update();
-
-	keypad.nextKey = '3';
-	controller.Update();
-
-	keypad.nextKey = '4';
-	controller.Update();
-
-	keypad.nextKey = '#';
-	controller.Update();
-
+	ctx.EnterKeys("1234#");
 
 	// should stay locked
-	assert(leds.blinkRed);
+	assert(ctx.leds.blinkRed);
 }
 
 void RunAccessControllerShortPinTest() {
-	MockKeypad keypad;
-	MockLedOutput leds;
+	TestContext ctx;
 
-	AccessController controller(keypad, leds);
+	ctx.EnterKeys("12#");
 
-
-	keypad.nextKey = '1';
-	controller.Update();
-
-	keypad.nextKey = '2';
-	controller.Update();
-
-	keypad.nextKey = '#';
-	controller.Update();
-
-
-	assert(!leds.green);
-	assert(!leds.blinkRed);
+	assert(!ctx.leds.green);
+	assert(!ctx.leds.blinkRed);
 }
 
 void RunAccessControllerLongPinTest() {
-	MockKeypad keypad;
-	MockLedOutput leds;
+	TestContext ctx;
 
-	AccessController controller(keypad, leds);
-
-
-	keypad.nextKey = '1';
-	controller.Update();
-
-	keypad.nextKey = '2';
-	controller.Update();
-
-	keypad.nextKey = '3';
-	controller.Update();
-
-	keypad.nextKey = '4';
-	controller.Update();
-
-	keypad.nextKey = '5';
-	controller.Update();
-
-	keypad.nextKey = '#';
-	controller.Update();
+	ctx.EnterKeys("12345#");
 
 	// the last number shall be ignored and only 1234 gets validated
-	assert(leds.green);
-	assert(!leds.red);
-	assert(!leds.blinkRed);
+	assert(ctx.leds.green);
+	assert(!ctx.leds.red);
+	assert(!ctx.leds.blinkRed);
 }
 
 void RunAccessControllerClearPinTest() {
-	MockKeypad keypad;
-	MockLedOutput leds;
+	TestContext ctx;
 
-	AccessController controller(keypad, leds);
+	ctx.EnterKeys("9999#");
 
-
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '9';
-	controller.Update();
-
-	keypad.nextKey = '#';
-	controller.Update();
-
-	assert(!leds.green);
-	assert(leds.red);
-	assert(!leds.blinkRed);
+	assert(!ctx.leds.green);
+	assert(ctx.leds.red);
+	assert(!ctx.leds.blinkRed);
 
 	// The Pin-buffer shall get cleared
 
-	keypad.nextKey = '1';
-	controller.Update();
+	ctx.EnterKeys("1234#");
 
-	keypad.nextKey = '2';
-	controller.Update();
-
-	keypad.nextKey = '3';
-	controller.Update();
-
-	keypad.nextKey = '4';
-	controller.Update();
-
-	keypad.nextKey = '#';
-	controller.Update();
-
-	assert(leds.green);
-	assert(!leds.red);
-	assert(!leds.blinkRed);
+	assert(ctx.leds.green);
+	assert(!ctx.leds.red);
+	assert(!ctx.leds.blinkRed);
 }
