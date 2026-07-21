@@ -100,6 +100,9 @@ The project separates application logic from hardware-specific code.
 
 The application layer does not directly access STM32 registers.
 
+A detailed descriptio of the architecture and design decisions can be found here:
+[Architecture Documentatione](Docs/archictecture.md)
+
 ## Concepts Demonstrated
 - Memory-Mapped I/O
 - Pointer Casting
@@ -108,6 +111,10 @@ The application layer does not directly access STM32 registers.
 - Volatile Qualifier
 - Embedded Driver Architecture
 - State Machine Design
+- Layered Software Architecture
+- Hardware Abstraction
+- Dependency Inversion
+- Unit Testing with Mocks
 
 ## Project Status
 
@@ -123,7 +130,7 @@ The application layer does not directly access STM32 registers.
 - [x] Hardware validation on STM32F407
 
 ## Roadmap
-- [ ] Complete unit tests with mocks
+- [ ] Extend unit test coverage
 - [ ] Create GDB debug scripts
 - [ ] Implement SWO debug output
 - [ ] Prepare v1.0 release
