@@ -3,6 +3,9 @@ build/
 build-firmware/
 build-tests/
 
+*.drawio
+*.drawio.bkp
+
 # Prerequisites
 *.d
 
