@@ -101,7 +101,7 @@ The project separates application logic from hardware-specific code.
 The application layer does not directly access STM32 registers.
 
 A detailed description of the architecture and design decisions can be found here:
-[Architecture Documentation](Docs/archictecture.md)
+[Architecture Documentation](Docs/architecture.md)
 
 ## Concepts Demonstrated
 - Memory-Mapped I/O
