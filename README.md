@@ -1,9 +1,11 @@
 # STM32F407 Register-Level Access Control System
-Bare-metal STM32F407 access control system implemented without HAL or CubeMX.
+
+Bare-metal STM32F407 access control system implemented without HAL or CubeMX, focusing on register-level hardware access, embedded architecture and testable application design.
+
+## Target Hardware
 
 <img src="Docs/img/hardware.jpg" align="right" width="350">
 
-## Target Hardware
 - STM32F407G-DISC1
 - ARM Cortex-M4
 - 4x4 Matrix Keypad
@@ -11,9 +13,16 @@ Bare-metal STM32F407 access control system implemented without HAL or CubeMX.
 
 The firmware directly controls the MCU peripherals through register-level access.
 
+A detailed description of the hardware setup, connections and pin assignments can be found here:
+
+[Hardware Overview](Docs/hardware.md)
+
 <br clear="right"/>
 
 ## Toolchain
+
+The project is built using a minimal toolchain consisting of:
+
 - arm-none-eabi-gcc
 - CMake
 - ST-LINK
@@ -40,26 +49,6 @@ make firmware
 make tests
 ```
 
-### Rebuild firmware
-```bash
-make rebuild-firmware
-```
-
-### Rebuild tests
-```bash
-make rebuild-tests
-```
-
-### Clean build artifact
-```bash
-make clean
-```
-
-### Remove all build directories
-```bash
-make clean-all
-```
-
 ## Flash and Debug
 
 ### Flash firmware
@@ -77,41 +66,38 @@ make openocd
 make gdb
 ```
 
+More details about startup and memory layout:
+
+[Startup Code](Docs/startup.md)  
+[Linker Script](Docs/linker-script.md)
+
 ## Features
-- Register-level GPIO programming
-- Custom GPIO driver
-- Matrix keypad driver
+
+The firmware provides a complete PIN-based access control system:
+
+- register-level GPIO programming
+- custom keypad input driver
 - PIN authentication
-- Lockout protection
-- LED Feedback
-  - Green LED: valid PIN
-  - Red LED: invalid PIN
-  - Red blinking LED: lockout state
-- Host-based unit tests for application logic
+- failed attempt tracking and lockout protection
+- LED-based status feedback
+- host-based unit tests for application logic
 
 ## Architecture
 
-The project separates application logic from hardware-specific code.
+A layered architecture separates hardware-specific code from application logic.
 
-### Application layer
-- AccessController
-- PinValidator
-- AttemptCounter
+The main components are:
 
-### Hardware interfaces
-- IKeypad
-- ILedOutput
-
-### Hardware adapters
-- KeypadAdapter
-- LedOutputAdapter
+- Application layer: AccessController, PinValidator, AttemptCounter
+- Hardware interfaces: IKeypad, ILedOutput
+- Hardware adapters: KeypadAdapter, LedOutputAdapter
 
 The application layer does not directly access STM32 registers.
 
-A detailed description of the architecture and design decisions can be found here:
-[Architecture Documentation](Docs/architecture.md)
+A detailed description of the architecture and design decisions can be found in the [Architecture Documentation](Docs/architecture.md).
 
-## Concepts Demonstrated
+## Technical Concepts
+
 - Memory-Mapped I/O
 - Pointer Casting
 - Bitwise Operations
@@ -124,21 +110,12 @@ A detailed description of the architecture and design decisions can be found her
 - Dependency Inversion
 - Unit Testing with Mocks
 
-## Project Status
+Details about the MCU register mapping:
 
-- [x] Bare-metal project setup
-- [x] Custom startup code
-- [x] Linker script
-- [x] CMake build system
-- [x] Makefile build workflow
-- [x] Flash and debug with ST-LINK/OpenOCD
-- [x] Register-level GPIO driver
-- [x] Matrix keypad driver
-- [x] Access control application
-- [x] Hardware validation on STM32F407
+[Register Map](Docs/register_map.md)
 
-## Roadmap
-- [ ] Extend unit test coverage
-- [ ] Create GDB debug scripts
-- [ ] Implement SWO debug output
-- [ ] Prepare v1.0 release
+## Project Summary
+
+The project has been completed and validated on real hardware.
+
+The STM32F407-based access control system implements register-level hardware control, a layered software architecture, host-based unit tests and hardware debugging using ST-LINK, OpenOCD and GDB.
