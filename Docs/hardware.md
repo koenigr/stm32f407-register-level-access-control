@@ -10,12 +10,13 @@ Main hardware components:
 - ARM Cortex-M4 core
 - ST-LINK debug interface
 - On-board user LEDs
+- 4x4 matrix keypad
 
 The firmware directly accesses the MCU peripherals through memory-mapped registers.
 
 ---
 
-# Hardware Block Diagram
+## Hardware Block Diagram
 
 ![Hardware Block Diagram](img/hardware_block_diagram.png)
 
@@ -23,13 +24,13 @@ The system consists of the STM32F407 microcontroller connected to external input
 
 ---
 
-# Components
+## Components
 
-## STM32F407G-DISC1
+### STM32F407G-DISC1
 
 The STM32F407G-DISC1 is the main processing unit of the system.
 
-Responsibilities:
+It provides:
 
 - execute the access control firmware
 - handle keypad input
@@ -38,7 +39,7 @@ Responsibilities:
 
 ---
 
-## 4x4 Matrix Keypad
+### 4x4 Matrix Keypad
 
 The keypad provides user input for PIN authentication.
 
@@ -62,9 +63,13 @@ Connection details:
 | Column 3 | PD10 |
 | Column 4 | PD11 |
 
+More details about the keypad wiring and pin assignment can be found here:
+
+[Keypad Connection](keypad_connection.md)
+
 ---
 
-## LED Output
+### LED Output
 
 The system uses the on-board LEDs for status feedback.
 
@@ -76,7 +81,7 @@ The system uses the on-board LEDs for status feedback.
 
 ---
 
-# Debug Interface
+## Debug Interface
 
 The board uses the integrated ST-LINK interface for programming and debugging.
 
@@ -95,13 +100,13 @@ The debug interface allows:
 
 ---
 
-# Hardware Design Notes
+## Hardware Design Notes
 
 The project intentionally uses direct register-level access instead of STM32 HAL.
 
 This provides:
 
-- understanding of MCU peripherals
-- direct control over hardware
-- minimal software abstraction
-- insight into embedded system fundamentals
+- direct control over MCU peripherals
+- explicit memory-mapped hardware access
+- minimal hardware abstraction layers
+- clear separation between hardware and application logic
