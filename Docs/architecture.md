@@ -179,6 +179,22 @@ Benefits:
 
 ---
 
+## Module Interaction
+
+The main application flow is:
+
+```text
+User Input  
+→ Keypad Driver  
+→ KeypadAdapter  
+→ AccessController  
+→ PinValidator / AttemptCounter  
+→ LedOutputAdapter  
+→ GPIO Driver
+```
+
+The AccessController coordinates the authentication process and uses interfaces to communicate with hardware-dependent components.
+
 ## Testable Application Design
 
 The application layer uses interfaces instead of concrete hardware implementations.

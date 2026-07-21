@@ -1,9 +1,17 @@
 # STM32F407 Register-Level Access Control System
 Bare-metal STM32F407 access control system implemented without HAL or CubeMX.
 
+<img src="Docs/img/hardware.jpg" align="right" width="350">
+
 ## Target Hardware
 - STM32F407G-DISC1
 - ARM Cortex-M4
+- 4x4 Matrix Keypad
+- On-board LEDs (Green LED / Red LED)
+
+The firmware directly controls the MCU peripherals through register-level access.
+
+<br clear="right"/>
 
 ## Toolchain
 - arm-none-eabi-gcc
