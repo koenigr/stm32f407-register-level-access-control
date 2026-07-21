@@ -48,6 +48,20 @@ The application layer does not directly access STM32 registers or hardware perip
 
 ---
 
+## Access Controller State Machine
+
+The AccessController is implemented as a finite state machine.
+
+The controller manages the authentication process through three main states:
+
+- Locked
+- Unlocked
+- LockedOut
+
+The state transitions are triggered by PIN input and authnetication results.
+
+![Access Controller State Machine](img/access_controller_state_machine.png)
+
 ## Interface Layer
 
 The interface layer defines abstract hardware interfaces used by the application.
