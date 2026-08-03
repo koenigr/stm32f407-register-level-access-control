@@ -6,7 +6,7 @@ Bare-metal STM32F407 access control system implemented without HAL or CubeMX, fo
 
 A short demonstration of the access control system running on real hardware:
 
-[Watch the demo video](Docs/video/demo_small.mp4)
+[Watch the demo video](https://github.com/koenigr/stm32f407-register-level-access-control/blob/master/Docs/video/demo_small.mp4)
 
 ## Target Hardware
 
