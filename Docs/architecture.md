@@ -99,7 +99,7 @@ Example:
 
 The application requests:
 
-leds_.Green();
+`leds.Green();`
 
 The adapter translates this into a hardware-specific operation using the LED driver.
 
