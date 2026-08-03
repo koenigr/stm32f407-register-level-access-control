@@ -2,6 +2,12 @@
 
 Bare-metal STM32F407 access control system implemented without HAL or CubeMX, focusing on register-level hardware access, embedded architecture and testable application design.
 
+## Demo
+
+A short demonstration of the access control system running on real hardware:
+
+[Watch the demo video](Docs/video/demo.mp4)
+
 ## Target Hardware
 
 <img src="Docs/img/hardware.jpg" align="right" width="350">
