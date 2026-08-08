@@ -1,4 +1,4 @@
-.PHONY: help firmware tests flash debug clean clean-all \
+.PHONY: help all firmware tests flash debug clean clean-all \
         configure-firmware configure-tests rebuild-firmware rebuild-tests \
         gdb openocd size disasm symbols sections elfinfo
 
@@ -8,12 +8,18 @@
 
 FIRMWARE_BUILD = build-firmware
 TEST_BUILD     = build-tests
-PROJECT = stm32f407_access_control
-ELF = $(FIRMWARE_BUILD)/$(PROJECT)
+PROJECT        = stm32f407_access_control
+ELF            = $(FIRMWARE_BUILD)/$(PROJECT)
 
-OPENOCD = openocd
-INTERFACE_CFG = /usr/share/openocd/scripts/interface/stlink.cfg
-TARGET_CFG = /usr/share/openocd/scripts/target/stm32f4x.cfg
+OPENOCD        = openocd
+INTERFACE_CFG  = /usr/share/openocd/scripts/interface/stlink.cfg
+TARGET_CFG     = /usr/share/openocd/scripts/target/stm32f4x.cfg
+
+# ------------------------------------------------------------------
+# Default target
+# ------------------------------------------------------------------
+
+all: firmware
 
 # ------------------------------------------------------------------
 # Help
@@ -21,22 +27,35 @@ TARGET_CFG = /usr/share/openocd/scripts/target/stm32f4x.cfg
 
 help:
 	@echo "Available targets:"
+	@echo ""
+	@echo "Build:"
+	@echo "  all                 Build firmware (default)"
 	@echo "  firmware            Build STM32 firmware"
 	@echo "  tests               Build and run unit tests"
-	@echo "  flash               Flash firmware to STM32"
+	@echo ""
+	@echo "Configuration:"
 	@echo "  configure-firmware  Configure firmware build"
 	@echo "  configure-tests     Configure host test build"
+	@echo ""
+	@echo "Rebuild:"
 	@echo "  rebuild-firmware    Clean + configure + build firmware"
 	@echo "  rebuild-tests       Clean + configure + build tests"
-	@echo "  clean               Remove build artifacts"
-	@echo "  clean-all           Remove all build directories"
+	@echo ""
+	@echo "Debugging:"
+	@echo "  flash               Flash firmware to STM32"
 	@echo "  openocd             Start OpenOCD debug server"
 	@echo "  gdb                 Start GDB and connect to OpenOCD"
+	@echo ""
+	@echo "Inspection:"
 	@echo "  size                Show firmware size"
 	@echo "  disasm              Generate disassembly"
 	@echo "  symbols             Show ELF symbols"
 	@echo "  sections            Show ELF sections"
 	@echo "  elfinfo             Show ELF header information"
+	@echo ""
+	@echo "Cleanup:"
+	@echo "  clean               Remove build artifacts"
+	@echo "  clean-all           Remove all build directories"
 
 # ------------------------------------------------------------------
 # Configure
@@ -86,22 +105,24 @@ rebuild-tests:
 	$(MAKE) tests
 
 # ------------------------------------------------------------------
-# Clean
+# Debugging
 # ------------------------------------------------------------------
 
-clean:
-	cmake --build $(FIRMWARE_BUILD) --target clean || true
-	cmake --build $(TEST_BUILD) --target clean || true
-
-clean-all:
-	rm -rf $(FIRMWARE_BUILD)
-	rm -rf $(TEST_BUILD)
+openocd:
+	$(OPENOCD) \
+		-f $(INTERFACE_CFG) \
+		-f $(TARGET_CFG)
 
 gdb:
-	gdb-multiarch $(ELF) -ex "target remote localhost:3333" -ex "monitor reset halt"
+	gdb-multiarch $(ELF) \
+		-ex "target remote localhost:3333" \
+		-ex "monitor reset halt"
 
-openocd:
-	$(OPENOCD) -f $(INTERFACE_CFG) -f $(TARGET_CFG)
+debug: openocd
+
+# ------------------------------------------------------------------
+# Inspection
+# ------------------------------------------------------------------
 
 size:
 	arm-none-eabi-size $(ELF)
@@ -118,4 +139,14 @@ sections:
 elfinfo:
 	arm-none-eabi-readelf -h $(ELF)
 
-all: firmware tests
+# ------------------------------------------------------------------
+# Clean
+# ------------------------------------------------------------------
+
+clean:
+	cmake --build $(FIRMWARE_BUILD) --target clean || true
+	cmake --build $(TEST_BUILD) --target clean || true
+
+clean-all:
+	rm -rf $(FIRMWARE_BUILD)
+	rm -rf $(TEST_BUILD)
