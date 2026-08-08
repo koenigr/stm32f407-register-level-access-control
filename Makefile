@@ -1,6 +1,6 @@
 .PHONY: help firmware tests flash debug clean clean-all \
         configure-firmware configure-tests rebuild-firmware rebuild-tests \
-        gdb openocd size disasm symbols sections elfinfo all
+        gdb openocd size disasm symbols sections elfinfo
 
 # ------------------------------------------------------------------
 # Configuration
@@ -30,6 +30,13 @@ help:
 	@echo "  rebuild-tests       Clean + configure + build tests"
 	@echo "  clean               Remove build artifacts"
 	@echo "  clean-all           Remove all build directories"
+	@echo "  openocd             Start OpenOCD debug server"
+	@echo "  gdb                 Start GDB and connect to OpenOCD"
+	@echo "  size                Show firmware size"
+	@echo "  disasm              Generate disassembly"
+	@echo "  symbols             Show ELF symbols"
+	@echo "  sections            Show ELF sections"
+	@echo "  elfinfo             Show ELF header information"
 
 # ------------------------------------------------------------------
 # Configure
