@@ -5,6 +5,7 @@ add_executable(unit_tests
 	AccessControllerTest.cpp
 
 	../App/PinValidator.cpp
+	../App/sha256.c
 	../App/AttemptCounter.cpp
 	../App/AccessController.cpp
 )
