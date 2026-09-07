@@ -118,7 +118,8 @@ gdb:
 		-ex "target remote localhost:3333" \
 		-ex "monitor reset halt"
 
-debug: openocd
+debug:
+	gdb-multiarch -x scripts/debug.gdb $(ELF)
 
 # ------------------------------------------------------------------
 # Inspection
