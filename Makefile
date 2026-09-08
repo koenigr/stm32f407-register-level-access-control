@@ -121,6 +121,12 @@ gdb:
 debug:
 	gdb-multiarch -x scripts/debug.gdb $(ELF)
 
+reset:
+	gdb-multiarch -batch -x scripts/reset.gdb $(ELF)
+
+reboot:
+	gdb-multiarch -batch -x scripts/reboot.gdb $(ELF)
+
 # ------------------------------------------------------------------
 # Inspection
 # ------------------------------------------------------------------
