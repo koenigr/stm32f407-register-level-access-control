@@ -4,6 +4,7 @@
 
 .global Reset_Handler
 .global Default_Handler
+.global HardFault_Handler
 
 /* Stack pointer */
 .word _estack
@@ -16,7 +17,7 @@ g_pfnVectors:
     .word _estack
     .word Reset_Handler
     .word Default_Handler /* NMI */
-    .word Default_Handler /* HardFault */
+    .word HardFault_Handler /* HardFault */
     .word Default_Handler /* MemManage */
     .word Default_Handler /* BusFault */
     .word Default_Handler /* UsageFault */

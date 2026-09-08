@@ -1,14 +1,12 @@
-# Connect to OpenOCD
-target remote localhost:3333
+source scripts/reset.gdb
+source scripts/inspect.gdb
 
-# Load firmware
-load
-
-# Reset MCU and halt immediately
-monitor reset halt
-
-# Break at application entry
 break main
+break HardFault_Handler
+commands
+	crash_report
+	continue
+end
 
-# Start execution
+info breakpoints
 continue

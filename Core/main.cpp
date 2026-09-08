@@ -22,3 +22,12 @@ int main() {
 
 	return 0;
 }
+
+extern "C" {
+	void HardFault_Handler(void) {
+		// Software-Breakpoint. GDB can read the stacktrace
+		__asm volatile("bkpt #0");
+
+		while(1);
+	}
+}
