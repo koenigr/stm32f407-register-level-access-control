@@ -16,7 +16,7 @@ void swoInit(uint32_t coreClockHz, uint32_t swoBaud) {
 	// 4. ITM entsperren und kofigurieren
 	ITM->LAR = ITM_LAR_UNLOCK;
 	ITM->TCR = ITM_TCR_ITMENA | ITM_TCR_SYNCENA | ITM_TCR_TRACEBUSID(1);
-	ITM->TPR = 0;
+	ITM->TPR = 1;
 	ITM->TER = 1;
 }
 
