@@ -1,5 +1,8 @@
-#include "AccessController.hpp"
+// driver layer
+#include "swo.h"
 
+// application layer
+#include "AccessController.hpp"
 #include "KeypadAdapter.hpp"
 #include "LedOutputAdapter.hpp"
 
