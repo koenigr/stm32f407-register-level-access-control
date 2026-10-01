@@ -1,7 +1,8 @@
 target extended-remote :3333
 monitor reset halt
-monitor tpiu config internal swo.log uart off 16000000 200000
+monitor tpiu config internal swo.log uart off 16000000 125000
 monitor itm port 0 on
 
-load monitor reset halt
-continue
+load
+monitor reset halt
+monitor resume

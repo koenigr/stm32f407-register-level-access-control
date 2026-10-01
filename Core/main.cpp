@@ -8,7 +8,7 @@
 
 int main() {
 
-	swoInit(16000000, 2000000);  // HSI, no PLL
+	swoInit(16000000, 125000);  // HSI, no PLL
 	swoPuts("Hello STM32\n");
 
 	KeypadAdapter keypad;
