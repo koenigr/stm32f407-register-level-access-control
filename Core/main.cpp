@@ -1,9 +1,15 @@
-#include "AccessController.hpp"
+// driver layer
+#include "swo.h"
 
+// application layer
+#include "AccessController.hpp"
 #include "KeypadAdapter.hpp"
 #include "LedOutputAdapter.hpp"
 
 int main() {
+
+	swoInit(16000000, 125000);  // HSI, no PLL
+	swoPuts("Hello STM32\n");
 
 	KeypadAdapter keypad;
 	LedOutputAdapter leds;

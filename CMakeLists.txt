@@ -24,6 +24,7 @@ else()
         Startup/startup_stm32f407xx.s
         Platform/stm32f407xx_gpio.c
         Drivers/keypad.c
+        Drivers/swo.cpp
 
         App/Adapters/KeypadAdapter.cpp
         App/Adapters/LedOutputAdapter.cpp

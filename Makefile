@@ -1,6 +1,6 @@
 .PHONY: help all firmware tests flash debug clean clean-all \
         configure-firmware configure-tests rebuild-firmware rebuild-tests \
-        gdb openocd size disasm symbols sections elfinfo
+        gdb openocd size disasm symbols sections elfinfo swo
 
 # ------------------------------------------------------------------
 # Configuration
@@ -126,6 +126,9 @@ reset:
 
 reboot:
 	gdb-multiarch -batch -x scripts/reboot.gdb $(ELF)
+
+swo:
+	gdb-multiarch -batch -x scripts/swo.gdb $(ELF)
 
 # ------------------------------------------------------------------
 # Inspection

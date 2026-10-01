@@ -1,6 +1,8 @@
 # STM32F407 Register-Level Access Control System
 
-Bare-metal STM32F407 access control system implemented without HAL or CubeMX, focusing on register-level hardware access, embedded architecture and testable application design.
+This project intentionally avoids STM32 HAL and CubeMX-generated code. Every peripheral
+is configured directly through its registers, to demonstrate the full path from MCU
+startup to application logic without framework abstractions in between.
 
 ## Target Hardware
 
@@ -66,6 +68,18 @@ make openocd
 make gdb
 ```
 
+### Runtime debug output via SWO
+```bash
+make openocd   # terminal 1
+make swo       # terminal 2
+tail -f swo.log  # terminal 3
+```
+
+SWO (Serial Wire Output) runs over the same USB connection as flashing and debugging,
+no UART, no extra wiring. Output is written to `swo.log`.
+
+More details: [SWO Debugging](Docs/swo.md)
+
 More details about startup and memory layout:
 
 [Startup Code](Docs/startup.md)  
@@ -80,6 +94,7 @@ The firmware provides a complete PIN-based access control system:
 - PIN authentication
 - failed attempt tracking and lockout protection
 - LED-based status feedback
+- SWO runtime debug output (register-level ITM/TPIU configuration)
 - host-based unit tests for application logic
 
 ## Architecture
@@ -109,6 +124,7 @@ A detailed description of the architecture and design decisions can be found in 
 - Hardware Abstraction
 - Dependency Inversion
 - Unit Testing with Mocks
+- CoreSight Trace (ITM/ TPIU)
 
 Details about the MCU register mapping:
 
@@ -118,4 +134,4 @@ Details about the MCU register mapping:
 
 The project has been completed and validated on real hardware.
 
-The STM32F407-based access control system implements register-level hardware control, a layered software architecture, host-based unit tests and hardware debugging using ST-LINK, OpenOCD and GDB.
+The STM32F407-based access control system implements register-level hardware control, a layered software architecture, runtime trace output via SWO, host-based unit tests and hardware debugging using ST-LINK, OpenOCD and GDB.
