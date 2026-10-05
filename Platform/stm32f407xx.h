@@ -22,6 +22,10 @@ extern "C" {
 #define RCC_BASE   0x40023800
 #define RCC ((RCC_RegDef_t *)RCC_BASE)
 
+#define APB2PERIPH_BASE		0x40010000UL
+#define SYSCFG_BASE			(APB2PERIPH_BASE + 0x3800UL)
+#define EXTI_BASE			(APB2PERIPH_BASE + 0x3C00UL)
+
 #define ENABLE 		( 1 )
 #define DISABLE		( 0 )
 
@@ -119,6 +123,31 @@ typedef struct {
 	uint32_t RESERVED1[2];
 	volatile uint32_t AHB1ENR;
 } RCC_RegDef_t;
+
+typedef struct {
+	volatile uint32_t MEMRMP;
+	volatile uint32_t PMC;
+	volatile uint32_t EXTICR[4];
+	uint32_t		  RESERVED[2];
+	volatile uint32_t CMPCR;
+} SYSCFG_TypeDef;
+
+typedef struct {
+	volatile uint32_t IMR;
+	volatile uint32_t EMR;
+	volatile uint32_t RTSR;
+	volatile uint32_t FTSR;
+	volatile uint32_t SWIER;
+	volatile uint32_t PR;
+} EXTI_TypeDef;
+
+
+/* ---- Cortex-M4 NVIC (Core-Peripherie, PPB-Bereich) --- */
+#define NVIC_BASE		0xE000E100UL
+
+#define NVIC_ISER0		(*(volatile uint32_t *)(NVIC_BASE + 0x000UL))
+#define NVIC_ICER0		(*(volatile uint32_t *)(NVIC_BASE + 0x080UL))
+#define NVIC_IPR_BASE	(NVIC_BASE + 0x300UL)
 
 #ifdef __cplusplus
 }
