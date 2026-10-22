@@ -3,7 +3,7 @@
 #include "cortex_m4.h"
 
 void EXTI_MapPort(uint8_t line, uint8_t port) {
-	RCC-APB2ENR |= (1U << 14);			// SYSCGF-Takt
+	RCC-APB2ENR |= RCC_APB2ENR_SYSCFGEN;			// SYSCGF-Takt
 	SYSCFG->EXTICR[line / 4] &= ~(0xFU << ((line % 4) * 4));
 	SYSCFG->EXTICR[line / 4] |= ((uint32_t)port << ((line % 4) * 4));
 }
