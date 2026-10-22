@@ -2,6 +2,7 @@
 #include "keypad.h"
 #include "stm32f407xx.h"
 #include "stm32f407xx_gpio.h"
+#include "stm32f407xx_exti.h"
 
 static void delay(void) {
 	for(uint32_t i = 0; i < 300000; i++);
@@ -73,6 +74,33 @@ char Keypad_Scan(void) {
 				return keypad[row][column];
 			}
 		}
+	}
+
+	return 0;
+}
+
+static volatile uint8_t keypad_irq_flag = 0;
+
+void EXTI9_5_IRQHandler(void) {
+	// Lines 8 and 9
+	if (EXTI->PR & ((1U << 8) | (1U << 9))) {
+		EXTI->PR = (1U << 8) | (1U << 9); // (Write-1-to-clear)
+		keypad_irq_flag = 1;
+	}
+}
+
+void EXTI5_10_IRQHandler(void) {
+	// Lines 10 and 11
+	if (EXTI->PR & ((1U << 10) | (1U << 11))) {
+		EXTI->PR = (1U << 10) | (1U << 11);
+		keypad_irq_flag = 1;
+	}
+}
+
+uint8_t Keypad_IrqPending(void) {
+	if (keypad_irq_flag) {
+		keypad_irq_flag = 0;
+		return 1;
 	}
 
 	return 0;
