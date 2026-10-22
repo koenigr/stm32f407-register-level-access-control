@@ -39,14 +39,14 @@ void Keypad_Init(void) {
 		GPIO_EnablePullUp(GPIOD, 11);
 	}
 
-	Keypad_setIdle();
+	Keypad_SetIdle();
 }
 
 void Keypad_EnableInterrupt(void) {
 	for (int pin = 8; pin < 12; pin++) {
 		EXTI_MapPort(pin, 3);
 		EXTI_SetFallingEdge(pin);
-		ESTI_Enable(pin);
+		EXTI_Enable(pin);
 	}
 	EXTI_NVIC_Enable(23);
 	EXTI_NVIC_Enable(40);
