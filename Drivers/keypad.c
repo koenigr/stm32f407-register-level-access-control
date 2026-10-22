@@ -14,27 +14,42 @@ static const char keypad[4][4] = {
 	{'*','0','#','D'},
 };
 
+static void Keypad_SetIdle(void) {
+	for (int row = 0; row < 4; row++) {
+		GPIO_WritePin(GPIOD, row, 0);
+	}
+}
+
 void Keypad_Init(void) {
 	//1. Enable the peripheral clock of GPIOD peripheral
 	GPIO_PeriClockControl(GPIOD, ENABLE);
 
 	//2. Configure PD0, PD1, PD2, PD3 as output (rows)
-	GPIO_InitOutput(GPIOD, 0);
-	GPIO_InitOutput(GPIOD, 1);
-	GPIO_InitOutput(GPIOD, 2);
-	GPIO_InitOutput(GPIOD, 3);
+	for (int pin = 0; pin < 4; pin++) {
+		GPIO_InitOutput(GPIOD, pin);
+	}
 
 	//3. configure PD8, PD9, PD10, PD11 as input (columns)
-	GPIO_InitInput(GPIOD, 8);
-	GPIO_InitInput(GPIOD, 9);
-	GPIO_InitInput(GPIOD, 10);
-	GPIO_InitInput(GPIOD, 11);
+	for (int pin = 8; pin < 12; pin++) {
+		GPIO_InitInput(GPIOD, 11);
+	}
 
 	//4. Enable internal pull-up resistors for PD8, PD9, PD10, PD11
-	GPIO_EnablePullUp(GPIOD, 8);
-	GPIO_EnablePullUp(GPIOD, 9);
-	GPIO_EnablePullUp(GPIOD, 10);
-	GPIO_EnablePullUp(GPIOD, 11);
+	for (int pin = 8; pin < 12; pin++) {
+		GPIO_EnablePullUp(GPIOD, 11);
+	}
+
+	Keypad_setIdle();
+}
+
+void Keypad_EnableInterrupt(void) {
+	for (int pin = 8; pin < 12; pin++) {
+		EXTI_MapPort(pin, 3);
+		EXTI_SetFallingEdge(pin);
+		ESTI_Enable(pin);
+	}
+	EXTI_NVIC_Enable(23);
+	EXTI_NVIC_Enable(40);
 }
 
 char Keypad_Scan(void) {
