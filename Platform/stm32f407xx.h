@@ -23,8 +23,12 @@ extern "C" {
 #define RCC ((RCC_RegDef_t *)RCC_BASE)
 
 #define APB2PERIPH_BASE		0x40010000UL
+
 #define SYSCFG_BASE			(APB2PERIPH_BASE + 0x3800UL)
+#define SYSCFG 				((SYSCFG_TypeDef *)SYSCFG_BASE)
+	
 #define EXTI_BASE			(APB2PERIPH_BASE + 0x3C00UL)
+#define EXTI 				((EXTI_TypeDef *)EXTI_BASE)
 
 #define ENABLE 		( 1 )
 #define DISABLE		( 0 )
@@ -122,6 +126,11 @@ typedef struct {
 	volatile uint32_t APB2RSTR;
 	uint32_t RESERVED1[2];
 	volatile uint32_t AHB1ENR;
+	volatile uint32_t AHB2ENR;
+	volatile uint32_t AHB3ENR;
+	uint32_t RESERVED2;
+	volatile uint32_t APB1ENR;
+	volatile uint32_t APB2ENR; // Bit 14 = SYSCFGEN
 } RCC_RegDef_t;
 
 typedef struct {
@@ -140,6 +149,11 @@ typedef struct {
 	volatile uint32_t SWIER;
 	volatile uint32_t PR;
 } EXTI_TypeDef;
+
+
+#define EXTI9_5_IRQn	23
+#define EXTI15_10_IRQn	40
+#define PORT_D_EXTI		3
 
 #ifdef __cplusplus
 }
