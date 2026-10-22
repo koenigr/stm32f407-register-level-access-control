@@ -45,8 +45,8 @@ jobs:
 
       - name: Install build tools
         run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential cmake
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake
 
       - name: Configure tests
         run: cmake -S . -B build-tests -DBUILD_TESTS=ON
