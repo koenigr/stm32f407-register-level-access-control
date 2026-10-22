@@ -3,8 +3,9 @@
 
 KeypadAdapter::KeypadAdapter() {
 	Keypad_Init();
+	Keypad_EnableInterrupt();
 }
 
 char KeypadAdapter::Scan() {
-	return Keypad_Scan();
+	return Keypad_ReadEvent();
 }

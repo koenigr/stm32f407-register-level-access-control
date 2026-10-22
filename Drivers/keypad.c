@@ -4,6 +4,12 @@
 #include "stm32f407xx_gpio.h"
 #include "stm32f407xx_exti.h"
 
+#define ROW_MASK	0x000FU		// PD0 - PD3
+#define COL_SHIFT	8U
+#define COL_MASK	(0x000FU << COL_SHIFT)	// PD8 - PD11
+
+static volatile uint8_t keypad_irq_flag = 0;
+
 static void delay(void) {
 	for(uint32_t i = 0; i < 300000; i++);
 }
@@ -32,12 +38,12 @@ void Keypad_Init(void) {
 
 	//3. configure PD8, PD9, PD10, PD11 as input (columns)
 	for (int pin = 8; pin < 12; pin++) {
-		GPIO_InitInput(GPIOD, 11);
+		GPIO_InitInput(GPIOD, pin);
 	}
 
 	//4. Enable internal pull-up resistors for PD8, PD9, PD10, PD11
 	for (int pin = 8; pin < 12; pin++) {
-		GPIO_EnablePullUp(GPIOD, 11);
+		GPIO_EnablePullUp(GPIOD, pin);
 	}
 
 	Keypad_SetIdle();
@@ -79,8 +85,6 @@ char Keypad_Scan(void) {
 	return 0;
 }
 
-static volatile uint8_t keypad_irq_flag = 0;
-
 void EXTI9_5_IRQHandler(void) {
 	// Lines 8 and 9
 	if (EXTI->PR & ((1U << 8) | (1U << 9))) {
@@ -89,7 +93,7 @@ void EXTI9_5_IRQHandler(void) {
 	}
 }
 
-void EXTI5_10_IRQHandler(void) {
+void EXTI15_10_IRQHandler(void) {
 	// Lines 10 and 11
 	if (EXTI->PR & ((1U << 10) | (1U << 11))) {
 		EXTI->PR = (1U << 10) | (1U << 11);
@@ -104,4 +108,30 @@ uint8_t Keypad_IrqPending(void) {
 	}
 
 	return 0;
+}
+
+char Keypad_ReadEvent(void) {
+	char key = 0;
+
+	if (!Keypad_IrqPending()) {
+		return 0;
+	}
+
+	// 1. mask column interrupts
+	EXTI->IMR &= ~COL_MASK;
+
+	// 2. scan rows (wait for release)
+	key = Keypad_Scan();
+
+	// 3. restore idle state (all rows LOW)
+	Keypad_SetIdle();
+
+	// 4. debounce release
+	delay();
+
+	// 5. clear pending bits (write-1-to-clear), then unmask
+	EXTI->PR = COL_MASK;
+	EXTI->IMR |= COL_MASK;
+
+	return key;
 }
