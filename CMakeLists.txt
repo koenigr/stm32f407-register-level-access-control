@@ -23,6 +23,7 @@ else()
         Core/main.cpp
         Startup/startup_stm32f407xx.s
         Platform/stm32f407xx_gpio.c
+        Platform/stm32f407xx_exti.c
         Drivers/keypad.c
         Drivers/swo.cpp
 
