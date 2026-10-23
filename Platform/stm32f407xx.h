@@ -152,6 +152,11 @@ typedef struct {
 	volatile uint32_t PR;
 } EXTI_TypeDef;
 
+#ifdef UNIT_TEST
+extern EXTI_TypeDef test_exti;
+#undef EXTI
+#define EXTI (&test_exti)
+#endif
 
 #define EXTI9_5_IRQn	23
 #define EXTI15_10_IRQn	40
