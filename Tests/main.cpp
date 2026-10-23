@@ -12,6 +12,9 @@ void RunAccessControllerClearPinTest();
 void RunAccessControllerLockoutIgnoresInputTest();
 void RunAccessControllerInvalidKeysTest();
 
+void RunKeypadAdapterInitOrderTest();
+void RunKeypadAdapterScanTest();
+
 int main()
 {
 	RunPinValidatorTests();
@@ -25,6 +28,9 @@ int main()
 	RunAccessControllerClearPinTest();
 	RunAccessControllerLockoutIgnoresInputTest();
 	RunAccessControllerInvalidKeysTest();
+
+	RunKeypadAdapterInitOrderTest();
+	RunKeypadAdapterScanTest();
 
 	std::cout << "All tests passed\n";
 
