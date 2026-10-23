@@ -14,7 +14,7 @@ void EXTI_SetFallingEdge(uint8_t line);
 // Unmask interrupt-line
 void EXTI_Enable(uint8_t line);
 // activate NVIC
-void EXTI_NVIC_ENABLE(uint8_t irq);
+void EXTI_NVIC_Enable(uint8_t irq);
 
 #ifdef __cplusplus
 }

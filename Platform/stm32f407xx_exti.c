@@ -18,6 +18,6 @@ void EXTI_Enable(uint8_t line) {
 }
 
 void EXTI_NVIC_Enable(uint8_t irq) {
-	if (irq < 23) 	NVIC_ISER0 = (1U << irq);
-	else 			NVIC_ISER1 = (1U << (irq % 23));
+	if (irq < 32) 	NVIC_ISER0 = (1U << irq);
+	else 			NVIC_ISER1 = (1U << (irq - 32));
 }

@@ -20,3 +20,5 @@ target_include_directories(unit_tests
 		../App/Interfaces
 		../Drivers
 )
+
+target_compile_options(unit_tests PRIVATE -UNDEBUG)
