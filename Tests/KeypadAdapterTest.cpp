@@ -1,5 +1,5 @@
 #include "KeypadAdapter.hpp"
-#include <cassert>
+#include <gtest/gtest.h>
 
 extern "C" {
 	void Keypad_Stub_Reset(void);
@@ -9,27 +9,26 @@ extern "C" {
 	extern char stub_read_value;
 }
 
-void RunKeypadAdapterInitOrderTest() {
-	Keypad_Stub_Reset();
+class KeypadAdapterTest : public ::testing::Test {
+protected:
+	void SetUp() override { Keypad_Stub_Reset(); }
+};
 
+TEST_F(KeypadAdapterTest, ConstructorInitializesBeforeEnablingInterrupt) {
 	KeypadAdapter adapter;
 
-	assert(stub_init_order == 1);
-	assert(stub_enable_order == 2);
+	EXPECT_EQ(stub_init_order, 1);
+	EXPECT_EQ(stub_enable_order, 2);
 }
 
-void RunKeypadAdapterScanTest() {
-	Keypad_Stub_Reset();
-
+TEST_F(KeypadAdapterTest, ScanForwardsReadEvent) {
 	KeypadAdapter adapter;
 
-	// No event
 	stub_read_value = '\0';
-	assert(adapter.Scan() == '\0');
+	EXPECT_EQ(adapter.Scan(), '\0');
 
-	// Key event
 	stub_read_value = '5';
-	assert(adapter.Scan() == '5');
+	EXPECT_EQ(adapter.Scan(), '5');
 
-	assert(stub_read_calls == 2);
+	EXPECT_EQ(stub_read_calls, 2);
 }

@@ -1,5 +1,13 @@
+include(FetchContent)
+FetchContent_Declare(
+	googletest
+	URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip
+)
+FetchContent_MakeAvailable(GoogleTest)
+
+include(GoogleTest)
+
 add_executable(unit_tests
-	main.cpp
 	PinValidatorTest.cpp
 	AttemptCounterTest.cpp
 	AccessControllerTest.cpp
@@ -21,4 +29,6 @@ target_include_directories(unit_tests
 		../Drivers
 )
 
-target_compile_options(unit_tests PRIVATE -UNDEBUG)
+target_link_libraries(unit_tests PRIVATE GTest::gtest_main)
+
+gtest_discover_tests(unit_tests)

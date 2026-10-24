@@ -78,7 +78,7 @@ firmware:
 
 tests:
 	cmake --build $(TEST_BUILD)
-	./$(TEST_BUILD)/Tests/unit_tests
+	ctest --test-dir $(TEST_BUILD) --output-on-failure
 
 # ------------------------------------------------------------------
 # Flash

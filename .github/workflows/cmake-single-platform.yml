@@ -55,4 +55,4 @@ jobs:
         run: cmake --build build-tests --parallel
 
       - name: Run unit-tests
-        run: ./build-tests/Tests/unit_tests
+        run: ctest --test-dir build-tests --output-on-failure

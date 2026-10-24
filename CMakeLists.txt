@@ -17,6 +17,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 option(BUILD_TESTS "Build tests" OFF)
 
 if(BUILD_TESTS)
+    enable_testing()
     add_subdirectory(Tests)
 else()
     add_executable(${PROJECT_NAME}
