@@ -13,16 +13,19 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(BUILD_TESTS "Build tests" OFF)
 
 if(BUILD_TESTS)
+    enable_testing()
     add_subdirectory(Tests)
 else()
     add_executable(${PROJECT_NAME}
         Core/main.cpp
         Startup/startup_stm32f407xx.s
         Platform/stm32f407xx_gpio.c
+        Platform/stm32f407xx_exti.c
         Drivers/keypad.c
         Drivers/swo.cpp
 

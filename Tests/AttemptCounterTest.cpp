@@ -1,25 +1,38 @@
 #include "AttemptCounter.hpp"
-#include <cassert>
+#include <gtest/gtest.h>
 
-void RunAttemptCounterTests() {
+TEST(AttemptCounterTest, InitiallyNotLockedOut) {
 	AttemptCounter counter;
 
-	// Not locked out
-	assert(!counter.IsLockedOut());
+	EXPECT_FALSE(counter.IsLockedOut());
+}
 
-	// first fail
+TEST(AttemptCounterTest, NotLockedOutAfterTwoFailures) {
+	AttemptCounter counter;
+
 	counter.Increment();
-	assert(!counter.IsLockedOut());
+	EXPECT_FALSE(counter.IsLockedOut());
 
-	// second fail
 	counter.Increment();
-	assert(!counter.IsLockedOut());
+	EXPECT_FALSE(counter.IsLockedOut());
+}
 
-	// third fail
+TEST(AttemptCounterTest, LockedOutAfterThreeFailures) {
+	AttemptCounter counter;
+
 	counter.Increment();
-	assert(counter.IsLockedOut());
+	counter.Increment();
+	counter.Increment();
+	EXPECT_TRUE(counter.IsLockedOut());
+}
 
-	// Reset
+TEST(AttemptCounterTest, ResetClearsLockout) {
+	AttemptCounter counter;
+
+	counter.Increment();
+	counter.Increment();
+	counter.Increment();
 	counter.Reset();
-	assert(!counter.IsLockedOut());
+
+	EXPECT_FALSE(counter.IsLockedOut());
 }

@@ -1,12 +1,21 @@
 #include "PinValidator.hpp"
-#include <cassert>
+#include <gtest/gtest.h>
 
-
-void RunPinValidatorTests()
-{
+TEST(PinValidatorTest, AcceptsCorrectPin) {
 	PinValidator validator;
 
-	assert(validator.Validate("1234"));
-	assert(!validator.Validate("0000"));
-	assert(!validator.Validate("12345"));
+	EXPECT_TRUE(validator.Validate("1234"));
 }
+
+TEST(PinValidatorTest, RejectsWrongPin) {
+	PinValidator validator;
+
+	EXPECT_FALSE(validator.Validate("0000"));
+}
+
+TEST(PinValidatorTest, RejectsTooLongPin) {
+	PinValidator validator;
+
+	EXPECT_FALSE(validator.Validate("12345"));
+}
+
