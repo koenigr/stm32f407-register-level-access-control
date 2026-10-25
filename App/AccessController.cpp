@@ -14,24 +14,33 @@ AccessController::AccessController(IKeypad& keypad, ILedOutput& leds)
 
 void AccessController::Update() {
 
-	if (state_ == LockState::LockedOut) return;
+	switch(state_) {
+	case LockState::Locked:
+		char key = keypad_.Scan();
 
-	char key = keypad_.Scan();
+		if (key == '\0')
+			return;
 
-	if (key == '\0')
-		return;
+		if (key >= '0' && key <= '9')
+		{
+			AppendDigit(key);
+			return;
+		}
 
-	if (key >= '0' && key <= '9')
-	{
-		AppendDigit(key);
-		return;
+		if (key == '#')
+		{
+			ValidatePin();
+		}
+		break;
+
+	case LockState::Unlocked:
+		// process new PIN
+		break;
+
+	case LockState::LockedOut:
+		// check timout
+		break;
 	}
-
-	if (key == '#')
-	{
-		ValidatePin();
-	}
-
 }
 
 void AccessController::AppendDigit(char digit) {
