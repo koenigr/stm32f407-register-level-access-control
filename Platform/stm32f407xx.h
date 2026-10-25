@@ -153,8 +153,14 @@ typedef struct {
 } EXTI_TypeDef;
 
 #ifdef UNIT_TEST
+extern RCC_RegDef_t test_rcc;
+extern SYSCFG_TypeDef test_syscfg;
 extern EXTI_TypeDef test_exti;
+#undef RCC
+#undef SYSCFG
 #undef EXTI
+#define RCC (&test_rcc)
+#define SYSCFG (&test_syscfg)
 #define EXTI (&test_exti)
 #endif
 

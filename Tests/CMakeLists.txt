@@ -52,3 +52,19 @@ target_compile_definitions(driver_tests PRIVATE UNIT_TEST)
 target_link_libraries(driver_tests PRIVATE GTest::gtest_main)
 
 gtest_discover_tests(driver_tests)
+
+add_executable(platform_tests
+	ExtiTest.cpp
+
+	../Platform/stm32f407xx_exti.c
+)
+
+target_include_directories(platform_tests
+	PRIVATE
+		../Platform
+)
+
+target_compile_definitions(platform_tests PRIVATE UNIT_TEST)
+target_link_libraries(platform_tests PRIVATE GTest::gtest_main)
+
+gtest_discover_tests(platform_tests)
