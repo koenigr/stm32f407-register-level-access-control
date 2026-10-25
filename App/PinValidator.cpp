@@ -24,3 +24,7 @@ bool PinValidator::Validate(const char* pin) const {
 
 	return std::memcmp(computed_hash, CORRECT_PIN_HASH, SHA256_BLOCK_SIZE) == 0;
 }
+
+void PinValidator::SetPin(const char* newPin) {
+	
+}

@@ -82,3 +82,37 @@ TEST_F(AccessControllerTest, InvalidKeysAreIgnored) {
 	EXPECT_TRUE(leds.green);
 	EXPECT_FALSE(leds.red);
 }
+
+TEST_F(AccessControllerTest, SetNewPinAfterUnlocked) {
+	EnterKeys("1234#");
+
+	EXPECT_TRUE(leds.green);
+	EXPECT_FALSE(leds.red);
+	EXPECT_FALSE(leds.blinkRed);
+
+	EnterKeys("5678#");
+
+	EXPECT_FALSE(leds.green);
+	EXPECT_TRUE(leds.red);
+	EXPECT_FALSE(leds.blinkRed);
+}
+
+TEST_F(AccessControllerTest, UseNewPinAfterUnlocked) {
+	EnterKeys("1234#");
+
+	EXPECT_TRUE(leds.green);
+	EXPECT_FALSE(leds.red);
+	EXPECT_FALSE(leds.blinkRed);
+
+	EnterKeys("5678#");
+
+	EXPECT_FALSE(leds.green);
+	EXPECT_TRUE(leds.red);
+	EXPECT_FALSE(leds.blinkRed);
+
+	EnterKeys("5678#");
+
+	EXPECT_TRUE(leds.green);
+	EXPECT_FALSE(leds.red);
+	EXPECT_FALSE(leds.blinkRed);
+}
