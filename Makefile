@@ -130,6 +130,9 @@ reboot:
 swo:
 	gdb-multiarch -batch -x scripts/swo.gdb $(ELF)
 
+keypad-test:
+	gdb-multiarch -x scripts/keypad_test.gdb $(ELF)
+
 # ------------------------------------------------------------------
 # Inspection
 # ------------------------------------------------------------------
