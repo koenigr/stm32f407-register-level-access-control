@@ -35,11 +35,11 @@ The transitions are not reliable when entering the PIN at a normal typing speed.
 
 **Reproduction steps:**
 
-1. Build the firmware.
-2. Flash the firmware to the target.
-(3. Start the debugger.)
-4. Execute the test scenario.
-(5. Record the observed behavior.)
+1. Build the firmware. 
+2. Flash the firmware to the target. 
+(3. Start the debugger.) 
+4. Execute the test scenario. 
+(5. Record the observed behavior.) 
 
 ## 5. Investigation Log
 
