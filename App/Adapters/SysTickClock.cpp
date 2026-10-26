@@ -14,7 +14,7 @@ constexpr uint32_t kCoreClockHz = 16000000U;   // HSI nach Reset
 extern "C" void SysTick_Handler(void) { ++g_ms; }
 
 void SysTickClock::Init() {
-	*SYST_RVR = (kCoreClockHz / 1000U) 1U;
+	*SYST_RVR = (kCoreClockHz / 1000U) - 1U;
 	*SYST_CVR = 0U;
 	*SYST_CSR = 0x7U; // ENABLE | TICKINT | CLKSOURCE
 }
