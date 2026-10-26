@@ -31,7 +31,7 @@ The AccessController's actions are based on internal states, which are visualize
 
 **Actual behavior:**
 
-[Describe the behavior observed on the target hardware.]
+The transitions are not reliable, when entering the PIN in a familiar/usual speed. Sometimes it works, sometimes not. The LockedOut state does never return back to Locked state.
 
 **Reproduction steps:**
 
