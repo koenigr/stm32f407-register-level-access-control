@@ -19,9 +19,9 @@ The objective is to identify the discrepancy between the behavior verified by un
 
 - Target: STM32F407G-DISC1
 - Firmware: [commit hash / build identifier]
-- Debugger: GDB via [debug interface]
-- Build configuration: [configuration]
-- Test setup: [relevant hardware and software configuration]
+- Debugger: GDB via ST-Link / OpenOCD
+- Build configuration: CMake, ARM GCC, Debug build
+- Test setup: STM32F407G-DISC1 board connected via USB; OpenOCD and GDB; firmware flashed to physical hardware
 
 ## 4. Problem Description
 
