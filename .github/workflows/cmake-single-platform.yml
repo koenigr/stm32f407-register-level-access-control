@@ -9,22 +9,27 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   firmware-build:
     name: Build STM32 Firmware
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     steps:
     - uses: actions/checkout@v7
 
     - name: Install ARM toolchain
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc-arm-none-eabi
+      uses: awalsh128/cache-apt-pkgs-action@v1
+      with:
+        packages: gcc-arm-none-eabi libnewlib-arm-none-eabi
+        version: 1.0
 
     - name: Verify ARM toolchain
-      run: |
-        arm-none-eabi-gcc --version
+      run: arm-none-eabi-gcc --version
 
     - name: Configure CMake
       run: |
@@ -38,15 +43,14 @@ jobs:
 
   unit-tests:
     name: Build and Run Unit Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install build tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential cmake
+      - name: verify build tools
+        run: cmake --version && gcc --version
 
       - name: Configure tests
         run: cmake -S . -B build-tests -DBUILD_TESTS=ON
