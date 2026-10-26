@@ -3,13 +3,16 @@
 #include "Mocks/MockKeypad.hpp"
 #include "Mocks/MockLedOutput.hpp"
 
+#include "Mocks/MockClock.hpp"
+
 #include <gtest/gtest.h>
 
 class AccessControllerTest : public ::testing::Test {
 protected:
 	MockKeypad keypad;
 	MockLedOutput leds;
-	AccessController controller{keypad, leds};
+	MockClock clock;
+	AccessController controller{keypad, leds, clock};
 
 	void EnterKeys(const char* keys) {
 		while (*keys) {
@@ -229,4 +232,90 @@ TEST_F(AccessControllerTest, ChangePinWithHashOnlyKeepsState) {
 
 	EXPECT_TRUE(leds.green);
 	EXPECT_FALSE(leds.red);
+}
+
+static constexpr uint32_t kLockoutMs = 30000U;
+
+// Update() einmal ohne Taste, damit der LockedOut-Zweig läuft
+#define TICK() do { keypad.nextKey = '\0'; controller.Update(); } while (0)
+
+TEST_F(AccessControllerTest, StaysLockedOutBeforeTimeout) {
+	EnterKeys("9999#9999#9999#");
+
+	clock.now = kLockoutMs - 1;
+	TICK();
+	EnterKeys("1234#");
+
+	EXPECT_TRUE(leds.blinkRed);
+	EXPECT_FALSE(leds.green);
+}
+
+TEST_F(AccessControllerTest, LockoutEndsAfterTimeout) {
+	EnterKeys("9999#9999#9999#");
+
+	clock.now = kLockoutMs;
+	TICK();
+
+	EXPECT_TRUE(leds.red);
+	EXPECT_FALSE(leds.blinkRed);
+}
+
+TEST_F(AccessControllerTest, CorrectPinWorksAfterTimeout) {
+	EnterKeys("9999#9999#9999#");
+
+	clock.now = kLockoutMs;
+	TICK();
+	EnterKeys("1234#");
+
+	EXPECT_TRUE(leds.green);
+	EXPECT_FALSE(leds.red);
+}
+
+TEST_F(AccessControllerTest, AttemptsResetAfterTimeout) {
+	EnterKeys("9999#9999#9999#");
+
+	clock.now = kLockoutMs;
+	TICK();
+
+	EnterKeys("9999#9999#");
+	EXPECT_FALSE(leds.blinkRed);     // 2 Fehlversuche reichen nicht
+
+	EnterKeys("9999#");
+	EXPECT_TRUE(leds.blinkRed);      // 3. löst Lockout aus
+}
+
+TEST_F(AccessControllerTest, KeysDuringLockoutAreNotBuffered) {
+	EnterKeys("9999#9999#9999#");
+
+	EnterKeys("12");                 // während Lockout
+	clock.now = kLockoutMs;
+	TICK();
+	EnterKeys("34#");                // Puffer muss leer gewesen sein
+
+	EXPECT_FALSE(leds.green);
+}
+
+TEST_F(AccessControllerTest, LockoutTimeoutSurvivesCounterWraparound) {
+	clock.now = 0xFFFFFF00U;
+	EnterKeys("9999#9999#9999#");
+
+	clock.now = 0x00000100U;         // erst 512 ms vergangen
+	TICK();
+	EXPECT_TRUE(leds.blinkRed);
+
+	clock.now = 0xFFFFFF00U + kLockoutMs;   // wrap-around, 30 s vergangen
+	TICK();
+	EXPECT_FALSE(leds.blinkRed);
+}
+
+TEST_F(AccessControllerTest, SecondLockoutRestartsTimer) {
+	EnterKeys("9999#9999#9999#");
+	clock.now = kLockoutMs;
+	TICK();
+
+	EnterKeys("9999#9999#9999#");    // zweiter Lockout bei now = 30000
+	clock.now = kLockoutMs + (kLockoutMs - 1);
+	TICK();
+
+	EXPECT_TRUE(leds.blinkRed);
 }
