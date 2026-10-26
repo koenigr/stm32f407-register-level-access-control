@@ -27,7 +27,7 @@ The objective is to identify the discrepancy between the behavior verified by un
 
 **Expected behavior:**
 
-The AccessController's actions are based on internal states which are visualized by LED behavior (Locked - red light, Unlocked - green light, LockedOut - blinking red). The state after Reset/Initialization is Locked. There is an initial PIN (1234). The entering of the PIN code is confirmed by pressing '#'. If the valid PIN is entered, the state transitions to Unlocked and the green led is lit. To leave this state, the user must enter a 4-digts PIN (the old or a new one) and confirm with #. This transits again to Locked state. If user enters a wrong pin 3 times, the system transits to LockedOut state, where the red led is blinking. This state is controlled by the SysTickClock and moves back to Locked state after 30 seconds.
+The AccessController's actions are based on internal states, which are visualized by LED behavior (Locked - red light, Unlocked - green light, LockedOut - blinking red). The state after reset/initialization is Locked. There is an initial PIN (1234). The PIN entry is confirmed by pressing '#'. If the valid PIN is entered, the state transitions to Unlocked, and the green LED is lit. To leave this state, the user must enter a 4-digit PIN (the old or a new one) and confirm with '#'. This transitions the system back to the Locked state. If the user enters a wrong PIN three times, the system transitions to the LockedOut state, where the red LED is blinking. This state is controlled by the SysTick timer and transitions back to the Locked state after 30 seconds.
 
 **Actual behavior:**
 
