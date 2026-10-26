@@ -43,6 +43,7 @@ Initialize .bss section
 
 Start main()
 ```
+
 ---
 
 ## Vector Table
@@ -54,8 +55,18 @@ It contains:
 - initial stack pointer address
 - reset handler address
 - exception handlers
+- interrupt (IRQ) handlers
 
-Currently, unused exception handlers are mapped to a default handler.
+Handlers that are not implemented are declared as weak aliases of a default handler. A function with the same name defined elsewhere in the project overrides the alias at link time, so no change to the startup code is needed when a new interrupt is used.
+
+The keypad uses two entries of the IRQ section:
+
+| IRQ | Handler | Source |
+|---|---|---|
+| 23 | `EXTI9_5_IRQHandler` | EXTI lines 5-9 (keypad columns C1, C2 on PD8, PD9) |
+| 40 | `EXTI15_10_IRQHandler` | EXTI lines 10-15 (keypad columns C3, C4 on PD10, PD11) |
+
+Both handlers are defined in the keypad driver. Enabling the interrupts (EXTI configuration and NVIC) is not part of the startup code, it happens in `Keypad_Init()`.
 
 ---
 
@@ -80,6 +91,7 @@ Flash
 
 RAM (.data)
 ```
+
 ---
 
 ### BSS Initialization
@@ -128,15 +140,17 @@ main()
 
 The application then initializes:
 
-- keypad adapter
+- keypad adapter (including keypad driver, EXTI and NVIC configuration)
 - LED adapter
 - access controller
 
-The firmware enters the main loop and continuously processes:
+The firmware enters the main loop. It sleeps with `wfi` until a key press triggers an interrupt, then processes:
 
-- keypad input
+- keypad events (`Keypad_ReadEvent()`)
 - authentication logic
 - LED updates
+
+The keypad interrupt handlers only clear the EXTI pending flag and set a flag. Debouncing and the matrix scan run in the main loop.
 
 ---
 
@@ -148,4 +162,5 @@ A custom startup implementation was chosen to understand:
 - vector table handling
 - memory initialization
 - linker script interaction
+- interrupt vector handling with weak aliases
 - transition from hardware startup to C++ application code

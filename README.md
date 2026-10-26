@@ -51,6 +51,26 @@ make firmware
 make tests
 ```
 
+## Testing
+
+Host-based unit tests use [GoogleTest](https://github.com/google/googletest) (fetched via CMake `FetchContent`) and run without hardware:
+
+```bash
+make tests
+```
+
+| Executable | Covers |
+|---|---|
+| `unit_tests` | Application logic (`AccessController`, `PinValidator`, `AttemptCounter`) with mocks, and `KeypadAdapter` with a stubbed driver |
+| `driver_tests` | Keypad driver (`keypad.c`): EXTI handlers, `Keypad_ReadEvent()` with a simulated key matrix |
+| `platform_tests` | EXTI/NVIC register configuration (`stm32f407xx_exti.c`) against RAM-backed registers |
+
+The hardware tests build with `-DUNIT_TEST`, which redirects the peripheral pointers to RAM structs. Write-1-to-clear behaviour of registers is not emulated; the tests check the value written.
+
+All tests run in GitHub Actions on every push.
+
+Not covered yet: `Keypad_Init()`, `Keypad_EnableInterrupt()`, `LedOutputAdapter`. Planned: on-target tests (Unity) and an emulator run (Renode).
+
 ## Flash and Debug
 
 ### Flash firmware
@@ -95,7 +115,7 @@ The firmware provides a complete PIN-based access control system:
 - failed attempt tracking and lockout protection
 - LED-based status feedback
 - SWO runtime debug output (register-level ITM/TPIU configuration)
-- host-based unit tests for application logic
+- host-based unit tests (GoogleTest) for application logic, keypad driver and EXTI configuration, run in CI
 
 ## Architecture
 
@@ -123,7 +143,7 @@ A detailed description of the architecture and design decisions can be found in 
 - Layered Software Architecture
 - Hardware Abstraction
 - Dependency Inversion
-- Unit Testing with Mocks
+- Unit Testing with GoogleTest (Mocks, Stubs, Hardware Fakes)
 - CoreSight Trace (ITM/ TPIU)
 
 Details about the MCU register mapping:
@@ -134,4 +154,4 @@ Details about the MCU register mapping:
 
 The project has been completed and validated on real hardware.
 
-The STM32F407-based access control system implements register-level hardware control, a layered software architecture, runtime trace output via SWO, host-based unit tests and hardware debugging using ST-LINK, OpenOCD and GDB.
+The STM32F407-based access control system implements register-level hardware control, a layered software architecture, runtime trace output via SWO, host-based unit tests (GoogleTest) and hardware debugging using ST-LINK, OpenOCD and GDB.

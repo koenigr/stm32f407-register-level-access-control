@@ -3,16 +3,13 @@
 #include "Mocks/MockKeypad.hpp"
 #include "Mocks/MockLedOutput.hpp"
 
-#include <cassert>
+#include <gtest/gtest.h>
 
-struct TestContext {
+class AccessControllerTest : public ::testing::Test {
+protected:
 	MockKeypad keypad;
 	MockLedOutput leds;
-	AccessController controller;
-
-	TestContext()
-		: controller(keypad, leds)
-		{}
+	AccessController controller{keypad, leds};
 
 	void EnterKeys(const char* keys) {
 		while (*keys) {
@@ -22,85 +19,66 @@ struct TestContext {
 	}
 };
 
-void RunAccessControllerTests() {
-	TestContext ctx;
+TEST_F(AccessControllerTest, CorrectPinGrantsAccess) {
+	EnterKeys("1234#");
 
-	ctx.EnterKeys("1234#");
-
-	assert(ctx.leds.green);
-	assert(!ctx.leds.red);
-	assert(!ctx.leds.blinkRed);
+	EXPECT_TRUE(leds.green);
+	EXPECT_FALSE(leds.red);
+	EXPECT_FALSE(leds.blinkRed);
 }
 
-void RunAccessControllerLockoutTest() {
-	TestContext ctx;
+TEST_F(AccessControllerTest, ThreeWrongPinsLockOut) {
+	EnterKeys("9999#9999#9999#");
 
-	// wrong pin
-	ctx.EnterKeys("9999#9999#9999#");
+	// correct PIN must not unlock
+	EnterKeys("1234#");
 
-	// correct PIN
-	ctx.EnterKeys("1234#");
-
-	// should stay locked
-	assert(ctx.leds.blinkRed);
+	EXPECT_TRUE(leds.blinkRed);
 }
 
-void RunAccessControllerShortPinTest() {
-	TestContext ctx;
+TEST_F(AccessControllerTest, ShortPinIsNotAccepted) {
+	EnterKeys("12#");
 
-	ctx.EnterKeys("12#");
-
-	assert(!ctx.leds.green);
-	assert(!ctx.leds.blinkRed);
+	EXPECT_FALSE(leds.green);
+	EXPECT_FALSE(leds.blinkRed);
 }
 
-void RunAccessControllerLongPinTest() {
-	TestContext ctx;
+TEST_F(AccessControllerTest, LongPinIgnoresExtraDigit) {
+	// the last digit is ignored, only 1234 gets validated
+	EnterKeys("12345#");
 
-	ctx.EnterKeys("12345#");
-
-	// the last number shall be ignored and only 1234 gets validated
-	assert(ctx.leds.green);
-	assert(!ctx.leds.red);
-	assert(!ctx.leds.blinkRed);
+	EXPECT_TRUE(leds.green);
+	EXPECT_FALSE(leds.red);
+	EXPECT_FALSE(leds.blinkRed);
 }
 
-void RunAccessControllerClearPinTest() {
-	TestContext ctx;
+TEST_F(AccessControllerTest, PinBufferIsClearedAfterAttempt) {
+	EnterKeys("9999#");
 
-	ctx.EnterKeys("9999#");
+	EXPECT_FALSE(leds.green);
+	EXPECT_TRUE(leds.red);
+	EXPECT_FALSE(leds.blinkRed);
 
-	assert(!ctx.leds.green);
-	assert(ctx.leds.red);
-	assert(!ctx.leds.blinkRed);
+	EnterKeys("1234#");
 
-	// The Pin-buffer shall get cleared
-
-	ctx.EnterKeys("1234#");
-
-	assert(ctx.leds.green);
-	assert(!ctx.leds.red);
-	assert(!ctx.leds.blinkRed);
+	EXPECT_TRUE(leds.green);
+	EXPECT_FALSE(leds.red);
+	EXPECT_FALSE(leds.blinkRed);
 }
 
-void RunAccessControllerLockoutIgnoresInputTest() {
-	TestContext ctx;
-
-	ctx.EnterKeys("9999#9999#9999#");
+TEST_F(AccessControllerTest, LockoutIgnoresInput) {
+	EnterKeys("9999#9999#9999#");
 
 	// try correct PIN after lockout
-	ctx.EnterKeys("1234#");
+	EnterKeys("1234#");
 
-	assert(ctx.leds.blinkRed);
-	assert(!ctx.leds.green);
+	EXPECT_TRUE(leds.blinkRed);
+	EXPECT_FALSE(leds.green);
 }
 
+TEST_F(AccessControllerTest, InvalidKeysAreIgnored) {
+	EnterKeys("AB*1234#");
 
-void RunAccessControllerInvalidKeysTest() {
-	TestContext ctx;
-
-	ctx.EnterKeys("AB*1234#");
-
-	assert(ctx.leds.green);
-	assert(!ctx.leds.red);
+	EXPECT_TRUE(leds.green);
+	EXPECT_FALSE(leds.red);
 }

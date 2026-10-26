@@ -1,0 +1,16 @@
+Checks: >
+  -*,
+  bugprone-*,
+  cert-*,
+  cppcoreguidelines-*,
+  performance-*,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -cppcoreguidelines-pro-type-cstyle-cast,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-avoid-c-arrays,
+  -cppcoreguidelines-macro-usage,
+  -performance-no-int-to-ptr
+HeaderFilterRegex: '^.*/(App|Core)/.*'
+WarningsAsErrors: ''

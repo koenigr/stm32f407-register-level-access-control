@@ -1,6 +1,6 @@
 .PHONY: help all firmware tests flash debug clean clean-all \
         configure-firmware configure-tests rebuild-firmware rebuild-tests \
-        gdb openocd size disasm symbols sections elfinfo swo
+        gdb openocd size disasm symbols sections elfinfo swo misra
 
 # ------------------------------------------------------------------
 # Configuration
@@ -78,7 +78,7 @@ firmware:
 
 tests:
 	cmake --build $(TEST_BUILD)
-	./$(TEST_BUILD)/Tests/unit_tests
+	ctest --test-dir $(TEST_BUILD) --output-on-failure
 
 # ------------------------------------------------------------------
 # Flash
@@ -130,6 +130,9 @@ reboot:
 swo:
 	gdb-multiarch -batch -x scripts/swo.gdb $(ELF)
 
+keypad-test:
+	gdb-multiarch -x scripts/keypad_test.gdb $(ELF)
+
 # ------------------------------------------------------------------
 # Inspection
 # ------------------------------------------------------------------
@@ -160,3 +163,30 @@ clean:
 clean-all:
 	rm -rf $(FIRMWARE_BUILD)
 	rm -rf $(TEST_BUILD)
+
+misra:
+	cppcheck --addon=misra --enable=warning,portability \
+	  --inline-suppr --error-exitcode=1 \
+	  --suppress=missingIncludeSystem \
+	  --suppress='*:*stm32f407xx.h' \
+	  -DSTM32F407xx \
+	  -I Core/Inc -I App -I Platform -I Drivers \
+	  -i build-firmware -i build-tests \
+	  App Core Platform
+
+ARM_INC := /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/include
+
+build-firmware/compile_commands.json: CMakeLists.txt
+	cmake -S . -B build-firmware
+
+tidy: build-firmware/compile_commands.json
+	clang-tidy -p build-firmware \
+	  --extra-arg=--target=arm-none-eabi \
+	  --extra-arg=-Wno-unknown-warning-option \
+	  --extra-arg=-isystem$(ARM_INC)/c++/10.3.1 \
+	  --extra-arg=-isystem$(ARM_INC)/c++/10.3.1/arm-none-eabi \
+	  --extra-arg=-isystem$(ARM_INC)/c++/10.3.1/backward \
+	  --extra-arg=-isystem/usr/lib/gcc/arm-none-eabi/10.3.1/include \
+	  --extra-arg=-isystem/usr/lib/gcc/arm-none-eabi/10.3.1/include-fixed \
+	  --extra-arg=-isystem$(ARM_INC) \
+	  $(shell find App Core -name '*.cpp')

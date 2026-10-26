@@ -2,6 +2,14 @@
 #include "keypad.h"
 #include "stm32f407xx.h"
 #include "stm32f407xx_gpio.h"
+#include "stm32f407xx_exti.h"
+#include "swo.h"
+
+#define ROW_MASK	0x000FU		// PD0 - PD3
+#define COL_SHIFT	8U
+#define COL_MASK	(0x000FU << COL_SHIFT)	// PD8 - PD11
+
+static volatile uint8_t keypad_irq_flag = 0;
 
 static void delay(void) {
 	for(uint32_t i = 0; i < 300000; i++);
@@ -14,27 +22,42 @@ static const char keypad[4][4] = {
 	{'*','0','#','D'},
 };
 
+static void Keypad_SetIdle(void) {
+	for (int row = 0; row < 4; row++) {
+		GPIO_WritePin(GPIOD, row, 0);
+	}
+}
+
 void Keypad_Init(void) {
 	//1. Enable the peripheral clock of GPIOD peripheral
 	GPIO_PeriClockControl(GPIOD, ENABLE);
 
 	//2. Configure PD0, PD1, PD2, PD3 as output (rows)
-	GPIO_InitOutput(GPIOD, 0);
-	GPIO_InitOutput(GPIOD, 1);
-	GPIO_InitOutput(GPIOD, 2);
-	GPIO_InitOutput(GPIOD, 3);
+	for (int pin = 0; pin < 4; pin++) {
+		GPIO_InitOutput(GPIOD, pin);
+	}
 
 	//3. configure PD8, PD9, PD10, PD11 as input (columns)
-	GPIO_InitInput(GPIOD, 8);
-	GPIO_InitInput(GPIOD, 9);
-	GPIO_InitInput(GPIOD, 10);
-	GPIO_InitInput(GPIOD, 11);
+	for (int pin = 8; pin < 12; pin++) {
+		GPIO_InitInput(GPIOD, pin);
+	}
 
 	//4. Enable internal pull-up resistors for PD8, PD9, PD10, PD11
-	GPIO_EnablePullUp(GPIOD, 8);
-	GPIO_EnablePullUp(GPIOD, 9);
-	GPIO_EnablePullUp(GPIOD, 10);
-	GPIO_EnablePullUp(GPIOD, 11);
+	for (int pin = 8; pin < 12; pin++) {
+		GPIO_EnablePullUp(GPIOD, pin);
+	}
+
+	Keypad_SetIdle();
+}
+
+void Keypad_EnableInterrupt(void) {
+	for (int pin = 8; pin < 12; pin++) {
+		EXTI_MapPort(pin, 3);
+		EXTI_SetFallingEdge(pin);
+		EXTI_Enable(pin);
+	}
+	EXTI_NVIC_Enable(23);
+	EXTI_NVIC_Enable(40);
 }
 
 char Keypad_Scan(void) {
@@ -61,4 +84,59 @@ char Keypad_Scan(void) {
 	}
 
 	return 0;
+}
+
+void EXTI9_5_IRQHandler(void) {
+	// Lines 8 and 9
+	if (EXTI->PR & ((1U << 8) | (1U << 9))) {
+		EXTI->PR = (1U << 8) | (1U << 9); // (Write-1-to-clear)
+		keypad_irq_flag = 1;
+		ITM_SendChar('5');
+	}
+}
+
+void EXTI15_10_IRQHandler(void) {
+	// Lines 10 and 11
+	if (EXTI->PR & ((1U << 10) | (1U << 11))) {
+		EXTI->PR = (1U << 10) | (1U << 11);
+		keypad_irq_flag = 1;
+		ITM_SendChar('A');
+	}
+}
+
+uint8_t Keypad_IrqPending(void) {
+	if (keypad_irq_flag) {
+		keypad_irq_flag = 0;
+		return 1;
+	}
+
+	return 0;
+}
+
+char Keypad_ReadEvent(void) {
+	char key = 0;
+
+	if (!Keypad_IrqPending()) {
+		return 0;
+	}
+
+	// 1. mask column interrupts
+	EXTI->IMR &= ~COL_MASK;
+
+	// 2. scan rows (wait for release)
+	key = Keypad_Scan();
+
+	// 3. restore idle state (all rows LOW)
+	Keypad_SetIdle();
+
+	// 4. debounce release
+	delay();
+
+	// 5. clear pending bits (write-1-to-clear), then unmask
+	EXTI->PR = COL_MASK;
+	EXTI->IMR |= COL_MASK;
+
+	if (key) ITM_SendChar(key); ITM_SendChar('\n');
+
+	return key;
 }
