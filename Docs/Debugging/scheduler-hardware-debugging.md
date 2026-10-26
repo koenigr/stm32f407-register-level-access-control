@@ -1,6 +1,6 @@
 # STM32 Scheduler — Hardware Debugging Log
 
-## 1. Objective
+## 1. Problem Statement
 
 Investigate unexpected behavior in the scheduler implementation on real STM32 hardware.
 
