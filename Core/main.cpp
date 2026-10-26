@@ -9,7 +9,7 @@
 // stdlib
 #include <cstdint>
 
-#define TEST_HARDFAULT
+// #define TEST_HARDFAULT
 
 void test_invalid_fnptr(void) {
 	void (* volatile fn)(void) = (void (*)(void))0x20000000; // missing thumb bit
