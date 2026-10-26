@@ -1,6 +1,10 @@
 # Start: arm-none-eabi-gdb build/firmware.elf -x keypad_test.gdb
 # OpenOCD läuft vorher (Port 3333)
 target extended-remote :3333
+
+monitor tpiu config internal swo.log uart off 16000000 125000
+monitor itm port 0 on
+
 monitor reset halt
 load
 
