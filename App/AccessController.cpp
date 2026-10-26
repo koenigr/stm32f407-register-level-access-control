@@ -55,7 +55,7 @@ void AccessController::Update() {
 	}
 
 	case LockState::LockedOut:
-		if ((clock_.NowMs() - lockoutStartMs_) >= kLockoutMs) {   // wraparound-sicher
+		if ((clock_.NowMs() - lockoutStartMs_) >= kLockoutMs) {
 			attempts_.Reset();
 			ClearPin();
 			state_ = LockState::Locked;
