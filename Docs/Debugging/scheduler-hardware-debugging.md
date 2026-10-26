@@ -18,7 +18,7 @@ The objective is to identify the discrepancy between the behavior verified by un
 ## 3. Test Environment
 
 - Target: STM32F407G-DISC1
-- Firmware: [commit hash / build identifier]
+- Firmware: 21842c8
 - Debugger: GDB via ST-Link / OpenOCD
 - Build configuration: CMake, ARM GCC, Debug build
 - Test setup: STM32F407G-DISC1 board connected via USB; OpenOCD and GDB; firmware flashed to physical hardware
@@ -41,9 +41,18 @@ The transitions are not reliable when entering the PIN at a normal typing speed.
 4. Execute the test scenario. 
 5. (Record the observed behavior.) 
 
-## 5. Investigation Log
+## 5. Test Matrix
+### 5.1 Unit Tests
 
-### Investigation 1 — [Date]
+### 5.2 Continuous Integration
+
+### 5.3 Hardware Tests
+
+### 5.4 Regression Tests
+
+## 6. Investigation Log
+
+### Investigation 1 — 2026-10-27
 
 **Question:** [What is being investigated?]
 
@@ -55,11 +64,11 @@ The transitions are not reliable when entering the PIN at a normal typing speed.
 
 **Next step:** [What should be investigated next?]
 
-## 6. Findings
+## 7. Findings
 
 [Record confirmed findings separately from unverified hypotheses.]
 
-## 7. Next Steps
+## 8. Next Steps
 
 - Characterize the hardware failure precisely.
 - Inspect the relevant scheduler state and execution flow.
@@ -69,6 +78,6 @@ The transitions are not reliable when entering the PIN at a normal typing speed.
 - Verify that existing unit tests still pass.
 - Document the final resolution and any remaining limitations.
 
-## 8. Root Cause
+## 9. Root Cause
 
-## 9. Resolutio
+## 10. Resolution
