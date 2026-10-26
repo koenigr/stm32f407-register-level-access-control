@@ -11,6 +11,8 @@ The objective is to identify why the application does not consistently behave as
 - [x] Access control state machine implemented
 - [x] Unit tests pass
 - [x] SysTick based millisecond clock implemented
+- [x] Unit tests pass locally
+- [x] GitHub Actions CI pipeline passes
 - [ ] Expected behavior verified on real hardware
 - [ ] Root cause identified
 - [ ] Fix implemented and verified
@@ -45,17 +47,17 @@ The AccessController's actions are based on internal states which are visualized
 
 ## 5. Investigation Log
 
-### Investigation 1 — [Date]
+### Investigation 1 — SysTick and Lockout Timeout
 
-**Question:** [What is being investigated?]
+**Question:** Does the millisecond counter advance correctly, and does the lockout timeout expire after 30 seconds?
 
-**Method:** [What was changed, measured, or inspected?]
+**Method:** Inspect g_ms, SysTick_Handler(), lockoutStartsMs_, and the condition in AccessController::Update().Verify the behavior on hardware using GDB.
 
-**Observation:** [What was actually observed?]
+**Observation:** Pending hardware investigation.
 
-**Conclusion:** [What does the evidence establish?]
+**Conclusion:** No root cause established yet.
 
-**Next step:** [What should be investigated next?]
+**Next step:** Verify that SysTick_Handler() is called and that clock_.NowMs() advances while the application is running.
 
 ## 6. Findings
 
