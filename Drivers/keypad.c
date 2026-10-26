@@ -3,6 +3,7 @@
 #include "stm32f407xx.h"
 #include "stm32f407xx_gpio.h"
 #include "stm32f407xx_exti.h"
+#include "swo.h"
 
 #define ROW_MASK	0x000FU		// PD0 - PD3
 #define COL_SHIFT	8U
@@ -90,6 +91,7 @@ void EXTI9_5_IRQHandler(void) {
 	if (EXTI->PR & ((1U << 8) | (1U << 9))) {
 		EXTI->PR = (1U << 8) | (1U << 9); // (Write-1-to-clear)
 		keypad_irq_flag = 1;
+		ITM_SendChar('5');
 	}
 }
 
@@ -98,6 +100,7 @@ void EXTI15_10_IRQHandler(void) {
 	if (EXTI->PR & ((1U << 10) | (1U << 11))) {
 		EXTI->PR = (1U << 10) | (1U << 11);
 		keypad_irq_flag = 1;
+		ITM_SendChar('A');
 	}
 }
 
@@ -132,6 +135,8 @@ char Keypad_ReadEvent(void) {
 	// 5. clear pending bits (write-1-to-clear), then unmask
 	EXTI->PR = COL_MASK;
 	EXTI->IMR |= COL_MASK;
+
+	if (key) ITM_SendChar(key); ITM_SendChar('\n');
 
 	return key;
 }

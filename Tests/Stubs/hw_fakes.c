@@ -69,3 +69,5 @@ void EXTI_MapPort(uint8_t line, uint8_t port) { (void)line; (void)port; }
 void EXTI_SetFallingEdge(uint8_t line) { (void)line; }
 void EXTI_Enable(uint8_t line) { (void)line; }
 void EXTI_NVIC_Enable(uint8_t irq) { (void)irq; }
+
+void ITM_SendChar(char c) { (void)c; }
