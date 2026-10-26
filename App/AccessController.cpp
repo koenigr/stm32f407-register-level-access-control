@@ -11,52 +11,43 @@ AccessController::AccessController(IKeypad& keypad, ILedOutput& leds)
 		leds_.Red();
 	  }
 
+AccessController::KeyEvent AccessController::ProcessKey(char key) {
+	if (key == '\0')
+		return KeyEvent::None;
+
+	if (key >= '0' && key <= '9') {
+		if (!AppendDigit(key)) {
+			ClearPin();
+			return KeyEvent::Invalid;
+		}
+		return KeyEvent::Digit;
+	}
+
+	if (key == '#')
+		return KeyEvent::Submit;
+
+	ClearPin();
+	return KeyEvent::Invalid;
+}
 
 void AccessController::Update() {
 
 	switch(state_) {
 	case LockState::Locked: {
-		char key = keypad_.Scan();
-
-		if (key == '\0')
-			return;
-
-		if (key >= '0' && key <= '9')
-		{
-			AppendDigit(key);
-			return;
-		}
-
-		if (key == '#')
-		{
+		if (ProcessKey(keypad_.Scan()) == KeyEvent::Submit) {
 			ValidatePin();
 		}
 		break;
 	}
 
 	case LockState::Unlocked: {
-		char key = keypad_.Scan();
-
-		if (key == '\0')
-			return;
-
-		if (key >= '0' && key <= '9') {
-			AppendDigit(key);
-			return;
-		}
-
-		if (key != '#')
-		{
-			ClearPin();
-			return;
-		} else if (key == '#') {
+		if (ProcessKey(keypad_.Scan()) == KeyEvent::Submit) {
 			if (length_ == 4) {
 				pin_[length_] = '\0';
 				validator_.SetPin(pin_);
 				state_ = LockState::Locked;
 				leds_.Red();
 			}
-
 			ClearPin();
 		}
 		break;
@@ -68,11 +59,12 @@ void AccessController::Update() {
 	}
 }
 
-void AccessController::AppendDigit(char digit) {
-	if (length_ < 4) {
-		pin_[length_] = digit;
-		++length_;
-	}
+bool AccessController::AppendDigit(char digit) {
+	if (length_ >= 4)
+		return false;
+	pin_[length_++] = digit;
+	return true;
+	
 }
 
 void AccessController::ValidatePin() {

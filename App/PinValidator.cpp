@@ -68,4 +68,5 @@ bool PinValidator::SetPin(const char* newPin) {
 
 	std::memcpy(pinHash_, computed_hash, SHA256_BLOCK_SIZE);
 
+	return true;
 }

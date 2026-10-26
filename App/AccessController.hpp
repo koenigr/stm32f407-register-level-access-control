@@ -13,7 +13,10 @@ public:
 	void Update();
 
 private:
-	void AppendDigit(char digit);
+	enum class KeyEvent { None, Digit, Submit, Invalid };
+
+	KeyEvent ProcessKey(char key);
+	bool AppendDigit(char digit);
 	void ValidatePin();
 	void ClearPin();
 
