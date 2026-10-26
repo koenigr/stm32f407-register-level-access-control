@@ -2,7 +2,7 @@
 
 ## 1. Problem Statement
 
-Investigate unexpected behavior in the scheduler implementation on real STM32 hardware.
+Investigate unexpected behavior in the scheduler implementation (issue #24) on real STM32 hardware.
 
 The objective is to identify the discrepancy between the behavior verified by unit tests and the behavior observed during hardware testing.
 
