@@ -25,7 +25,7 @@ A detailed description of the hardware setup, connections and pin assignments ca
 
 The project is built using a minimal toolchain consisting of:
 
-- arm-none-eabi-gcc
+- arm-none-eabi-gcc (with newlib and libstdc++ headers: `libnewlib-arm-none-eabi`, `libstdc++-arm-none-eabi-newlib`)
 - CMake
 - ST-LINK
 - OpenOCD
@@ -51,6 +51,25 @@ make firmware
 make tests
 ```
 
+## Usage
+
+The system starts locked (red LED). Input is given on the keypad, `#` submits.
+
+| Action | Keys | Result |
+|---|---|---|
+| Unlock | `1234#` (default PIN) | green LED |
+| Wrong PIN | any other four digits + `#` | red LED, attempt counted |
+| Lockout | three wrong PINs in a row | red LED blinks, input ignored for 30 s |
+| Change PIN | unlock, then `5678#` | new PIN is stored, system locks again |
+| Abort input | any non-digit key (`A-D`, `*`) or a fifth digit | buffer is cleared, no attempt counted |
+
+Notes:
+
+- Incomplete PINs (fewer than four digits) are rejected and do not count as an attempt.
+- After the lockout time the attempt counter is reset and the system returns to the locked state.
+- The changed PIN is kept in RAM only and is lost on reset (default PIN again).
+- The lockout duration is `kLockoutMs` in `App/AccessController.hpp`.
+
 ## Testing
 
 Host-based unit tests use [GoogleTest](https://github.com/google/googletest) (fetched via CMake `FetchContent`) and run without hardware:
@@ -61,15 +80,17 @@ make tests
 
 | Executable | Covers |
 |---|---|
-| `unit_tests` | Application logic (`AccessController`, `PinValidator`, `AttemptCounter`) with mocks, and `KeypadAdapter` with a stubbed driver |
+| `unit_tests` | Application logic (`AccessController`, `PinValidator`, `AttemptCounter`) with mocks (`MockKeypad`, `MockLedOutput`, `MockClock`), and `KeypadAdapter` with a stubbed driver |
 | `driver_tests` | Keypad driver (`keypad.c`): EXTI handlers, `Keypad_ReadEvent()` with a simulated key matrix |
 | `platform_tests` | EXTI/NVIC register configuration (`stm32f407xx_exti.c`) against RAM-backed registers |
 
+The `AccessController` tests include input validation (invalid keys, too short and too long PINs), PIN change and the lockout timeout. Time is controlled through `MockClock`, including the wraparound of the 32-bit millisecond counter.
+
 The hardware tests build with `-DUNIT_TEST`, which redirects the peripheral pointers to RAM structs. Write-1-to-clear behaviour of registers is not emulated; the tests check the value written.
 
-All tests run in GitHub Actions on every push.
+All tests run in GitHub Actions on every push, together with the firmware build.
 
-Not covered yet: `Keypad_Init()`, `Keypad_EnableInterrupt()`, `LedOutputAdapter`. Planned: on-target tests (Unity) and an emulator run (Renode).
+Not covered yet: `Keypad_Init()`, `Keypad_EnableInterrupt()`, `LedOutputAdapter`, `SysTickClock`, the HardFault handler. Planned: on-target tests (Unity) and an emulator run (Renode).
 
 ## Flash and Debug
 
@@ -77,6 +98,8 @@ Not covered yet: `Keypad_Init()`, `Keypad_EnableInterrupt()`, `LedOutputAdapter`
 ```bash
 make flash
 ```
+
+`make flash` programs, verifies and resets the target through OpenOCD, which exits afterwards. A separate `make openocd` is only needed for GDB and SWO.
 
 ### Start OpenOCD
 ```bash
@@ -100,6 +123,14 @@ no UART, no extra wiring. Output is written to `swo.log`.
 
 More details: [SWO Debugging](Docs/swo.md)
 
+### Crash diagnostics
+
+An unhandled fault ends in `HardFault_Handler`, which prints the stacked registers (`R0-R3`, `R12`, `LR`, `PC`, `xPSR`) and the fault status registers (`CFSR`, `HFSR`, `MMFAR`, `BFAR`) over SWO. The faulting source line is found with:
+
+```bash
+arm-none-eabi-addr2line -e build-firmware/stm32f407_access_control.elf <PC>
+```
+
 More details about startup and memory layout:
 
 [Startup Code](Docs/startup.md)  
@@ -110,10 +141,12 @@ More details about startup and memory layout:
 The firmware provides a complete PIN-based access control system:
 
 - register-level GPIO programming
-- custom keypad input driver
-- PIN authentication
-- failed attempt tracking and lockout protection
+- interrupt-driven keypad input driver (EXTI, NVIC, `wfi`)
+- PIN authentication with consistent input validation
+- PIN change while unlocked
+- failed attempt tracking and time-based lockout (30 s, SysTick clock)
 - LED-based status feedback
+- HardFault handler with register dump over SWO
 - SWO runtime debug output (register-level ITM/TPIU configuration)
 - host-based unit tests (GoogleTest) for application logic, keypad driver and EXTI configuration, run in CI
 
@@ -124,10 +157,10 @@ A layered architecture separates hardware-specific code from application logic.
 The main components are:
 
 - Application layer: AccessController, PinValidator, AttemptCounter
-- Hardware interfaces: IKeypad, ILedOutput
-- Hardware adapters: KeypadAdapter, LedOutputAdapter
+- Hardware interfaces: IKeypad, ILedOutput, IClock
+- Hardware adapters: KeypadAdapter, LedOutputAdapter, SysTickClock
 
-The application layer does not directly access STM32 registers.
+The application layer does not directly access STM32 registers. Time is injected through `IClock`: the firmware uses a SysTick-based millisecond counter, the tests use a controllable mock.
 
 A detailed description of the architecture and design decisions can be found in the [Architecture Documentation](Docs/architecture.md).
 
@@ -144,6 +177,8 @@ A detailed description of the architecture and design decisions can be found in 
 - Hardware Abstraction
 - Dependency Inversion
 - Unit Testing with GoogleTest (Mocks, Stubs, Hardware Fakes)
+- Interrupt Handling (EXTI, NVIC, SysTick)
+- Fault Analysis (HardFault stack frame, CFSR)
 - CoreSight Trace (ITM/ TPIU)
 
 Details about the MCU register mapping:
