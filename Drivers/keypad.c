@@ -136,7 +136,10 @@ char Keypad_ReadEvent(void) {
 	EXTI->PR = COL_MASK;
 	EXTI->IMR |= COL_MASK;
 
-	if (key) ITM_SendChar(key); ITM_SendChar('\n');
+	if (key) {
+		ITM_SendChar(key);
+		ITM_SendChar('\n');
+	}
 
 	return key;
 }

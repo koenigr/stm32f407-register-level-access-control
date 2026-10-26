@@ -1,9 +1,10 @@
 #include "AccessController.hpp"
 
 
-AccessController::AccessController(IKeypad& keypad, ILedOutput& leds)
+AccessController::AccessController(IKeypad& keypad, ILedOutput& leds, IClock& clock)
 	: keypad_(keypad),
 	  leds_(leds),
+	  clock_(clock),
 	  pin_{},
 	  length_(0),
 	  state_(LockState::Locked)
@@ -54,7 +55,12 @@ void AccessController::Update() {
 	}
 
 	case LockState::LockedOut:
-		// check timout
+		if (clock_.NowMs() - lockoutStartMs_ >= kLockoutMs) {   // wraparound-sicher
+			attempts_.Reset();
+			ClearPin();
+			state_ = LockState::Locked;
+			leds_.Red();
+		}
 		break;
 	}
 }
@@ -85,6 +91,7 @@ void AccessController::ValidatePin() {
 		attempts_.Increment();
 
 		if (attempts_.IsLockedOut()) {
+			lockoutStartMs_ = clock_.NowMs();
 			state_ = LockState::LockedOut;
 			leds_.BlinkRed();
 		}
