@@ -84,8 +84,10 @@ The Update() function continued executing the blinking logic and controlling the
 
 ## 8. Resolution
 **Fix:**
-- Reset blinking_ when leaving the blinking state.
+- Reset blinking_ when leaving the blinking state, preventing the blinking logic from remaining active after the lockout ends.
 - **Fix commit:** bcd904d Fix Blinking Bug
+
+![Corrected LED output adapter implementation](../img/corrected_blinking_bug.jpg)
 
   
 **Verification:**
