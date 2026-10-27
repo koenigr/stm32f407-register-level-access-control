@@ -31,6 +31,7 @@ else()
 
         App/Adapters/KeypadAdapter.cpp
         App/Adapters/LedOutputAdapter.cpp
+        App/Adapters/SysTickClock.cpp
         App/PinValidator.cpp
         App/sha256.c
         App/AttemptCounter.cpp

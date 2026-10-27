@@ -47,6 +47,11 @@ Used peripherals:
 | SYSCFG | 0x40013800 | Route GPIO pins to EXTI lines |
 | EXTI | 0x40013C00 | External interrupt configuration |
 | NVIC | 0xE000E100 (ISER) | Enable interrupts in the core |
+| SysTick | 0xE000E010 | 1 ms time base |
+| SCB (fault status) | 0xE000ED28 | Fault diagnostics |
+| ITM / TPIU / DEMCR / DBGMCU | see [SWO Debugging](swo.md) | Trace output |
+
+The registers of NVIC, SysTick, SCB, ITM, TPIU and DEMCR belong to the Cortex-M4 core, not to the STM32 peripheral set.
 
 ---
 
@@ -155,6 +160,51 @@ The keypad interrupts are enabled through:
 
 ---
 
+## SysTick Registers
+
+SysTick is a 24-bit down-counter in the Cortex-M4 core. It generates the 1 ms time base for the lockout timeout. Its interrupt is an exception (position 15 of the vector table), not an NVIC IRQ, so no `ISER` bit is involved.
+
+| Register | Address | Purpose |
+|---|---|---|
+| SYST_CSR | 0xE000E010 | Control and status |
+| SYST_RVR | 0xE000E014 | Reload value |
+| SYST_CVR | 0xE000E018 | Current value, writing clears it |
+
+`SYST_CSR` bits used:
+
+| Bit | Name | Value | Meaning |
+|---|---|---|---|
+| 0 | ENABLE | 1 | counter running |
+| 1 | TICKINT | 1 | interrupt on reaching zero |
+| 2 | CLKSOURCE | 1 | processor clock |
+
+Configuration for a 1 ms tick at the 16 MHz HSI clock:
+
+```text
+SYST_RVR = 16000000 / 1000 - 1 = 15999
+SYST_CVR = 0
+SYST_CSR = 0x7
+```
+
+The reload value is clock-dependent. If the system clock is changed, `kCoreClockHz` in `SysTickClock.cpp` must be changed as well.
+
+---
+
+## SCB Fault Status Registers
+
+The System Control Block holds the registers used to analyse a fault in the `HardFault_Handler`.
+
+| Register | Address | Purpose |
+|---|---|---|
+| CFSR | 0xE000ED28 | Configurable fault status (MemManage bits 0-7, BusFault bits 8-15, UsageFault bits 16-31) |
+| HFSR | 0xE000ED2C | HardFault status (bit 30 FORCED: escalated from another fault) |
+| MMFAR | 0xE000ED34 | Address of a MemManage fault |
+| BFAR | 0xE000ED38 | Address of a BusFault |
+
+`MMFAR` and `BFAR` are only valid if the corresponding valid bit (`MMARVALID`, `BFARVALID`) in `CFSR` is set.
+
+---
+
 ## Volatile Access
 
 Hardware registers are declared as volatile.
@@ -168,6 +218,7 @@ Example:
 - input pins can change because of external signals
 - output registers must be written directly to hardware
 - the EXTI pending flag is set by hardware and cleared by the interrupt handler
+- the SysTick counter variable is written in an interrupt handler and read in the main loop
 
 ---
 
@@ -205,6 +256,7 @@ Direct register access was chosen to understand:
 - MCU register layout
 - GPIO configuration
 - interrupt routing from pin to EXTI to NVIC
+- core timer and fault registers
 - hardware abstraction
 - embedded driver design
 

@@ -5,6 +5,7 @@
 #include "AccessController.hpp"
 #include "KeypadAdapter.hpp"
 #include "LedOutputAdapter.hpp"
+#include "Adapters/SysTickClock.hpp"
 
 // stdlib
 #include <cstdint>
@@ -28,9 +29,13 @@ int main() {
 	KeypadAdapter keypad;
 	LedOutputAdapter leds;
 
+	SysTickClock::Init();
+	SysTickClock clock;
+
 	AccessController controller(
 		keypad,
-		leds
+		leds,
+		clock
 	);
 
 	leds.Red();

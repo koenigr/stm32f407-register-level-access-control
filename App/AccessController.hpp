@@ -2,23 +2,32 @@
 
 #include "Interfaces/IKeypad.hpp"
 #include "Interfaces/ILedOutput.hpp"
+#include "Interfaces/IClock.hpp"
 #include "PinValidator.hpp"
 #include "AttemptCounter.hpp"
 #include "LockState.hpp"
 
 class AccessController {
 public:
-	AccessController(IKeypad& keypad, ILedOutput& leds);
+	AccessController(IKeypad& keypad, ILedOutput& leds, IClock&);
 
 	void Update();
 
 private:
-	void AppendDigit(char digit);
+	enum class KeyEvent { None, Digit, Submit, Invalid };
+
+	KeyEvent ProcessKey(char key);
+	bool AppendDigit(char digit);
 	void ValidatePin();
 	void ClearPin();
 
 	IKeypad& keypad_;
 	ILedOutput& leds_;
+	IClock& clock_;
+
+	uint32_t lockoutStartMs_{0};
+
+	static constexpr uint32_t kLockoutMs = 30000;
 
 	PinValidator validator_;
 	AttemptCounter attempts_;

@@ -2,11 +2,11 @@ extern "C" void __cxa_pure_virtual() {
 	while(1) {}
 }
 
-void operator delete(void* ptr) {
+void operator delete(void*) {
 	while(1) {}
 }
 
-void operator delete[](void* ptr) {
+void operator delete[](void*) {
 	while(1) {}
 }
 
