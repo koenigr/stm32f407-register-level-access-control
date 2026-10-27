@@ -9,7 +9,6 @@ The objective is to identify why the application does not consistently behave as
 ## 2. Current Status
 
 - [x] Access control state machine implemented
-- [x] Unit tests pass
 - [x] SysTick based millisecond clock implemented
 - [x] Unit tests pass locally
 - [x] GitHub Actions CI pipeline passes
@@ -21,8 +20,8 @@ The objective is to identify why the application does not consistently behave as
 ## 3. Test Environment
 
 - Target: STM32F407G-DISC1
-- Firmware: commit-hash: 21842c8
-- Debugger: GDB via GDB via ST-Link / OpenOCD
+- Firmware: Commit 21842c8
+- Debugger: GDB via ST-Link / OpenOCD
 - Build configuration: CMake, ARM GCC, Debug build
 - Test setup: STM32F407G-DISC1 board connected via USB; OpenOCD and GDB; firmware flashed to physical hardware
 
@@ -67,29 +66,28 @@ The AccessController's actions are based on internal states, which are visualize
 **Preliminary Conclusion:**
 The investigation found no evidence of a problem in the SysTick timekeeping, lockout timing, keypad interrupt handling, or state transitions. The investigation therefore narrowed the suspected fault to the LED control functions.
 
-**Next step:** Investigate the implementation of the LED control functions and verify their behavior on hardware.
-
 ## 6. Findings
 - Hardware debugging confirmed that g_ms advanced as expected and lockoutStartsMs_ was set correctly.
 - The state transitions occurred as expected. The investigation therefore ruled out the suspected timekeeping and state-transition logic as the cause of the observed LED behavior.
 - The fault was isolated to the LED output adapter.
 - **Debugging lesson:** When setting breakpoints or evaluating expressions in GDB, the current execution context matters. The visibility and accessibility of local variables and object members depend on the current scope and stack frame.
 
-## 7. Next Steps
-Debugging task is finished.
 
-## 8. Root Cause
+## 7. Root Cause
 ![Original LED output adapter implementation](../img/blinking-bug.png)
 
-The fault was caused by an issue in the LED output adapter:
-**Persistent blinking flag:** BlinkRed() set blinking_ to true, but the flag was never reset when leaving the lockout state. Consequently, the blinking behavior remained active after the lockout hab expired.The Update() function directly controlled the PGIO pins to produce the red blinking signal. This overrode other LED commands, causing the LED to turn green briefly after a valid PIN was entered before returning to red blinking.
+The fault was caused by a persistent blinking flag in the LED output adapter.
 
-## 9. Resolution
+The BlinkRed() function set blinking_ to true, but the flag was never reset when leaving the lockout state. Consequently, the blinking behavior remained active after the lockout had expired.
+
+The Update() function continued executing the blinking logic and controlling the GPIO pins accordingly. When a valid PIN was entered after the timeout, the green LED was activated briefly, but the next blinking update restored the red LED output.
+
+## 8. Resolution
 **Fix:**
 - Reset blinking_ when leaving the blinking state.
   
 **Verification:**
-- Repeat the lockout test on the STM32 hardware.
-- Confirm that the red LED stops blinking after the 30-second timeout.
-- Confirm that entering a valid PIN produces the expected green LED behavior.
-- Run the existing unit tests and verify that the CI pipeline passes.**
+- Repeated the lockout test on the STM32 hardware.
+- Confirmed that the red LED stopped blinking after the 30-second timeout.
+- Confirmed that entering a valid PIN produced the expected green LED behavior.
+- Verified that the existing unit tests passed and the GitHub Actions CI pipeline completed successfully.
