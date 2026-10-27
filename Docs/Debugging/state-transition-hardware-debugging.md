@@ -85,6 +85,8 @@ The Update() function continued executing the blinking logic and controlling the
 ## 8. Resolution
 **Fix:**
 - Reset blinking_ when leaving the blinking state.
+- **Fix commit:** bcd904d Fix Blinking Bug
+
   
 **Verification:**
 - Repeated the lockout test on the STM32 hardware.
