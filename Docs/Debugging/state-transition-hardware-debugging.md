@@ -13,10 +13,10 @@ The objective is to identify why the application does not consistently behave as
 - [x] SysTick based millisecond clock implemented
 - [x] Unit tests pass locally
 - [x] GitHub Actions CI pipeline passes
-- [ ] Expected behavior verified on real hardware
-- [ ] Root cause identified
-- [ ] Fix implemented and verified
-- [ ] Regression testing completed
+- [x] Expected behavior verified on real hardware
+- [x] Root cause identified
+- [x] Fix implemented and verified
+- [x] Regression testing completed
 
 ## 3. Test Environment
 
@@ -79,7 +79,9 @@ The investigation found no evidence of a problem in the SysTick timekeeping, loc
 Debugging task is finished.
 
 ## 8. Root Cause
-The fault was caused by two issues in the LED output adapter:
+![Original LED output adapter implementation](../img/blinking-bug.png)
+
+The fault was caused by an issue in the LED output adapter:
 **Persistent blinking flag:** BlinkRed() set blinking_ to true, but the flag was never reset when leaving the lockout state. Consequently, the blinking behavior remained active after the lockout hab expired.The Update() function directly controlled the PGIO pins to produce the red blinking signal. This overrode other LED commands, causing the LED to turn green briefly after a valid PIN was entered before returning to red blinking.
 
 ## 9. Resolution
