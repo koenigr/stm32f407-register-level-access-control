@@ -21,10 +21,10 @@ The objective is to identify why the application does not consistently behave as
 ## 3. Test Environment
 
 - Target: STM32F407G-DISC1
-- Firmware: [commit hash / build identifier]
-- Debugger: GDB via [debug interface]
-- Build configuration: [configuration]
-- Test setup: [relevant hardware and software configuration]
+- Firmware: commit-hash: 21842c8
+- Debugger: GDB via GDB via ST-Link / OpenOCD
+- Build configuration: CMake, ARM GCC, Debug build
+- Test setup: STM32F407G-DISC1 board connected via USB; OpenOCD and GDB; firmware flashed to physical hardware
 
 ## 4. Problem Description
 
