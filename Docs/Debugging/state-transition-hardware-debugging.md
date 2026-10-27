@@ -74,7 +74,7 @@ The investigation found no evidence of a problem in the SysTick timekeeping, loc
 
 
 ## 7. Root Cause
-![Original LED output adapter implementation](../img/blinking-bug.png)
+![Original LED output adapter implementation](../img/Blinking\ Bug.jpg)
 
 The fault was caused by a persistent blinking flag in the LED output adapter.
 
