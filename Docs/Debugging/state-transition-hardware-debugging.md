@@ -33,13 +33,14 @@ The objective is to identify why the application does not consistently behave as
 The AccessController's actions are based on internal states, which are visualized by LED behavior (Locked – red light, Unlocked – green light, LockedOut – blinking red). The state after reset/initialization is Locked. There is an initial PIN (1234). The PIN entry is confirmed by pressing '#'. If a valid PIN is entered, the state transitions to Unlocked, and the green LED lights up. To leave this state, the user must enter a 4-digit PIN (the old or a new one) and confirm with '#'. This transitions the system back to the Locked state. If the user enters a wrong PIN three times, the system transitions to the LockedOut state, where the red LED blinks. This state is controlled by the SysTick timer and transitions back to the Locked state after 30 seconds.
 
 **Actual behavior:**
-
-The transitions are not reliable when entering the PIN at a normal typing speed. Sometimes it works, sometimes it doesn't. The LockedOut state never transitions back to the Locked state.
+- Normal transitions between Locked and Unlocked worked as expected.
+- Once the system entered the lockout state, the red LED continued blinking instead of returning to the expected behavior after the 30-second timeout.
+- Entering a valid PIN after the timeout caused the LED to turn green briefly, but the red LED then resumed blinking.
 
 **Reproduction steps:**
 
 1. Build and flash the firmware to the STM32F407G-DISC1.
-2 Enter an incorrect PIN three times, confirming each attempt with #.
+2. Enter an incorrect PIN three times, confirming each attempt with #.
 3. Verify that the system enters LockedOut and the red LED blinks.
 4. Wait at least 30 seconds.
 5. Observe whether the system returns to Locked and accepts keypad input again.
@@ -51,13 +52,22 @@ The transitions are not reliable when entering the PIN at a normal typing speed.
 
 **Question:** Does the millisecond counter advance correctly, and does the lockout timeout expire after 30 seconds?
 
-**Method:** Inspect g_ms, SysTick_Handler(), lockoutStartsMs_, and the condition in AccessController::Update().Verify the behavior on hardware using GDB.
+**Method:**
+- Enabled GDB debugging and SWO tracing
+- Monitored SWO output to verify that keypad presses were correctly detected in the interrupt handlers.
+- Used GDB to inspect g_ms and lockoutStartsMs_ and verify the timekeeping and lockout start time.
+- Set a watchpoint on state_ to observe state transitions and identify the code executed during each transition.
 
-**Observation:** Pending hardware investigation.
+**Observation:**
+- Keypad presses were correctly detected in the interrupt handlers, as confirmed by SWO output.
+- g_ms advanced as expected, and lockoutStartsMs_ was set correctly.
+- The state transitions occured as expected.
+- The corresponding LED functions (leds_.Red(), leds_.Green(), and leds_,BlinkRed()) were called at the appropriate points in the applications logic.
 
-**Conclusion:** No root cause established yet.
+**Preliminary Conclusion:**
+The investigation found no evidence of a problem in the SysTick timekeeping, lockout timing, keypad interrupt handling, or state transitions. The investigation therefore narrowed the suspected fault to the LED control functions.
 
-**Next step:** Verify that SysTick_Handler() is called and that clock_.NowMs() advances while the application is running.
+**Next step:** Investigate the implementation of the LED control functions and verify their behavior on hardware.
 
 ## 6. Findings
 
@@ -75,4 +85,4 @@ The transitions are not reliable when entering the PIN at a normal typing speed.
 
 ## 8. Root Cause
 
-## 9. Resolutio
+## 9. Resolution
