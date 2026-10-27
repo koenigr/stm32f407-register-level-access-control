@@ -9,11 +9,13 @@ LedOutputAdapter::LedOutputAdapter() {
 }
 
 void LedOutputAdapter::Red() {
+	blinking_ = false;
 	GPIO_WritePin(GPIOD, 14, 1);
 	GPIO_WritePin(GPIOD, 12, 0);
 }
 
 void LedOutputAdapter::Green() {
+	blinking_ = false;
 	GPIO_WritePin(GPIOD, 12, 1);
 	GPIO_WritePin(GPIOD, 14, 0);
 }
