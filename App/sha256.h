@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+// NOLINTNEXTLINE(performance-enum-size)
 enum { SHA256_BLOCK_SIZE = 32 };
 
 #ifdef __cplusplus
