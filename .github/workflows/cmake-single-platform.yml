@@ -81,5 +81,8 @@ jobs:
         libnewlib-arm-none-eabi \
         libstdc++-arm-none-eabi-newlib
 
+    - name: Show clang-tidy version
+      run: clang-tidy --version
+
     - name: Run clang-tidy
       run: make tidy
