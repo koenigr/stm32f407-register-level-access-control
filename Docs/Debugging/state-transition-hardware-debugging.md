@@ -98,5 +98,6 @@ The Update() function continued executing the blinking logic and controlling the
 
 ## Related Blog Post
 
-For a personal account of this debugging experience and the lessons learned using GDB and SWO on real hardware, see the [blog post: Debugging an STM32 — My First Hands-On Experience with GDB and SWO](https://koenigr.github.io/embedded/debugging/2026/10/28/debugging-stm32-led-blinking/).
+For a personal account of this debugging experience and the lessons learned using GDB and SWO on real hardware,
+see the [blog post: Debugging an STM32 — My First Hands-On Experience with GDB and SWO](https://koenigr.github.io/embedded/debugging/2026/10/28/debugging-stm32-led-blinking/).
 
