@@ -8,7 +8,7 @@
               specification. The others, SHA-384 and SHA-512, are not
               offered in this implementation.
               Algorithm specification can be found here:
-               * http://csrc.nist.gov/publications/fips/fips180-2/fips180-2withchangenotice.pdf
+               * Algorithm specification: NIST FIPS 180-2.
               This implementation uses little endian byte order.
 *********************************************************************/
 
@@ -18,7 +18,7 @@
 #include "sha256.h"
 
 /****************************** MACROS ******************************/
-#define ROTLEFT(a,b) (((a) << (b)) | ((a) >> (32-(b))))
+// #define ROTLEFT(a,b) (((a) << (b)) | ((a) >> (32-(b))))
 #define ROTRIGHT(a,b) (((a) >> (b)) | ((a) << (32-(b))))
 
 #define CH(x,y,z) (((x) & (y)) ^ (~(x) & (z)))
@@ -46,7 +46,8 @@ void sha256_transform(SHA256_CTX *ctx, const uint8_t data[])
 	uint32_t a, b, c, d, e, f, g, h, i, j, t1, t2, m[64];
 
 	for (i = 0, j = 0; i < 16; ++i, j += 4)
-		m[i] = (data[j] << 24) | (data[j + 1] << 16) | (data[j + 2] << 8) | (data[j + 3]);
+		m[i] = ((uint32_t)data[j] << 24) | ((uint32_t)data[j + 1] << 16)
+		| ((uint32_t)data[j + 2] << 8) | ((uint32_t)data[j + 3]);
 	for ( ; i < 64; ++i)
 		m[i] = SIG1(m[i - 2]) + m[i - 7] + SIG0(m[i - 15]) + m[i - 16];
 
@@ -128,19 +129,19 @@ void sha256_final(SHA256_CTX *ctx, uint8_t hash[])
 		while (i < 64)
 			ctx->data[i++] = 0x00;
 		sha256_transform(ctx, ctx->data);
-		memset(ctx->data, 0, 56);
+		(void)memset(ctx->data, 0, 56);
 	}
 
 	// Append to the padding the total message's length in bits and transform.
-	ctx->bitlen += ctx->datalen * 8;
-	ctx->data[63] = ctx->bitlen;
-	ctx->data[62] = ctx->bitlen >> 8;
-	ctx->data[61] = ctx->bitlen >> 16;
-	ctx->data[60] = ctx->bitlen >> 24;
-	ctx->data[59] = ctx->bitlen >> 32;
-	ctx->data[58] = ctx->bitlen >> 40;
-	ctx->data[57] = ctx->bitlen >> 48;
-	ctx->data[56] = ctx->bitlen >> 56;
+	ctx->bitlen +=  ctx->datalen * 8;
+	ctx->data[63] =  (uint8_t)(ctx->bitlen);
+	ctx->data[62] =  (uint8_t)(ctx->bitlen >> 8);
+	ctx->data[61] =  (uint8_t)(ctx->bitlen >> 16);
+	ctx->data[60] =  (uint8_t)(ctx->bitlen >> 24);
+	ctx->data[59] =  (uint8_t)(ctx->bitlen >> 32);
+	ctx->data[58] =  (uint8_t)(ctx->bitlen >> 40);
+	ctx->data[57] =  (uint8_t)(ctx->bitlen >> 48);
+	ctx->data[56] =  (uint8_t)(ctx->bitlen >> 56);
 	sha256_transform(ctx, ctx->data);
 
 	// Since this implementation uses little endian byte ordering and SHA uses big endian,

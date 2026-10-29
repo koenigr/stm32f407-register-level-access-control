@@ -10,7 +10,8 @@ Checks: >
   -cppcoreguidelines-pro-bounds-constant-array-index,
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
   -cppcoreguidelines-avoid-c-arrays,
+  -cppcoreguidelines-avoid-const-or-ref-data-members,
   -cppcoreguidelines-macro-usage,
   -performance-no-int-to-ptr
 HeaderFilterRegex: '^.*/(App|Core)/.*'
-WarningsAsErrors: ''
+WarningsAsErrors: '*'

@@ -4,13 +4,9 @@
 AccessController::AccessController(IKeypad& keypad, ILedOutput& leds, IClock& clock)
 	: keypad_(keypad),
 	  leds_(leds),
-	  clock_(clock),
-	  pin_{},
-	  length_(0),
-	  state_(LockState::Locked)
-	  {
-		leds_.Red();
-	  }
+	  clock_(clock)
+	  {}
+
 
 AccessController::KeyEvent AccessController::ProcessKey(char key) {
 	if (key == '\0')
@@ -35,8 +31,11 @@ void AccessController::Update() {
 
 	switch(state_) {
 	case LockState::Locked: {
-		if (ProcessKey(keypad_.Scan()) == KeyEvent::Submit) {
+		const KeyEvent event = ProcessKey(keypad_.Scan());
+		if (event == KeyEvent::Submit) {
 			ValidatePin();
+		} else if (event == KeyEvent::Invalid) {
+			leds_.Red();
 		}
 		break;
 	}

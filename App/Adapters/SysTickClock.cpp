@@ -2,10 +2,15 @@
 #include "stm32f407xx.h"
 
 namespace {
+
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) -- written in SysTick ISR
 volatile uint32_t g_ms = 0;
 
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) -- memory-mapped register
 volatile uint32_t* const SYST_CSR = reinterpret_cast<volatile uint32_t*>(0xE000E010);
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) -- memory-mapped register
 volatile uint32_t* const SYST_RVR = reinterpret_cast<volatile uint32_t*>(0xE000E014);
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) -- memory-mapped register
 volatile uint32_t* const SYST_CVR = reinterpret_cast<volatile uint32_t*>(0xE000E018);
 
 constexpr uint32_t kCoreClockHz = 16000000U;   // HSI nach Reset

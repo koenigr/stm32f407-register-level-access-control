@@ -60,7 +60,9 @@ extern "C" {
 	}
 
 	__attribute__((used)) void hardfault_c(uint32_t *frame) {
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) -- HardFault stack frame
 		volatile uint32_t pc = frame[6];
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) -- HardFault stack frame
 		volatile uint32_t lr = frame[5];
 		volatile uint32_t cfsr = *(volatile uint32_t *)0xE000ED28;
 		volatile uint32_t hfsr = *(volatile uint32_t *)0xE000ED2C;

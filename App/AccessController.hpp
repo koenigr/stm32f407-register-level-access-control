@@ -7,6 +7,8 @@
 #include "AttemptCounter.hpp"
 #include "LockState.hpp"
 
+#include <cstdint>
+
 class AccessController {
 public:
 	AccessController(IKeypad& keypad, ILedOutput& leds, IClock&);
@@ -14,7 +16,7 @@ public:
 	void Update();
 
 private:
-	enum class KeyEvent { None, Digit, Submit, Invalid };
+	enum class KeyEvent : std::uint8_t { None, Digit, Submit, Invalid };
 
 	KeyEvent ProcessKey(char key);
 	bool AppendDigit(char digit);
@@ -32,8 +34,8 @@ private:
 	PinValidator validator_;
 	AttemptCounter attempts_;
 
-	char pin_[5];
-	unsigned int length_;
+	char pin_[5]{};
+	unsigned int length_{0};
 
-	LockState state_;
+	LockState state_{LockState::Locked};
 };

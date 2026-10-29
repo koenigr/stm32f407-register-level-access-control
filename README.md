@@ -1,5 +1,7 @@
 # STM32F407 Register-Level Access Control System
 
+[![CI](https://github.com/koenigr/stm32f407-register-level-access-control/actions/workflows/cmake-single-platform.yml/badge.svg)](https://github.com/koenigr/stm32f407-register-level-access-control/actions/workflows/cmake-single-platform.yml)
+
 This project intentionally avoids STM32 HAL and CubeMX-generated code. Every peripheral
 is configured directly through its registers, to demonstrate the full path from MCU
 startup to application logic without framework abstractions in between.
@@ -31,6 +33,8 @@ The project is built using a minimal toolchain consisting of:
 - OpenOCD
 - gdb-multiarch (Ubuntu) or arm-none-eabi-gdb
 - GNU Make
+- clang-tidy
+- Cppcheck (MISRA addon)
 
 ## Build
 
@@ -88,9 +92,37 @@ The `AccessController` tests include input validation (invalid keys, too short a
 
 The hardware tests build with `-DUNIT_TEST`, which redirects the peripheral pointers to RAM structs. Write-1-to-clear behaviour of registers is not emulated; the tests check the value written.
 
-All tests run in GitHub Actions on every push, together with the firmware build.
+Firmware build, `make tidy` and all tests run in GitHub Actions on every push.
 
 Not covered yet: `Keypad_Init()`, `Keypad_EnableInterrupt()`, `LedOutputAdapter`, `SysTickClock`, the HardFault handler. Planned: on-target tests (Unity) and an emulator run (Renode).
+
+### Code Quality
+
+Static analysis checks support code quality and maintainability.
+
+| Check | Command | Scope |
+|---|---|---|
+| clang-tidy | `make tidy` | C++ sources in `App/` and `Core/`, using `.clang-tidy` |
+| GCC warnings | `make firmware` | `-Wall -Wextra -Wconversion -Wshadow` |
+| Cppcheck (MISRA-oriented checks) | `make misra` | Selected C source files in `App/`, `Drivers/` and `Platform/`, excluding `sha256.c` |
+
+The Cppcheck MISRA addon is used for **MISRA-oriented checks**, not to claim full MISRA compliance. Intentional deviations are documented in `misra_deviations.md`; the corresponding suppressions are maintained in `misra_suppressions.txt` and inline comments where appropriate.
+
+### Pre-commit hook
+
+The hook in `scripts/pre-commit` runs `make tidy` before every commit. Enable it once per clone:
+
+```bash
+git config core.hooksPath scripts
+```
+
+### Pre-commit hook
+
+The hook in `scripts/pre-commit` runs `make tidy` before every commit. Enable it once per clone:
+
+```bash
+git config core.hooksPath scripts
+```
 
 ## Flash and Debug
 
@@ -149,6 +181,7 @@ The firmware provides a complete PIN-based access control system:
 - HardFault handler with register dump over SWO
 - SWO runtime debug output (register-level ITM/TPIU configuration)
 - host-based unit tests (GoogleTest) for application logic, keypad driver and EXTI configuration, run in CI
+- static analysis (clang-tidy, strict GCC warnings) enforced by pre-commit hook and CI
 
 ## Architecture
 

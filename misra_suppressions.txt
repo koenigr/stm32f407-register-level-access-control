@@ -1,0 +1,19 @@
+# Rule 11.4: Reviewed MMIO pointer conversions
+misra-c2012-11.4:Drivers/keypad.c
+misra-c2012-11.4:Platform/stm32f407xx_gpio.c
+misra-c2012-11.4:Platform/stm32f407xx_exti.c
+
+# Rule 8.7: Intentional public interfaces
+misra-c2012-8.7:Platform/stm32f407xx_gpio.h
+misra-c2012-8.7:Platform/stm32f407xx_exti.h
+misra-c2012-8.7:Drivers/keypad.h
+misra-c2012-8.7:Drivers/swo.h
+
+# Rule 2.5: Essential header guards and intentionally available GPIO definitions
+misra-c2012-2.5:Drivers/keypad.h
+misra-c2012-2.5:Platform/stm32f407xx_exti.h
+misra-c2012-2.5:Platform/stm32f407xx_gpio.h
+misra-c2012-2.5:Platform/cortex_m4.h
+
+# Rule 15.5: Intentional early returns
+misra-c2012-15.5:Drivers/keypad.c

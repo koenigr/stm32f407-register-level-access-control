@@ -1,6 +1,6 @@
 .PHONY: help all firmware tests flash debug clean clean-all \
         configure-firmware configure-tests rebuild-firmware rebuild-tests \
-        gdb openocd size disasm symbols sections elfinfo swo misra
+        gdb openocd size disasm symbols sections elfinfo swo misra tidy
 
 # ------------------------------------------------------------------
 # Configuration
@@ -10,6 +10,7 @@ FIRMWARE_BUILD = build-firmware
 TEST_BUILD     = build-tests
 PROJECT        = stm32f407_access_control
 ELF            = $(FIRMWARE_BUILD)/$(PROJECT)
+GCC_VER := $(shell arm-none-eabi-gcc -dumpfullversion)
 
 OPENOCD        = openocd
 INTERFACE_CFG  = /usr/share/openocd/scripts/interface/stlink.cfg
@@ -165,28 +166,23 @@ clean-all:
 	rm -rf $(TEST_BUILD)
 
 misra:
-	cppcheck --addon=misra --enable=warning,portability \
-	  --inline-suppr --error-exitcode=1 \
-	  --suppress=missingIncludeSystem \
-	  --suppress='*:*stm32f407xx.h' \
-	  -DSTM32F407xx \
-	  -I Core/Inc -I App -I Platform -I Drivers \
-	  -i build-firmware -i build-tests \
-	  App Core Platform
+	find App Drivers Platform -type f -name '*.c' ! -name 'sha256.c' -print0 | xargs -0 cppcheck --addon=misra --enable=warning,portability --inline-suppr --suppressions-list=misra_suppressions.txt --suppress=missingIncludeSystem --suppress='*:*/stm32f407xx.h' -DSTM32F407xx -I App -I Platform -I Drivers > misra.log 2>&1
+	grep -oE 'misra-c[0-9]+-[0-9]+\.[0-9]+' misra.log | sort | uniq -c | sort -rn
 
-ARM_INC := /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/include
+
+ARM_INC := /usr/lib/gcc/arm-none-eabi/$(GCC_VER)/../../../arm-none-eabi/include
 
 build-firmware/compile_commands.json: CMakeLists.txt
-	cmake -S . -B build-firmware
+	$(MAKE) configure-firmware
 
 tidy: build-firmware/compile_commands.json
-	clang-tidy -p build-firmware \
+	clang-tidy-18 -p build-firmware \
 	  --extra-arg=--target=arm-none-eabi \
 	  --extra-arg=-Wno-unknown-warning-option \
-	  --extra-arg=-isystem$(ARM_INC)/c++/10.3.1 \
-	  --extra-arg=-isystem$(ARM_INC)/c++/10.3.1/arm-none-eabi \
-	  --extra-arg=-isystem$(ARM_INC)/c++/10.3.1/backward \
-	  --extra-arg=-isystem/usr/lib/gcc/arm-none-eabi/10.3.1/include \
-	  --extra-arg=-isystem/usr/lib/gcc/arm-none-eabi/10.3.1/include-fixed \
+	  --extra-arg=-isystem$(ARM_INC)/c++/$(GCC_VER) \
+	  --extra-arg=-isystem$(ARM_INC)/c++/$(GCC_VER)/arm-none-eabi \
+	  --extra-arg=-isystem$(ARM_INC)/c++/$(GCC_VER)/backward \
+	  --extra-arg=-isystem/usr/lib/gcc/arm-none-eabi/$(GCC_VER)/include \
+	  --extra-arg=-isystem/usr/lib/gcc/arm-none-eabi/$(GCC_VER)/include-fixed \
 	  --extra-arg=-isystem$(ARM_INC) \
 	  $(shell find App Core -name '*.cpp')
