@@ -2,6 +2,15 @@
 #include <cstdint>
 
 struct IClock {
-	virtual ~IClock() = default;
+public:
+	IClock(const IClock&) = delete;
+	IClock& operator=(const IClock&) = delete;
+	IClock(IClock&&) = delete;
+	IClock& operator=(IClock&&) = delete;
+
 	virtual uint32_t NowMs() const = 0;
+
+protected:
+	IClock() = default;
+	virtual ~IClock() = default;
 };
