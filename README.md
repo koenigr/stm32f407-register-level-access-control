@@ -1,5 +1,7 @@
 # STM32F407 Register-Level Access Control System
 
+[![CI](https://github.com/koenigr/stm32f407-register-level-access-control/actions/workflows/ci.yml/badge.svg)](https://github.com/koenigr/stm32f407-register-level-access-control/actions/workflows/ci.yml)
+
 This project intentionally avoids STM32 HAL and CubeMX-generated code. Every peripheral
 is configured directly through its registers, to demonstrate the full path from MCU
 startup to application logic without framework abstractions in between.
@@ -90,7 +92,7 @@ The `AccessController` tests include input validation (invalid keys, too short a
 
 The hardware tests build with `-DUNIT_TEST`, which redirects the peripheral pointers to RAM structs. Write-1-to-clear behaviour of registers is not emulated; the tests check the value written.
 
-All tests run in GitHub Actions on every push, together with the firmware build.
+Firmware build, `make tidy` and all tests run in GitHub Actions on every push.
 
 Not covered yet: `Keypad_Init()`, `Keypad_EnableInterrupt()`, `LedOutputAdapter`, `SysTickClock`, the HardFault handler. Planned: on-target tests (Unity) and an emulator run (Renode).
 
