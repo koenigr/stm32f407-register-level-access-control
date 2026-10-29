@@ -31,6 +31,8 @@ The project is built using a minimal toolchain consisting of:
 - OpenOCD
 - gdb-multiarch (Ubuntu) or arm-none-eabi-gdb
 - GNU Make
+- clang-tidy
+- Cppcheck (MISRA addon)
 
 ## Build
 
@@ -92,6 +94,25 @@ All tests run in GitHub Actions on every push, together with the firmware build.
 
 Not covered yet: `Keypad_Init()`, `Keypad_EnableInterrupt()`, `LedOutputAdapter`, `SysTickClock`, the HardFault handler. Planned: on-target tests (Unity) and an emulator run (Renode).
 
+## Code Quality
+
+Static analysis runs locally and in CI:
+
+| Check | Command | Scope |
+|---|---|---|
+| clang-tidy | `make tidy` | C++ sources in `App/` and `Core/`, `.clang-tidy`, warnings are errors |
+| GCC warnings | `make firmware` | `-Wall -Wextra -Wconversion -Wshadow` |
+
+Intentional exceptions (memory-mapped registers, ABI-required runtime symbols) are marked with `NOLINT` and a justification.
+
+### Pre-commit hook
+
+The hook in `scripts/pre-commit` runs `make tidy` before every commit. Enable it once per clone:
+
+```bash
+git config core.hooksPath scripts
+```
+
 ## Flash and Debug
 
 ### Flash firmware
@@ -149,6 +170,7 @@ The firmware provides a complete PIN-based access control system:
 - HardFault handler with register dump over SWO
 - SWO runtime debug output (register-level ITM/TPIU configuration)
 - host-based unit tests (GoogleTest) for application logic, keypad driver and EXTI configuration, run in CI
+- static analysis (clang-tidy, strict GCC warnings) enforced by pre-commit hook and CI
 
 ## Architecture
 
