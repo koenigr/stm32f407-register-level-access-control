@@ -31,8 +31,11 @@ void AccessController::Update() {
 
 	switch(state_) {
 	case LockState::Locked: {
-		if (ProcessKey(keypad_.Scan()) == KeyEvent::Submit) {
+		const KeyEvent event = ProcessKey(keypad_.Scan());
+		if (event == KeyEvent::Submit) {
 			ValidatePin();
+		} else if (event == KeyEvent::Invalid) {
+			leds_.Red();
 		}
 		break;
 	}

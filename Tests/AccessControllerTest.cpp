@@ -46,7 +46,7 @@ TEST_F(AccessControllerTest, ShortPinIsNotAccepted) {
 	EXPECT_FALSE(leds.blinkRed);
 }
 
-TEST_F(AccessControllerTest, LongPinIsRefected) {
+TEST_F(AccessControllerTest, LongPinIsRejected) {
 	// the last digit is ignored, only 1234 gets validated
 	EnterKeys("12345#");
 
