@@ -23,7 +23,7 @@ static const char keypad[4][4] = {
 };
 
 static void Keypad_SetIdle(void) {
-	for (int row = 0; row < 4; row++) {
+	for (uint8_t row = 0; row < 4; row++) {
 		GPIO_WritePin(GPIOD, row, 0);
 	}
 }
@@ -33,17 +33,17 @@ void Keypad_Init(void) {
 	GPIO_PeriClockControl(GPIOD, ENABLE);
 
 	//2. Configure PD0, PD1, PD2, PD3 as output (rows)
-	for (int pin = 0; pin < 4; pin++) {
+	for (uint8_t pin = 0; pin < 4; pin++) {
 		GPIO_InitOutput(GPIOD, pin);
 	}
 
 	//3. configure PD8, PD9, PD10, PD11 as input (columns)
-	for (int pin = 8; pin < 12; pin++) {
+	for (uint8_t pin = 8; pin < 12; pin++) {
 		GPIO_InitInput(GPIOD, pin);
 	}
 
 	//4. Enable internal pull-up resistors for PD8, PD9, PD10, PD11
-	for (int pin = 8; pin < 12; pin++) {
+	for (uint8_t pin = 8; pin < 12; pin++) {
 		GPIO_EnablePullUp(GPIOD, pin);
 	}
 
@@ -51,7 +51,7 @@ void Keypad_Init(void) {
 }
 
 void Keypad_EnableInterrupt(void) {
-	for (int pin = 8; pin < 12; pin++) {
+	for (uint8_t pin = 8; pin < 12; pin++) {
 		EXTI_MapPort(pin, 3);
 		EXTI_SetFallingEdge(pin);
 		EXTI_Enable(pin);
@@ -61,7 +61,7 @@ void Keypad_EnableInterrupt(void) {
 }
 
 char Keypad_Scan(void) {
-	for(int row = 0; row < 4; row++) {
+	for(uint8_t row = 0; row < 4; row++) {
 		//make all rows HIGH
 		GPIO_WritePin(GPIOD, 0, 1);
 		GPIO_WritePin(GPIOD, 1, 1);
@@ -74,10 +74,10 @@ char Keypad_Scan(void) {
 		//scan the columns
 		for (int column = 0; column < 4; column++) {
 			//check column low or high
-			if(GPIO_ReadPin(GPIOD, column + 8) == 0) {
+			if(GPIO_ReadPin(GPIOD, (uint8_t) (column + 8)) == 0) {
 				// Key is pressed
 				delay();
-				while (GPIO_ReadPin(GPIOD, column + 8) == 0){}
+				while (GPIO_ReadPin(GPIOD, (uint8_t) (column + 8)) == 0){}
 				return keypad[row][column];
 			}
 		}

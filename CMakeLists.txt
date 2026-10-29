@@ -56,6 +56,8 @@ else()
             -mthumb
             -Wall
             -Wextra
+            -Wconversion
+            -Wshadow
             -g
             -O0
         $<$<COMPILE_LANGUAGE:CXX>:
