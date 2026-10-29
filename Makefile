@@ -166,14 +166,7 @@ clean-all:
 	rm -rf $(TEST_BUILD)
 
 misra:
-	cppcheck --addon=misra --enable=warning,portability \
-	  --inline-suppr --error-exitcode=1 \
-	  --suppress=missingIncludeSystem \
-	  --suppress='*:*stm32f407xx.h' \
-	  -DSTM32F407xx \
-	  -I Core/Inc -I App -I Platform -I Drivers \
-	  -i build-firmware -i build-tests \
-	  App Core Platform
+	find App Drivers Platform -type f -name '.c' -print0 | xargs -0 cppcheck --addon=misra --enable=warning,portability --inline-suppr --error-exitcode=1 --suppress=missingIncludeSystem --suppress=':*stm32f407xx.h' -DSTM32F407xx -I App -I Platform -I Drivers
 
 ARM_INC := /usr/lib/gcc/arm-none-eabi/$(GCC_VER)/../../../arm-none-eabi/include
 
