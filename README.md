@@ -1,6 +1,6 @@
 # STM32F407 Register-Level Access Control System
 
-[![CI](https://github.com/koenigr/stm32f407-register-level-access-control/actions/workflows/ci.yml/badge.svg)](https://github.com/koenigr/stm32f407-register-level-access-control/actions/workflows/ci.yml)
+[![CI](https://github.com/koenigr/stm32f407-register-level-access-control/actions/workflows/cmake-single-platform.yml/badge.svg)](https://github.com/koenigr/stm32f407-register-level-access-control/actions/workflows/cmake-single-platform.yml)
 
 This project intentionally avoids STM32 HAL and CubeMX-generated code. Every peripheral
 is configured directly through its registers, to demonstrate the full path from MCU

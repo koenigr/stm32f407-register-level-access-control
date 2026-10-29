@@ -10,7 +10,7 @@ FIRMWARE_BUILD = build-firmware
 TEST_BUILD     = build-tests
 PROJECT        = stm32f407_access_control
 ELF            = $(FIRMWARE_BUILD)/$(PROJECT)
-GCC_VER := $(shell arm-none-eabi-gcc -dumpversion)
+GCC_VER := $(shell arm-none-eabi-gcc -dumpfullversion)
 
 OPENOCD        = openocd
 INTERFACE_CFG  = /usr/share/openocd/scripts/interface/stlink.cfg
@@ -175,7 +175,7 @@ misra:
 	  -i build-firmware -i build-tests \
 	  App Core Platform
 
-ARM_INC := /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/include
+ARM_INC := /usr/lib/gcc/arm-none-eabi/$(GCC_VER)/../../../arm-none-eabi/include
 
 build-firmware/compile_commands.json: CMakeLists.txt
 	cmake -S . -B build-firmware
