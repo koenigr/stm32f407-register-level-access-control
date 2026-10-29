@@ -166,7 +166,7 @@ clean-all:
 	rm -rf $(TEST_BUILD)
 
 misra:
-	find App Drivers Platform -type f -name '*.c' ! -name 'sha256.c' -print0 | xargs -0 cppcheck --addon=misra --enable=warning,portability --inline-suppr --suppress=missingIncludeSystem --suppress='*:*/stm32f407xx.h' -DSTM32F407xx -I App -I Platform -I Drivers > misra.log 2>&1
+	find App Drivers Platform -type f -name '*.c' ! -name 'sha256.c' -print0 | xargs -0 cppcheck --addon=misra --enable=warning,portability --inline-suppr --suppressions-list=misra_suppressions.txt --suppress=missingIncludeSystem --suppress='*:*/stm32f407xx.h' -DSTM32F407xx -I App -I Platform -I Drivers > misra.log 2>&1
 	grep -oE 'misra-c[0-9]+-[0-9]+\.[0-9]+' misra.log | sort | uniq -c | sort -rn
 
 

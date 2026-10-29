@@ -78,9 +78,11 @@ char Keypad_Scan(void) {
 		//scan the columns
 		for (int column = 0; column < 4; column++) {
 			//check column low or high
+			// cppcheck-suppress misra-c2012-10.4
 			if(GPIO_ReadPin(GPIOD, (uint8_t) (column + 8U)) == KEYPAD_LOW) {
 				// Key is pressed
 				delay();
+				// cppcheck-suppress misra-c2012-10.4
 				while (GPIO_ReadPin(GPIOD, (uint8_t) (column + 8U)) ==  KEYPAD_LOW){}
 				return keypad[row][column];
 			}
@@ -101,7 +103,7 @@ void EXTI9_5_IRQHandler(void) {
 
 void EXTI15_10_IRQHandler(void) {
 	// Lines 10 and 11
-	if (EXTI->PR & COL_MASK_10_11) {
+	if ((EXTI->PR & COL_MASK_10_11) != 0U) {
 		EXTI->PR = COL_MASK_10_11;
 		keypad_irq_flag = 1;
 		ITM_SendChar('A');

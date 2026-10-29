@@ -22,7 +22,7 @@ extern "C" {
 #define RCC_BASE   0x40023800
 #define RCC ((RCC_RegDef_t *)RCC_BASE)
 
-#define RCC_APB2ENR_SYSCFGEN (1U << 14)
+#define RCC_APB2ENR_SYSCFGEN (UINT32_C(1) << 14U)
 
 #define APB2PERIPH_BASE		0x40010000UL
 
