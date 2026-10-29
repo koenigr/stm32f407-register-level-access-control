@@ -12,6 +12,6 @@ public:
 
 protected:
 	IKeypad() = default;
-	virtual ~IKeypad() = default;
+	~IKeypad() = default;
 
 };

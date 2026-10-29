@@ -14,5 +14,5 @@ public:
 
 protected:
 	ILedOutput() = default;
-	virtual ~ILedOutput() = default;
+	~ILedOutput() = default;
 };

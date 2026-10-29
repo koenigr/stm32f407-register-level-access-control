@@ -12,5 +12,5 @@ public:
 
 protected:
 	IClock() = default;
-	virtual ~IClock() = default;
+	~IClock() = default;
 };

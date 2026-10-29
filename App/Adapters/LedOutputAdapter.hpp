@@ -4,7 +4,8 @@
 
 #include "ILedOutput.hpp"
 
-class LedOutputAdapter : public ILedOutput {
+// NOLINTNEXTLINE(cppcoreguidelines-virtual-class-destructor) -- final, never deleted via base pointer (no heap)
+class LedOutputAdapter final: public ILedOutput {
 
 public:
 

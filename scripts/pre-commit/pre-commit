@@ -1,0 +1,2 @@
+#!/bin/sh
+make tidy || { echo "clang-tidy failed"; exit 1; }

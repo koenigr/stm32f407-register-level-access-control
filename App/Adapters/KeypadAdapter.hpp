@@ -2,7 +2,8 @@
 
 #include "IKeypad.hpp"
 
-class KeypadAdapter : public IKeypad {
+// NOLINTNEXTLINE(cppcoreguidelines-virtual-class-destructor) -- final, never deleted via base pointer (no heap)
+class KeypadAdapter final : public IKeypad {
 
 public:
 

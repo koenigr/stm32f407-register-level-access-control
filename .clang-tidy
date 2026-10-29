@@ -13,4 +13,4 @@ Checks: >
   -cppcoreguidelines-macro-usage,
   -performance-no-int-to-ptr
 HeaderFilterRegex: '^.*/(App|Core)/.*'
-WarningsAsErrors: ''
+WarningsAsErrors: '*'
