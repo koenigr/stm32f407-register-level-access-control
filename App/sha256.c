@@ -8,7 +8,7 @@
               specification. The others, SHA-384 and SHA-512, are not
               offered in this implementation.
               Algorithm specification can be found here:
-               * http://csrc.nist.gov/publications/fips/fips180-2/fips180-2withchangenotice.pdf
+               * Algorithm specification: NIST FIPS 180-2.
               This implementation uses little endian byte order.
 *********************************************************************/
 
@@ -18,7 +18,7 @@
 #include "sha256.h"
 
 /****************************** MACROS ******************************/
-#define ROTLEFT(a,b) (((a) << (b)) | ((a) >> (32-(b))))
+// #define ROTLEFT(a,b) (((a) << (b)) | ((a) >> (32-(b))))
 #define ROTRIGHT(a,b) (((a) >> (b)) | ((a) << (32-(b))))
 
 #define CH(x,y,z) (((x) & (y)) ^ (~(x) & (z)))
@@ -129,7 +129,7 @@ void sha256_final(SHA256_CTX *ctx, uint8_t hash[])
 		while (i < 64)
 			ctx->data[i++] = 0x00;
 		sha256_transform(ctx, ctx->data);
-		memset(ctx->data, 0, 56);
+		(void)memset(ctx->data, 0, 56);
 	}
 
 	// Append to the padding the total message's length in bits and transform.

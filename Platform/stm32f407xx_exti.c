@@ -4,8 +4,8 @@
 
 void EXTI_MapPort(uint8_t line, uint8_t port) {
 	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;			// SYSCGF-Takt
-	SYSCFG->EXTICR[line / 4] &= ~(0xFU << ((line % 4) * 4));
-	SYSCFG->EXTICR[line / 4] |= ((uint32_t)port << ((line % 4) * 4));
+	SYSCFG->EXTICR[line / 4U] &= ~(0xFU << (((uint32_t)line % 4U) * 4U));
+	SYSCFG->EXTICR[line / 4U] |= ((uint32_t)port << (((uint32_t)line % 4U) * 4U));
 }
 
 void EXTI_SetFallingEdge(uint8_t line) {
@@ -18,6 +18,9 @@ void EXTI_Enable(uint8_t line) {
 }
 
 void EXTI_NVIC_Enable(uint8_t irq) {
-	if (irq < 32) 	NVIC_ISER0 = (1U << irq);
-	else 			NVIC_ISER1 = (1U << (irq - 32));
+	if (irq < 32U) {
+		NVIC_ISER0 = (uint32_t)(1UL << irq);
+	} else {
+		NVIC_ISER1 = (uint32_t)(1UL << (uint8_t)(irq - 32U));
+	}
 }
