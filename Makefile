@@ -174,7 +174,7 @@ build-firmware/compile_commands.json: CMakeLists.txt
 	$(MAKE) configure-firmware
 
 tidy: build-firmware/compile_commands.json
-	clang-tidy -p build-firmware \
+	clang-tidy-18 -p build-firmware \
 	  --extra-arg=--target=arm-none-eabi \
 	  --extra-arg=-Wno-unknown-warning-option \
 	  --extra-arg=-isystem$(ARM_INC)/c++/$(GCC_VER) \
