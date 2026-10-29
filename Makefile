@@ -1,6 +1,6 @@
 .PHONY: help all firmware tests flash debug clean clean-all \
         configure-firmware configure-tests rebuild-firmware rebuild-tests \
-        gdb openocd size disasm symbols sections elfinfo swo misra
+        gdb openocd size disasm symbols sections elfinfo swo misra tidy
 
 # ------------------------------------------------------------------
 # Configuration
@@ -178,7 +178,7 @@ misra:
 ARM_INC := /usr/lib/gcc/arm-none-eabi/$(GCC_VER)/../../../arm-none-eabi/include
 
 build-firmware/compile_commands.json: CMakeLists.txt
-	cmake -S . -B build-firmware
+	$(MAKE) configure-firmware
 
 tidy: build-firmware/compile_commands.json
 	clang-tidy -p build-firmware \
