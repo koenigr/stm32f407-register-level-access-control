@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define SHA256_BLOCK_SIZE 32
+enum { SHA256_BLOCK_SIZE = 32 };
 
 #ifdef __cplusplus
 extern "C" {
