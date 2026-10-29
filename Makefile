@@ -10,6 +10,7 @@ FIRMWARE_BUILD = build-firmware
 TEST_BUILD     = build-tests
 PROJECT        = stm32f407_access_control
 ELF            = $(FIRMWARE_BUILD)/$(PROJECT)
+GCC_VER := $(shell arm-none-eabi-gcc -dumpversion)
 
 OPENOCD        = openocd
 INTERFACE_CFG  = /usr/share/openocd/scripts/interface/stlink.cfg
@@ -183,10 +184,10 @@ tidy: build-firmware/compile_commands.json
 	clang-tidy -p build-firmware \
 	  --extra-arg=--target=arm-none-eabi \
 	  --extra-arg=-Wno-unknown-warning-option \
-	  --extra-arg=-isystem$(ARM_INC)/c++/10.3.1 \
-	  --extra-arg=-isystem$(ARM_INC)/c++/10.3.1/arm-none-eabi \
-	  --extra-arg=-isystem$(ARM_INC)/c++/10.3.1/backward \
-	  --extra-arg=-isystem/usr/lib/gcc/arm-none-eabi/10.3.1/include \
-	  --extra-arg=-isystem/usr/lib/gcc/arm-none-eabi/10.3.1/include-fixed \
+	  --extra-arg=-isystem$(ARM_INC)/c++/$(GCC_VER) \
+	  --extra-arg=-isystem$(ARM_INC)/c++/$(GCC_VER)/arm-none-eabi \
+	  --extra-arg=-isystem$(ARM_INC)/c++/$(GCC_VER)/backward \
+	  --extra-arg=-isystem/usr/lib/gcc/arm-none-eabi/$(GCC_VER)/include \
+	  --extra-arg=-isystem/usr/lib/gcc/arm-none-eabi/$(GCC_VER)/include-fixed \
 	  --extra-arg=-isystem$(ARM_INC) \
 	  $(shell find App Core -name '*.cpp')
