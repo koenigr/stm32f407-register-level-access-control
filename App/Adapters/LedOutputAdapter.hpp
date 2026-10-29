@@ -10,10 +10,10 @@ public:
 
 	LedOutputAdapter();
 
-	void Green();
-	void Red();
-	void BlinkRed();
-	void Off();
+	void Green() override;
+	void Red() override;
+	void BlinkRed() override;
+	void Off() override;
 
 	void Update();
 
