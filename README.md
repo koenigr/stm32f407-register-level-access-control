@@ -96,16 +96,25 @@ Firmware build, `make tidy` and all tests run in GitHub Actions on every push.
 
 Not covered yet: `Keypad_Init()`, `Keypad_EnableInterrupt()`, `LedOutputAdapter`, `SysTickClock`, the HardFault handler. Planned: on-target tests (Unity) and an emulator run (Renode).
 
-## Code Quality
+### Code Quality
 
-Static analysis runs locally and in CI:
+Static analysis checks support code quality and maintainability.
 
 | Check | Command | Scope |
 |---|---|---|
-| clang-tidy | `make tidy` | C++ sources in `App/` and `Core/`, `.clang-tidy`, warnings are errors |
+| clang-tidy | `make tidy` | C++ sources in `App/` and `Core/`, using `.clang-tidy` |
 | GCC warnings | `make firmware` | `-Wall -Wextra -Wconversion -Wshadow` |
+| Cppcheck (MISRA-oriented checks) | `make misra` | Selected C source files in `App/`, `Drivers/` and `Platform/`, excluding `sha256.c` |
 
-Intentional exceptions (memory-mapped registers, ABI-required runtime symbols) are marked with `NOLINT` and a justification.
+The Cppcheck MISRA addon is used for **MISRA-oriented checks**, not to claim full MISRA compliance. Intentional deviations are documented in `misra_deviations.md`; the corresponding suppressions are maintained in `misra_suppressions.txt` and inline comments where appropriate.
+
+### Pre-commit hook
+
+The hook in `scripts/pre-commit` runs `make tidy` before every commit. Enable it once per clone:
+
+```bash
+git config core.hooksPath scripts
+```
 
 ### Pre-commit hook
 
