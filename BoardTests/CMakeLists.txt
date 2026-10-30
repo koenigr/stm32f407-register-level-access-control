@@ -28,10 +28,13 @@ target_compile_options(board_tests PRIVATE
     -Wextra
     -g
     -O0
-    -fno-exceptions
-    -fno-rtti
     -fno-unwind-tables
     -fno-asynchronous-unwind-tables
+)
+
+target_compile_options(board_tests PRIVATE
+    $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
+    $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
 )
 
 target_link_options(board_tests PRIVATE

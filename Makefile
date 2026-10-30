@@ -102,6 +102,12 @@ flash:
 		-f $(TARGET_CFG) \
 		-c "program $(ELF) verify reset exit"
 
+flash-board-tests:
+	$(OPENOCD) \
+		-f $(INTERFACE_CFG) \
+		-f $(TARGET_CFG) \
+		-c "program $(BOARD_TEST_ELF) verify reset exit"
+
 # ------------------------------------------------------------------
 # Rebuild
 # ------------------------------------------------------------------
@@ -150,6 +156,9 @@ reboot:
 
 keypad-test:
 	gdb-multiarch -x scripts/keypad_test.gdb $(ELF)
+
+board-tests-run:
+	gdb-multiarch -batch -x scripts/board-tests-swo.gdb $(BOARD_TEST_ELF)
 
 # ------------------------------------------------------------------
 # Inspection

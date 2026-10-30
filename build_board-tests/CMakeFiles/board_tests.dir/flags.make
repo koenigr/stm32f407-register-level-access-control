@@ -8,17 +8,17 @@ ASM_DEFINES =
 
 ASM_INCLUDES = -I/home/koenigr/git/stm32f407-register-level-access-control/BoardTests/../Platform -I/home/koenigr/git/stm32f407-register-level-access-control/BoardTests/../Drivers
 
-ASM_FLAGS = -mcpu=cortex-m4 -mthumb -Wall -Wextra -g -O0 -fno-exceptions -fno-rtti -fno-unwind-tables -fno-asynchronous-unwind-tables
+ASM_FLAGS = -mcpu=cortex-m4 -mthumb -Wall -Wextra -g -O0 -fno-unwind-tables -fno-asynchronous-unwind-tables
 
 C_DEFINES = 
 
 C_INCLUDES = -I/home/koenigr/git/stm32f407-register-level-access-control/BoardTests/../Platform -I/home/koenigr/git/stm32f407-register-level-access-control/BoardTests/../Drivers
 
-C_FLAGS = -mcpu=cortex-m4 -mthumb -Wall -Wextra -g -O0 -fno-exceptions -fno-rtti -fno-unwind-tables -fno-asynchronous-unwind-tables -std=gnu11
+C_FLAGS = -mcpu=cortex-m4 -mthumb -Wall -Wextra -g -O0 -fno-unwind-tables -fno-asynchronous-unwind-tables -std=gnu11
 
 CXX_DEFINES = 
 
 CXX_INCLUDES = -I/home/koenigr/git/stm32f407-register-level-access-control/BoardTests/../Platform -I/home/koenigr/git/stm32f407-register-level-access-control/BoardTests/../Drivers
 
-CXX_FLAGS = -mcpu=cortex-m4 -mthumb -Wall -Wextra -g -O0 -fno-exceptions -fno-rtti -fno-unwind-tables -fno-asynchronous-unwind-tables -std=gnu++17
+CXX_FLAGS = -mcpu=cortex-m4 -mthumb -Wall -Wextra -g -O0 -fno-unwind-tables -fno-asynchronous-unwind-tables -fno-exceptions -fno-rtti -std=gnu++17
 
