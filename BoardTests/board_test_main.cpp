@@ -9,6 +9,46 @@
 static uint32_t passed = 0;
 static uint32_t failed = 0;
 
+static void EnableGlobalInterrupts() {
+	__asm volatile ("cpsie i"::: "memory");
+}
+
+static void TestExtiInterrupts() {
+	swoPuts("\n--- EXTI interrupt tests ---\n");
+
+	// Enable EXTI and NVIC configuration
+	Keypad_EnableInterrupt();
+
+	// Enable CPU-level interrupts
+	EnableGlobalInterrupts();
+
+	// Test EXTI line 8 -> IRQ 23
+	EXTI->PR = (1U << 8);
+	EXTI->SWIER = (1U << 8);
+
+	Check("EXTI line 8 interrupt dispatched",
+		  Keypad_IrqPending() == 1U);
+
+	Check("EXTI line 8 flag consumed",
+		  Keypad_IrqPending() == 0U);
+
+	Check("EXTI line 8 pending bit cleared",
+		  (EXTI->PR & (1U << 8)) == 0U);
+
+	// Test EXTI line 10 -> IRQ 40
+	EXTI->PR = (1U << 10);
+	EXTI->SWIER = (1U << 10);
+
+	Check("EXTI line 10 interrupt dispatched",
+		  Keypad_IrqPending() == 1U);
+
+	Check("EXTI line 10 flag consumed",
+		  Keypad_IrqPending() == 0U);
+
+	Check("EXTI line 10 pending bit cleared",
+		  (EXTI->PR & (1U << 10)) == 0U);
+}
+
 static void Check(const char* name, bool condition)
 {
 	if (condition) {
@@ -61,6 +101,8 @@ int main()
 
 	Check("NVIC IRQ 40 enabled",
 				(NVIC_ISER1 & (1U << 8)) != 0U);
+
+	TestExtiInterrupts();
 
 	swoPuts("\n--- Results ---\n");
 	swoPuts("Passed: ");
