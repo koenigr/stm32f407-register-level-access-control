@@ -76,6 +76,8 @@ Notes:
 
 ## Testing
 
+### Host-based tests
+
 Host-based unit tests use [GoogleTest](https://github.com/google/googletest) (fetched via CMake `FetchContent`) and run without hardware:
 
 ```bash
@@ -92,9 +94,26 @@ The `AccessController` tests include input validation (invalid keys, too short a
 
 The hardware tests build with `-DUNIT_TEST`, which redirects the peripheral pointers to RAM structs. Write-1-to-clear behaviour of registers is not emulated; the tests check the value written.
 
-Firmware build, `make tidy` and all tests run in GitHub Actions on every push.
+### On-target Unity tests
+A separate Unity-based test executable is provided for the STM32F407G-DISC1:
+```bash
+make board-tests
+```
+It covers keypad GPIO configuration, EXTI configuration, NVIC enable bits and the EXTI interrupt path using software-triggered interrupts (`EXTI->SWIER`).
 
-Not covered yet: `Keypad_Init()`, `Keypad_EnableInterrupt()`, `LedOutputAdapter`, `SysTickClock`, the HardFault handler. Planned: on-target tests (Unity) and an emulator run (Renode).
+The tests use SWO (ITM stimulus port 0) for output. To run them on the board, connect the STM32F407G-DISC1 via ST-Link and use OpenOCD/GDB:
+```bash
+make openocd
+```
+In another terminal:
+```bash
+make board-tests-run
+```
+The on-target test execution and automated SWO result capture still require verification on physical hardware.
+
+### Continuous Inegration
+
+Firmware build, host-based tests and static analysis run in GitHub Actions. On-target Unity tests require physical hardware and are not part of the current CI workflow.
 
 ### Code Quality
 
