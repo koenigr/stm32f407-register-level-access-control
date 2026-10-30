@@ -5,4 +5,16 @@ monitor itm port 0 on
 
 load
 monitor reset halt
-monitor resume
+
+break BoardTests:Done
+continue
+
+printf "\nUnity failure count: "
+print board_test_result
+
+if board_test_result == 0
+	echo BOARD TESTS PASSED\n
+else
+	echo BOARD TESTS FAILED\n
+	quit 1
+end

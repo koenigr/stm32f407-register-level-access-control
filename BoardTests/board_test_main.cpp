@@ -8,6 +8,15 @@
 
 #include <cstdint>
 
+extern "C" {
+	volatile int board_test_result = -1;
+
+	void BoardTests_Done(void) {
+		while(1) {
+			__asm volatile ("nop");
+		}
+	}
+}
 
 static void EnableGlobalInterrupts() {
 	__asm volatile ("cpsie i"::: "memory");
@@ -94,7 +103,14 @@ int main()
 
 	RUN_TEST(TestExtiInterrupts);
 
-	UNITY_END();
+	int failures = UNITY_END();
+
+	board_test_result = failures;
+	swoPuts(failures == 0
+		? "BOARD_TESTS_PASSED\n"
+		: "BOARD_TESTS_FAILED\n");
+
+	BoardTests_Done();
 
 	while (true) {
 	}

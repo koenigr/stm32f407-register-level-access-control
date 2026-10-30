@@ -1,7 +1,10 @@
-.PHONY: help all firmware tests flash debug clean clean-all \
-        configure-firmware configure-tests rebuild-firmware rebuild-tests \
+.PHONY: help all firmware tests board-tests \
+        flash flash-board-tests \
+        debug clean clean-all \
+        configure-firmware configure-tests configure-board-tests \
+        rebuild-firmware rebuild-tests rebuild-board-tests \
         gdb openocd size disasm symbols sections elfinfo swo misra tidy \
-        configure-board-tests board-tests clean-board-tests
+        reset reboot keypad-test board-tests-run
 
 # ------------------------------------------------------------------
 # Configuration
@@ -60,6 +63,11 @@ help:
 	@echo "Cleanup:"
 	@echo "  clean               Remove build artifacts"
 	@echo "  clean-all           Remove all build directories"
+	@echo ""
+	@rcho "BoardTests:"
+	@echo "  board-tests         Build Unity tests for STM32 hardware"
+	@echo "  flash-board-tests   Flash Unity tests to STM32"
+	@echo "  board-tests-run     Run board tests and capture SWO output"
 
 # ------------------------------------------------------------------
 # Configure
