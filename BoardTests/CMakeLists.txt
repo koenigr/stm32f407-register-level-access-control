@@ -2,6 +2,16 @@ cmake_minimum_required(VERSION 3.20)
 
 project(stm32f407_board_tests LANGUAGES CXX C ASM)
 
+include(FetchContent)
+
+FetchContent_Declare(
+    Unity
+    GIT_REPOSITORY https://github.com/ThrowTheSwitch/Unity.git
+    GIT_TAG v2.6.1
+)
+
+FetchContent_MakeAvailable(Unity)
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -17,6 +27,7 @@ add_executable(board_tests
 )
 
 target_include_directories(board_tests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${PROJECT_ROOT}/Platform
     ${PROJECT_ROOT}/Drivers
 )
@@ -37,6 +48,10 @@ target_compile_options(board_tests PRIVATE
     $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
 )
 
+target_compile_definitions(board_tests PRIVATE
+    UNITY_INCLUDE_CONFIG_H
+)
+
 target_link_options(board_tests PRIVATE
     -mcpu=cortex-m4
     -mthumb
@@ -46,7 +61,7 @@ target_link_options(board_tests PRIVATE
     -Wl,--gc-sections
 )
 
-target_link_libraries(board_tests PRIVATE
+target_link_libraries(board_tests PRIVATE unity
 	gcc
 	c
 	nosys

@@ -171,6 +171,7 @@ board_tests: CMakeFiles/board_tests.dir/home/koenigr/git/stm32f407-register-leve
 board_tests: CMakeFiles/board_tests.dir/home/koenigr/git/stm32f407-register-level-access-control/Drivers/keypad.c.obj
 board_tests: CMakeFiles/board_tests.dir/home/koenigr/git/stm32f407-register-level-access-control/Drivers/swo.cpp.obj
 board_tests: CMakeFiles/board_tests.dir/build.make
+board_tests: _deps/unity-build/libunity.a
 board_tests: CMakeFiles/board_tests.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/koenigr/git/stm32f407-register-level-access-control/build_board-tests/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable board_tests"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/board_tests.dir/link.txt --verbose=$(VERBOSE)

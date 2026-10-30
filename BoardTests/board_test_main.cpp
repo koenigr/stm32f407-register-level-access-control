@@ -9,8 +9,26 @@
 static uint32_t passed = 0;
 static uint32_t failed = 0;
 
+extern "C" void UnityOutputChar(int character) {
+	ITM_SendChar(static_cast<uint32_t>(character));
+}
+
 static void EnableGlobalInterrupts() {
 	__asm volatile ("cpsie i"::: "memory");
+}
+
+static void Check(const char* name, bool condition)
+{
+	if (condition) {
+			swoPuts("[PASS] ");
+			++passed;
+	} else {
+			swoPuts("[FAIL] ");
+			++failed;
+	}
+
+	swoPuts(name);
+	swoPuts("\n");
 }
 
 static void TestExtiInterrupts() {
@@ -47,20 +65,6 @@ static void TestExtiInterrupts() {
 
 	Check("EXTI line 10 pending bit cleared",
 		  (EXTI->PR & (1U << 10)) == 0U);
-}
-
-static void Check(const char* name, bool condition)
-{
-	if (condition) {
-			swoPuts("[PASS] ");
-			++passed;
-	} else {
-			swoPuts("[FAIL] ");
-			++failed;
-	}
-
-	swoPuts(name);
-	swoPuts("\n");
 }
 
 int main()
