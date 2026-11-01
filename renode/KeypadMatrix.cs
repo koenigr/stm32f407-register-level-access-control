@@ -1,5 +1,6 @@
 using Antmicro.Renode.Core;
 using Antmicro.Renode.Peripherals;
+using Antmicro.Renode.Logging;
 
 namespace Antmicro.Renode.Peripherals.Miscellaneous
 {
@@ -14,6 +15,7 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
 
 		public void OnGPIO(int number, bool value)
 		{
+			this.Log(LogLevel.Warning, "keypad row {0} = {1}", number, value);
 			if(number < 0 || number > 3) return;
 			rowLevel[number] = value;
 			Update();
@@ -39,6 +41,10 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
 				var low = false;
 				for(var r = 0; r < 4; r++)
 					if(pressed[r, c] && !rowLevel[r]) low = true;
+				if(cols[c].IsSet == low)
+				{
+					this.Log(LogLevel.Warning, "col {0} -> {1}", c, !low);
+				}
 				cols[c].Set(!low);
 			}
 		}

@@ -12,6 +12,7 @@ ${REPO}         ${CURDIR}/../..
 ${ELF}          ${REPO}/build-firmware/stm32f407_access_control
 ${HOLD}         0.1
 ${GPIOD_ODR}    0x40020C14
+${EXTI_IMR}     0x40013C00
 ${GREEN}        12
 ${RED}          14
 &{KEYS}         1=0,0  2=0,1  3=0,2  4=1,0  5=1,1  6=1,2  7=2,0  8=2,1  9=2,2  0=3,1
@@ -20,20 +21,6 @@ ${RED}          14
 Suite Init
     Setup
     Execute Command    include @${REPO}/renode/KeypadMatrix.cs
-
-Wait For Idle
-    FOR    ${i}    IN RANGE    100
-        ${odr}=    Execute Command    sysbus ReadDoubleWord ${GPIOD_ODR}
-        ${imr}=    Execute Command    sysbus ReadDoubleWord 0x40013C00
-        ${0}=    Convert To Integer    ${odr.strip()}
-        ${m}=    Convert To Integer    ${imr.strip()}
-        ${idle}=   Evaluate    (${o} & 0xF) == 0 and (${m} & 0xF00) == 0xF00
-        IF    ${idle}
-            RETURN
-        END
-        Execute Command    emulation RunFor "0.05"
-    END
-    Fail    Firmware did not return to idle
 
 Prepare Machine
     Execute Command    mach create "access"
@@ -48,6 +35,19 @@ Prepare Machine
     Execute Command    sysbus.cpu PC ${pc.strip()}
     Execute Command    emulation RunFor "0.1"
 
+Wait For Idle
+    FOR    ${i}    IN RANGE    100
+        ${odr}=    Execute Command    sysbus ReadDoubleWord ${GPIOD_ODR}
+        ${imr}=    Execute Command    sysbus ReadDoubleWord ${EXTI_IMR}
+        ${idle}=    Evaluate    (int($odr.strip(), 16) & 0xF) == 0 and (int($imr.strip(), 16) & 0xF00) == 0xF00
+        IF    ${idle}
+            RETURN
+        END
+        Execute Command    emulation RunFor "0.05"
+    END
+    Log To Console    last odr=${odr.strip()} imr=${imr.strip()}
+    Fail    Firmware did not return to idle
+
 Tap Key
     [Arguments]    ${key}
     ${rc}=    Get From Dictionary    ${KEYS}    ${key}
@@ -56,10 +56,7 @@ Tap Key
     Execute Command    sysbus.keypad Press ${r} ${c}
     Execute Command    emulation RunFor "${HOLD}"
     Execute Command    sysbus.keypad Release ${r} ${c}
-    Execute Command    emulation RunFor "${GAP}"
     Wait For Idle
-    ${odr}=    Execute Command    sysbus ReadDoubleWord ${GPIOD_ODR}
-    Log To Console    key ${key}: ODR=${odr.strip()}
 
 Enter PIN
     [Arguments]    ${pin}
@@ -71,8 +68,7 @@ Enter PIN
 Led Is On
     [Arguments]    ${pin}
     ${out}=    Execute Command    sysbus ReadDoubleWord ${GPIOD_ODR}
-    ${val}=    Convert To Integer    ${out.strip()}
-    ${on}=     Evaluate    (${val} >> ${pin}) & 1 == 1
+    ${on}=    Evaluate    (int($out.strip(), 16) >> ${pin}) & 1 == 1
     RETURN    ${on}
 
 Red Led Blinks
@@ -80,7 +76,7 @@ Red Led Blinks
     FOR    ${i}    IN RANGE    40
         Execute Command    emulation RunFor "0.05"
         ${on}=    Led Is On    ${RED}
-        IF    ${on}    
+        IF    ${on}
             ${seen}=    Set Variable    ${True}
         END
         ${g}=    Led Is On    ${GREEN}
