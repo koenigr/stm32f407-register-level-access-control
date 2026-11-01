@@ -10,4 +10,4 @@ jobs:
       - uses: antmicro/renode-test-action@v4
         with:
           renode-version: '1.17.0'
-          tests-to-run: 'tests/renode/access.robot'
+          tests-to-run: 'Tests/renode/access.robot'

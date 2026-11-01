@@ -11,7 +11,6 @@ Resource        ${RENODEKEYWORDS}
 ${REPO}         ${CURDIR}/../..
 ${ELF}          ${REPO}/build-firmware/stm32f407_access_control
 ${HOLD}         0.1
-${GAP}          0.1
 ${GPIOD_ODR}    0x40020C14
 ${GREEN}        12
 ${RED}          14
@@ -22,10 +21,25 @@ Suite Init
     Setup
     Execute Command    include @${REPO}/renode/KeypadMatrix.cs
 
+Wait For Idle
+    FOR    ${i}    IN RANGE    100
+        ${odr}=    Execute Command    sysbus ReadDoubleWord ${GPIOD_ODR}
+        ${imr}=    Execute Command    sysbus ReadDoubleWord 0x40013C00
+        ${0}=    Convert To Integer    ${odr.strip()}
+        ${m}=    Convert To Integer    ${imr.strip()}
+        ${idle}=   Evaluate    (${o} & 0xF) == 0 and (${m} & 0xF00) == 0xF00
+        IF    ${idle}
+            RETURN
+        END
+        Execute Command    emulation RunFor "0.05"
+    END
+    Fail    Firmware did not return to idle
+
 Prepare Machine
     Execute Command    mach create "access"
     Execute Command    machine LoadPlatformDescription @${REPO}/renode/stm32f407_access.repl
     Execute Command    sysbus LoadELF @${ELF}
+    Execute Command    sysbus.cpu PerformanceInMips 16
     Execute Command    logLevel 3 sysbus
     ${sp}=    Execute Command    sysbus ReadDoubleWord 0x08000000
     ${pc}=    Execute Command    sysbus ReadDoubleWord 0x08000004
@@ -38,10 +52,14 @@ Tap Key
     [Arguments]    ${key}
     ${rc}=    Get From Dictionary    ${KEYS}    ${key}
     ${r}    ${c}=    Split String    ${rc}    ,
+    Wait For Idle
     Execute Command    sysbus.keypad Press ${r} ${c}
     Execute Command    emulation RunFor "${HOLD}"
     Execute Command    sysbus.keypad Release ${r} ${c}
     Execute Command    emulation RunFor "${GAP}"
+    Wait For Idle
+    ${odr}=    Execute Command    sysbus ReadDoubleWord ${GPIOD_ODR}
+    Log To Console    key ${key}: ODR=${odr.strip()}
 
 Enter PIN
     [Arguments]    ${pin}
@@ -62,7 +80,9 @@ Red Led Blinks
     FOR    ${i}    IN RANGE    40
         Execute Command    emulation RunFor "0.05"
         ${on}=    Led Is On    ${RED}
-        IF    ${on}    ${seen}=    Set Variable    ${True}
+        IF    ${on}    
+            ${seen}=    Set Variable    ${True}
+        END
         ${g}=    Led Is On    ${GREEN}
         Should Not Be True    ${g}
     END
