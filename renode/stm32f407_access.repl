@@ -1,0 +1,15 @@
+using "platforms/boards/stm32f4_discovery-kit.repl"
+
+keypad: Miscellaneous.KeypadMatrix @ sysbus
+
+gpioPortD:
+    0 -> keypad@0
+    1 -> keypad@1
+    2 -> keypad@2
+    3 -> keypad@3
+
+keypad:
+    Col0 -> gpioPortD@8
+    Col1 -> gpioPortD@9
+    Col2 -> gpioPortD@10
+    Col3 -> gpioPortD@11

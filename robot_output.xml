@@ -1,0 +1,3164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Rebot 6.1 (Python 3.10.12 on linux)" generated="20261101 22:10:46.044" rpa="false" schemaversion="4">
+<suite id="s1" name="Test Suite" source="/home/koenigr/git/stm32f407-register-level-access-control/Tests/renode/access.robot">
+<kw name="Suite Init" type="SETUP">
+<msg timestamp="20261101 22:10:02.608" level="TRACE">Arguments: [  ]</msg>
+<kw name="Setup" library="renode-keywords">
+<msg timestamp="20261101 22:10:02.608" level="TRACE">Arguments: [  ]</msg>
+<kw name="Evaluate" library="BuiltIn">
+<var>${SYSTEM}</var>
+<arg>platform.system()</arg>
+<arg>modules=platform</arg>
+<doc>Evaluates the given expression in Python and returns the result.</doc>
+<msg timestamp="20261101 22:10:02.609" level="TRACE">Arguments: [ 'platform.system()' | modules='platform' ]</msg>
+<msg timestamp="20261101 22:10:02.609" level="TRACE">Return: 'Linux'</msg>
+<msg timestamp="20261101 22:10:02.609" level="INFO">${SYSTEM} = Linux</msg>
+<status status="PASS" starttime="20261101 22:10:02.608" endtime="20261101 22:10:02.609"/>
+</kw>
+<kw name="Set Variable If" library="BuiltIn">
+<var>${CONFIGURATION}</var>
+<arg>not ${SKIP_RUNNING_SERVER} and ${SERVER_REMOTE_DEBUG}</arg>
+<arg>Debug</arg>
+<arg>${CONFIGURATION}</arg>
+<doc>Sets variable based on the given condition.</doc>
+<msg timestamp="20261101 22:10:02.610" level="TRACE">Arguments: [ 'not True and False' | 'Debug' | '${CONFIGURATION}' ]</msg>
+<msg timestamp="20261101 22:10:02.611" level="TRACE">Return: 'Release'</msg>
+<msg timestamp="20261101 22:10:02.611" level="INFO">${CONFIGURATION} = Release</msg>
+<status status="PASS" starttime="20261101 22:10:02.610" endtime="20261101 22:10:02.611"/>
+</kw>
+<kw name="Create List" library="BuiltIn">
+<var>@{PARAMS}</var>
+<arg>--robot-server-port</arg>
+<arg>${PORT_NUMBER}</arg>
+<arg>--hide-log</arg>
+<doc>Returns a list containing given items.</doc>
+<msg timestamp="20261101 22:10:02.611" level="TRACE">Arguments: [ '--robot-server-port' | '49152' | '--hide-log' ]</msg>
+<msg timestamp="20261101 22:10:02.612" level="TRACE">Return: ['--robot-server-port', '49152', '--hide-log']</msg>
+<msg timestamp="20261101 22:10:02.612" level="INFO">@{PARAMS} = [ --robot-server-port | 49152 | --hide-log ]</msg>
+<status status="PASS" starttime="20261101 22:10:02.611" endtime="20261101 22:10:02.612"/>
+</kw>
+<if>
+<branch type="IF" condition="${DISABLE_GUI}">
+<kw name="Insert Into List" library="Collections">
+<arg>${PARAMS}</arg>
+<arg>0</arg>
+<arg>--disable-gui</arg>
+<doc>Inserts ``value`` into ``list`` to the position specified with ``index``.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:02.613" endtime="20261101 22:10:02.613"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:02.612" endtime="20261101 22:10:02.613"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:02.612" endtime="20261101 22:10:02.613"/>
+</if>
+<if>
+<branch type="IF" condition="not ${SKIP_RUNNING_SERVER}">
+<kw name="File Should Exist" library="OperatingSystem">
+<arg>${DIRECTORY}/${BINARY_NAME}</arg>
+<arg>msg=Robot Framework remote server binary not found (${DIRECTORY}/${BINARY_NAME}). Did you forget to build it in ${CONFIGURATION} configuration?</arg>
+<doc>Fails unless the given ``path`` points to an existing file.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:02.614" endtime="20261101 22:10:02.614"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:02.613" endtime="20261101 22:10:02.614"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:02.613" endtime="20261101 22:10:02.614"/>
+</if>
+<if>
+<branch type="IF" condition="not ${SKIP_RUNNING_SERVER} and ${SERVER_REMOTE_DEBUG} and '${SYSTEM}' == 'Windows'">
+<kw name="Fatal Error" library="BuiltIn">
+<arg>Windows doesn't support server remote debug option.</arg>
+<doc>Stops the whole test execution.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:02.615" endtime="20261101 22:10:02.615"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:02.614" endtime="20261101 22:10:02.615"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:02.614" endtime="20261101 22:10:02.615"/>
+</if>
+<if>
+<branch type="IF" condition="not '${SYSTEM}' == 'Windows'">
+<kw name="Wait Until Keyword Succeeds" library="BuiltIn">
+<arg>60s</arg>
+<arg>1s</arg>
+<arg>Import Library</arg>
+<arg>Remote</arg>
+<arg>http://127.0.0.1:${PORT_NUMBER}/</arg>
+<arg>AS</arg>
+<arg>Renode</arg>
+<doc>Runs the specified keyword and retries if it fails.</doc>
+<msg timestamp="20261101 22:10:02.616" level="TRACE">Arguments: [ '60s' | '1s' | 'Import Library' | 'Remote' | 'http://127.0.0.1:${PORT_NUMBER}/' | 'AS' | 'Renode' ]</msg>
+<kw name="Import Library" library="BuiltIn">
+<arg>Remote</arg>
+<arg>http://127.0.0.1:${PORT_NUMBER}/</arg>
+<arg>AS</arg>
+<arg>Renode</arg>
+<doc>Imports a library with the given name and optional arguments.</doc>
+<msg timestamp="20261101 22:10:02.617" level="TRACE">Arguments: [ 'Remote' | 'http://127.0.0.1:${PORT_NUMBER}/' | 'AS' | 'Renode' ]</msg>
+<msg timestamp="20261101 22:10:03.468" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:02.617" endtime="20261101 22:10:03.468"/>
+</kw>
+<msg timestamp="20261101 22:10:03.468" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:02.616" endtime="20261101 22:10:03.468"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:02.615" endtime="20261101 22:10:03.468"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:02.615" endtime="20261101 22:10:03.469"/>
+</if>
+<if>
+<branch type="IF" condition="'${SYSTEM}' == 'Windows'">
+<kw name="Wait Until Keyword Succeeds" library="BuiltIn">
+<arg>60s</arg>
+<arg>1s</arg>
+<arg>Import Library</arg>
+<arg>Remote</arg>
+<arg>http://localhost:${PORT_NUMBER}/</arg>
+<arg>AS</arg>
+<arg>Renode</arg>
+<doc>Runs the specified keyword and retries if it fails.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:03.469" endtime="20261101 22:10:03.469"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:03.469" endtime="20261101 22:10:03.469"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:03.469" endtime="20261101 22:10:03.469"/>
+</if>
+<kw name="Setup Renode" library="renode-keywords">
+<msg timestamp="20261101 22:10:03.470" level="TRACE">Arguments: [  ]</msg>
+<kw name="Set Default Uart Timeout" library="Renode">
+<arg>${DEFAULT_UART_TIMEOUT}</arg>
+<msg timestamp="20261101 22:10:03.470" level="TRACE">Arguments: [ '8' ]</msg>
+<msg timestamp="20261101 22:10:03.518" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:03.470" endtime="20261101 22:10:03.518"/>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<var>${allowed_chars}</var>
+<arg>abcdefghijklmnopqrstuvwxyz01234567890_-</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:03.519" level="TRACE">Arguments: [ 'abcdefghijklmnopqrstuvwxyz01234567890_-' ]</msg>
+<msg timestamp="20261101 22:10:03.519" level="TRACE">Return: 'abcdefghijklmnopqrstuvwxyz01234567890_-'</msg>
+<msg timestamp="20261101 22:10:03.519" level="INFO">${allowed_chars} = abcdefghijklmnopqrstuvwxyz01234567890_-</msg>
+<status status="PASS" starttime="20261101 22:10:03.518" endtime="20261101 22:10:03.519"/>
+</kw>
+<kw name="Convert To Lower Case" library="String">
+<var>${metrics_fname}</var>
+<arg>${SUITE_NAME}</arg>
+<doc>Converts string to lower case.</doc>
+<msg timestamp="20261101 22:10:03.520" level="TRACE">Arguments: [ 'access' ]</msg>
+<msg timestamp="20261101 22:10:03.520" level="TRACE">Return: 'access'</msg>
+<msg timestamp="20261101 22:10:03.520" level="INFO">${metrics_fname} = access</msg>
+<status status="PASS" starttime="20261101 22:10:03.519" endtime="20261101 22:10:03.520"/>
+</kw>
+<kw name="Replace String" library="String">
+<var>${metrics_fname}</var>
+<arg>${metrics_fname}</arg>
+<arg>${SPACE}</arg>
+<arg>_</arg>
+<doc>Replaces ``search_for`` in the given ``string`` with ``replace_with``.</doc>
+<msg timestamp="20261101 22:10:03.521" level="TRACE">Arguments: [ 'access' | ' ' | '_' ]</msg>
+<msg timestamp="20261101 22:10:03.521" level="TRACE">Return: 'access'</msg>
+<msg timestamp="20261101 22:10:03.521" level="INFO">${metrics_fname} = access</msg>
+<status status="PASS" starttime="20261101 22:10:03.520" endtime="20261101 22:10:03.521"/>
+</kw>
+<kw name="Replace String Using Regexp" library="String">
+<var>${metrics_fname}</var>
+<arg>${metrics_fname}</arg>
+<arg>[^${allowed_chars}]+</arg>
+<arg>${EMPTY}</arg>
+<doc>Replaces ``pattern`` in the given ``string`` with ``replace_with``.</doc>
+<msg timestamp="20261101 22:10:03.523" level="TRACE">Arguments: [ 'access' | '[^abcdefghijklmnopqrstuvwxyz01234567890_-]+' | '' ]</msg>
+<msg timestamp="20261101 22:10:03.524" level="TRACE">Return: 'access'</msg>
+<msg timestamp="20261101 22:10:03.524" level="INFO">${metrics_fname} = access</msg>
+<status status="PASS" starttime="20261101 22:10:03.522" endtime="20261101 22:10:03.524"/>
+</kw>
+<kw name="Join Path" library="OperatingSystem">
+<var>${metrics_path}</var>
+<arg>${RESULTS_DIRECTORY}</arg>
+<arg>profiler-${metrics_fname}</arg>
+<doc>Joins the given path part(s) to the given base path.</doc>
+<msg timestamp="20261101 22:10:03.525" level="TRACE">Arguments: [ '/home/koenigr/git/stm32f407-register-level-access-control/' | 'profiler-access' ]</msg>
+<msg timestamp="20261101 22:10:03.525" level="TRACE">Return: '/home/koenigr/git/stm32f407-register-level-access-control/profiler-access'</msg>
+<msg timestamp="20261101 22:10:03.525" level="INFO">${metrics_path} = /home/koenigr/git/stm32f407-register-level-access-control/profiler-access</msg>
+<status status="PASS" starttime="20261101 22:10:03.525" endtime="20261101 22:10:03.525"/>
+</kw>
+<if>
+<branch type="IF" condition="${CREATE_EXECUTION_METRICS}">
+<kw name="Execute Command" library="Renode">
+<arg>EnableProfilerGlobally "${metrics_path}"</arg>
+<status status="NOT RUN" starttime="20261101 22:10:03.527" endtime="20261101 22:10:03.527"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:03.526" endtime="20261101 22:10:03.527"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:03.526" endtime="20261101 22:10:03.527"/>
+</if>
+<kw name="Reset Emulation" library="Renode">
+<msg timestamp="20261101 22:10:03.527" level="TRACE">Arguments: [  ]</msg>
+<msg timestamp="20261101 22:10:03.552" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:03.527" endtime="20261101 22:10:03.553"/>
+</kw>
+<msg timestamp="20261101 22:10:03.553" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:03.469" endtime="20261101 22:10:03.553"/>
+</kw>
+<msg timestamp="20261101 22:10:03.553" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:02.608" endtime="20261101 22:10:03.553"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>include @${REPO}/renode/KeypadMatrix.cs</arg>
+<msg timestamp="20261101 22:10:03.553" level="TRACE">Arguments: [ 'include @/home/koenigr/git/stm32f407-register-level-access-control/Tests/renode/../../renode/KeypadMatrix.cs' ]</msg>
+<msg timestamp="20261101 22:10:06.529" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:03.553" endtime="20261101 22:10:06.530"/>
+</kw>
+<msg timestamp="20261101 22:10:06.530" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:02.607" endtime="20261101 22:10:06.530"/>
+</kw>
+<test id="s1-t1" name="Correct PIN Unlocks" line="72">
+<kw name="Reset Emulation" library="Renode" type="SETUP">
+<msg timestamp="20261101 22:10:06.533" level="TRACE">Arguments: [  ]</msg>
+<msg timestamp="20261101 22:10:06.539" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:06.532" endtime="20261101 22:10:06.539"/>
+</kw>
+<kw name="Prepare Machine">
+<msg timestamp="20261101 22:10:06.540" level="TRACE">Arguments: [  ]</msg>
+<kw name="Execute Command" library="Renode">
+<arg>mach create "access"</arg>
+<msg timestamp="20261101 22:10:06.541" level="TRACE">Arguments: [ 'mach create "access"' ]</msg>
+<msg timestamp="20261101 22:10:06.592" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:06.541" endtime="20261101 22:10:06.592"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>machine LoadPlatformDescription @${REPO}/renode/stm32f407_access.repl</arg>
+<msg timestamp="20261101 22:10:06.594" level="TRACE">Arguments: [ 'machine LoadPlatformDescription @/home/koenigr/git/stm32f407-register-level-access-control/Tests/renode/../../renode/stm32f407_access.repl' ]</msg>
+<msg timestamp="20261101 22:10:08.798" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:06.593" endtime="20261101 22:10:08.798"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus LoadELF @${ELF}</arg>
+<msg timestamp="20261101 22:10:08.799" level="TRACE">Arguments: [ 'sysbus LoadELF @/home/koenigr/git/stm32f407-register-level-access-control/Tests/renode/../../build-firmware/stm32f407_access_control' ]</msg>
+<msg timestamp="20261101 22:10:08.975" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:08.799" endtime="20261101 22:10:08.976"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>logLevel 3 sysbus</arg>
+<msg timestamp="20261101 22:10:08.977" level="TRACE">Arguments: [ 'logLevel 3 sysbus' ]</msg>
+<msg timestamp="20261101 22:10:08.993" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:08.976" endtime="20261101 22:10:08.993"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<var>${sp}</var>
+<arg>sysbus ReadDoubleWord 0x08000000</arg>
+<msg timestamp="20261101 22:10:08.994" level="TRACE">Arguments: [ 'sysbus ReadDoubleWord 0x08000000' ]</msg>
+<msg timestamp="20261101 22:10:09.018" level="TRACE">Return: '0x20020000\n\n'</msg>
+<msg timestamp="20261101 22:10:09.019" level="INFO">${sp} = 0x20020000
+
+</msg>
+<status status="PASS" starttime="20261101 22:10:08.994" endtime="20261101 22:10:09.019"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<var>${pc}</var>
+<arg>sysbus ReadDoubleWord 0x08000004</arg>
+<msg timestamp="20261101 22:10:09.020" level="TRACE">Arguments: [ 'sysbus ReadDoubleWord 0x08000004' ]</msg>
+<msg timestamp="20261101 22:10:09.025" level="TRACE">Return: '0x08000259\n\n'</msg>
+<msg timestamp="20261101 22:10:09.025" level="INFO">${pc} = 0x08000259
+
+</msg>
+<status status="PASS" starttime="20261101 22:10:09.020" endtime="20261101 22:10:09.025"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.cpu VectorTableOffset 0x08000000</arg>
+<msg timestamp="20261101 22:10:09.026" level="TRACE">Arguments: [ 'sysbus.cpu VectorTableOffset 0x08000000' ]</msg>
+<msg timestamp="20261101 22:10:10.048" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:09.026" endtime="20261101 22:10:10.049"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.cpu SP ${sp.strip()}</arg>
+<msg timestamp="20261101 22:10:10.053" level="TRACE">Arguments: [ 'sysbus.cpu SP 0x20020000' ]</msg>
+<msg timestamp="20261101 22:10:10.064" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:10.049" endtime="20261101 22:10:10.065"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.cpu PC ${pc.strip()}</arg>
+<msg timestamp="20261101 22:10:10.069" level="TRACE">Arguments: [ 'sysbus.cpu PC 0x08000259' ]</msg>
+<msg timestamp="20261101 22:10:10.077" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:10.065" endtime="20261101 22:10:10.077"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "0.1"</arg>
+<msg timestamp="20261101 22:10:10.078" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:10.529" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:10.078" endtime="20261101 22:10:10.529"/>
+</kw>
+<msg timestamp="20261101 22:10:10.530" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:06.539" endtime="20261101 22:10:10.530"/>
+</kw>
+<kw name="Enter PIN">
+<arg>1234</arg>
+<msg timestamp="20261101 22:10:10.531" level="TRACE">Arguments: [ ${pin}='1234' ]</msg>
+<kw name="Get Regexp Matches" library="String">
+<var>@{digits}</var>
+<arg>${pin}</arg>
+<arg>.</arg>
+<doc>Returns a list of all non-overlapping matches in the given string.</doc>
+<msg timestamp="20261101 22:10:10.533" level="TRACE">Arguments: [ '1234' | '.' ]</msg>
+<msg timestamp="20261101 22:10:10.534" level="TRACE">Return: ['1', '2', '3', '4']</msg>
+<msg timestamp="20261101 22:10:10.534" level="INFO">@{digits} = [ 1 | 2 | 3 | 4 ]</msg>
+<status status="PASS" starttime="20261101 22:10:10.532" endtime="20261101 22:10:10.535"/>
+</kw>
+<for flavor="IN">
+<var>${d}</var>
+<value>@{digits}</value>
+<iter>
+<var name="${d}">1</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:10.537" level="TRACE">Arguments: [ ${key}='1' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:10.539" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '1' ]</msg>
+<msg timestamp="20261101 22:10:10.540" level="TRACE">Return: '0,0'</msg>
+<msg timestamp="20261101 22:10:10.541" level="INFO">${rc} = 0,0</msg>
+<status status="PASS" starttime="20261101 22:10:10.538" endtime="20261101 22:10:10.541"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:10.542" level="TRACE">Arguments: [ '0,0' | ',' ]</msg>
+<msg timestamp="20261101 22:10:10.542" level="TRACE">Return: ['0', '0']</msg>
+<msg timestamp="20261101 22:10:10.543" level="INFO">${r} = 0</msg>
+<msg timestamp="20261101 22:10:10.543" level="INFO">${c} = 0</msg>
+<status status="PASS" starttime="20261101 22:10:10.541" endtime="20261101 22:10:10.543"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:10.545" level="TRACE">Arguments: [ 'sysbus.keypad Press 0 0' ]</msg>
+<msg timestamp="20261101 22:10:10.572" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:10.544" endtime="20261101 22:10:10.572"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:10.574" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:12.434" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:10.573" endtime="20261101 22:10:12.435"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:12.437" level="TRACE">Arguments: [ 'sysbus.keypad Release 0 0' ]</msg>
+<msg timestamp="20261101 22:10:12.460" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:12.436" endtime="20261101 22:10:12.460"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:12.462" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:12.610" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:12.461" endtime="20261101 22:10:12.610"/>
+</kw>
+<msg timestamp="20261101 22:10:12.610" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:10.536" endtime="20261101 22:10:12.610"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:10.536" endtime="20261101 22:10:12.610"/>
+</iter>
+<iter>
+<var name="${d}">2</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:12.611" level="TRACE">Arguments: [ ${key}='2' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:12.612" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '2' ]</msg>
+<msg timestamp="20261101 22:10:12.612" level="TRACE">Return: '0,1'</msg>
+<msg timestamp="20261101 22:10:12.612" level="INFO">${rc} = 0,1</msg>
+<status status="PASS" starttime="20261101 22:10:12.611" endtime="20261101 22:10:12.612"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:12.613" level="TRACE">Arguments: [ '0,1' | ',' ]</msg>
+<msg timestamp="20261101 22:10:12.613" level="TRACE">Return: ['0', '1']</msg>
+<msg timestamp="20261101 22:10:12.613" level="INFO">${r} = 0</msg>
+<msg timestamp="20261101 22:10:12.613" level="INFO">${c} = 1</msg>
+<status status="PASS" starttime="20261101 22:10:12.612" endtime="20261101 22:10:12.613"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:12.613" level="TRACE">Arguments: [ 'sysbus.keypad Press 0 1' ]</msg>
+<msg timestamp="20261101 22:10:12.621" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:12.613" endtime="20261101 22:10:12.621"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:12.622" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:14.207" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:12.621" endtime="20261101 22:10:14.207"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:14.207" level="TRACE">Arguments: [ 'sysbus.keypad Release 0 1' ]</msg>
+<msg timestamp="20261101 22:10:14.219" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:14.207" endtime="20261101 22:10:14.220"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:14.221" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:14.347" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:14.220" endtime="20261101 22:10:14.347"/>
+</kw>
+<msg timestamp="20261101 22:10:14.347" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:12.611" endtime="20261101 22:10:14.348"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:12.611" endtime="20261101 22:10:14.348"/>
+</iter>
+<iter>
+<var name="${d}">3</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:14.350" level="TRACE">Arguments: [ ${key}='3' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:14.352" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '3' ]</msg>
+<msg timestamp="20261101 22:10:14.353" level="TRACE">Return: '0,2'</msg>
+<msg timestamp="20261101 22:10:14.353" level="INFO">${rc} = 0,2</msg>
+<status status="PASS" starttime="20261101 22:10:14.351" endtime="20261101 22:10:14.353"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:14.354" level="TRACE">Arguments: [ '0,2' | ',' ]</msg>
+<msg timestamp="20261101 22:10:14.355" level="TRACE">Return: ['0', '2']</msg>
+<msg timestamp="20261101 22:10:14.355" level="INFO">${r} = 0</msg>
+<msg timestamp="20261101 22:10:14.356" level="INFO">${c} = 2</msg>
+<status status="PASS" starttime="20261101 22:10:14.354" endtime="20261101 22:10:14.356"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:14.357" level="TRACE">Arguments: [ 'sysbus.keypad Press 0 2' ]</msg>
+<msg timestamp="20261101 22:10:14.361" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:14.356" endtime="20261101 22:10:14.361"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:14.361" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:14.965" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:14.361" endtime="20261101 22:10:14.966"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:14.967" level="TRACE">Arguments: [ 'sysbus.keypad Release 0 2' ]</msg>
+<msg timestamp="20261101 22:10:14.975" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:14.966" endtime="20261101 22:10:14.976"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:14.977" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:15.099" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:14.976" endtime="20261101 22:10:15.099"/>
+</kw>
+<msg timestamp="20261101 22:10:15.099" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:14.349" endtime="20261101 22:10:15.099"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:14.348" endtime="20261101 22:10:15.099"/>
+</iter>
+<iter>
+<var name="${d}">4</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:15.100" level="TRACE">Arguments: [ ${key}='4' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:15.100" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '4' ]</msg>
+<msg timestamp="20261101 22:10:15.101" level="TRACE">Return: '1,0'</msg>
+<msg timestamp="20261101 22:10:15.101" level="INFO">${rc} = 1,0</msg>
+<status status="PASS" starttime="20261101 22:10:15.100" endtime="20261101 22:10:15.101"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:15.101" level="TRACE">Arguments: [ '1,0' | ',' ]</msg>
+<msg timestamp="20261101 22:10:15.101" level="TRACE">Return: ['1', '0']</msg>
+<msg timestamp="20261101 22:10:15.101" level="INFO">${r} = 1</msg>
+<msg timestamp="20261101 22:10:15.101" level="INFO">${c} = 0</msg>
+<status status="PASS" starttime="20261101 22:10:15.101" endtime="20261101 22:10:15.101"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:15.102" level="TRACE">Arguments: [ 'sysbus.keypad Press 1 0' ]</msg>
+<msg timestamp="20261101 22:10:15.104" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:15.102" endtime="20261101 22:10:15.104"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:15.104" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:15.743" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:15.104" endtime="20261101 22:10:15.743"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:15.745" level="TRACE">Arguments: [ 'sysbus.keypad Release 1 0' ]</msg>
+<msg timestamp="20261101 22:10:15.752" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:15.744" endtime="20261101 22:10:15.752"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:15.754" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:16.484" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:15.753" endtime="20261101 22:10:16.484"/>
+</kw>
+<msg timestamp="20261101 22:10:16.484" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:15.099" endtime="20261101 22:10:16.484"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:15.099" endtime="20261101 22:10:16.484"/>
+</iter>
+<status status="PASS" starttime="20261101 22:10:10.535" endtime="20261101 22:10:16.484"/>
+</for>
+<msg timestamp="20261101 22:10:16.484" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:10.530" endtime="20261101 22:10:16.484"/>
+</kw>
+<kw name="Led Is On">
+<var>${g}</var>
+<arg>${GREEN}</arg>
+<msg timestamp="20261101 22:10:16.485" level="TRACE">Arguments: [ ${pin}='12' ]</msg>
+<kw name="Execute Command" library="Renode">
+<var>${out}</var>
+<arg>sysbus ReadDoubleWord ${GPIOD_ODR}</arg>
+<msg timestamp="20261101 22:10:16.485" level="TRACE">Arguments: [ 'sysbus ReadDoubleWord 0x40020C14' ]</msg>
+<msg timestamp="20261101 22:10:16.503" level="TRACE">Return: '0x00004E0E\n\n'</msg>
+<msg timestamp="20261101 22:10:16.503" level="INFO">${out} = 0x00004E0E
+
+</msg>
+<status status="PASS" starttime="20261101 22:10:16.485" endtime="20261101 22:10:16.503"/>
+</kw>
+<kw name="Convert To Integer" library="BuiltIn">
+<var>${val}</var>
+<arg>${out.strip()}</arg>
+<doc>Converts the given item to an integer number.</doc>
+<msg timestamp="20261101 22:10:16.508" level="TRACE">Arguments: [ '0x00004E0E' ]</msg>
+<msg timestamp="20261101 22:10:16.508" level="DEBUG">Argument types are:
+&lt;class 'str'&gt;</msg>
+<msg timestamp="20261101 22:10:16.509" level="TRACE">Return: 19982</msg>
+<msg timestamp="20261101 22:10:16.509" level="INFO">${val} = 19982</msg>
+<status status="PASS" starttime="20261101 22:10:16.504" endtime="20261101 22:10:16.509"/>
+</kw>
+<kw name="Evaluate" library="BuiltIn">
+<var>${on}</var>
+<arg>(${val} &gt;&gt; ${pin}) &amp; 1 == 1</arg>
+<doc>Evaluates the given expression in Python and returns the result.</doc>
+<msg timestamp="20261101 22:10:16.511" level="TRACE">Arguments: [ '(19982 &gt;&gt; 12) &amp; 1 == 1' ]</msg>
+<msg timestamp="20261101 22:10:16.512" level="TRACE">Return: False</msg>
+<msg timestamp="20261101 22:10:16.512" level="INFO">${on} = False</msg>
+<status status="PASS" starttime="20261101 22:10:16.510" endtime="20261101 22:10:16.512"/>
+</kw>
+<return>
+<value>${on}</value>
+<status status="PASS" starttime="20261101 22:10:16.513" endtime="20261101 22:10:16.513"/>
+</return>
+<msg timestamp="20261101 22:10:16.513" level="TRACE">Return: False</msg>
+<msg timestamp="20261101 22:10:16.514" level="INFO">${g} = False</msg>
+<status status="PASS" starttime="20261101 22:10:16.485" endtime="20261101 22:10:16.514"/>
+</kw>
+<kw name="Should Be True" library="BuiltIn">
+<arg>${g}</arg>
+<doc>Fails if the given condition is not true.</doc>
+<msg timestamp="20261101 22:10:16.515" level="TRACE">Arguments: [ False ]</msg>
+<msg timestamp="20261101 22:10:16.516" level="FAIL">'False' should be true.</msg>
+<msg timestamp="20261101 22:10:16.516" level="DEBUG">Traceback (most recent call last):
+  None
+AssertionError: 'False' should be true.</msg>
+<status status="FAIL" starttime="20261101 22:10:16.515" endtime="20261101 22:10:16.516"/>
+</kw>
+<kw name="Test Teardown" library="renode-keywords" type="TEARDOWN">
+<msg timestamp="20261101 22:10:16.520" level="TRACE">Arguments: [  ]</msg>
+<kw name="Stop Profiler" library="renode-keywords">
+<msg timestamp="20261101 22:10:16.522" level="TRACE">Arguments: [  ]</msg>
+<if>
+<branch type="IF" condition="${PROFILER_PROCESS}">
+<kw name="Terminate Process" library="Process">
+<arg>${PROFILER_PROCESS}</arg>
+<doc>Stops the process gracefully or forcefully.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:16.524" endtime="20261101 22:10:16.524"/>
+</kw>
+<kw name="Set Test Variable" library="BuiltIn">
+<arg>${PROFILER_PROCESS}</arg>
+<arg>None</arg>
+<doc>Makes a variable available everywhere within the scope of the current test.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:16.525" endtime="20261101 22:10:16.525"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:16.523" endtime="20261101 22:10:16.525"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:16.523" endtime="20261101 22:10:16.525"/>
+</if>
+<msg timestamp="20261101 22:10:16.526" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:16.521" endtime="20261101 22:10:16.526"/>
+</kw>
+<kw name="Run Keyword If Test Failed" library="BuiltIn">
+<var>${failed}</var>
+<arg>Set Variable</arg>
+<arg>True</arg>
+<doc>Runs the given keyword with the given arguments, if the test failed.</doc>
+<msg timestamp="20261101 22:10:16.527" level="TRACE">Arguments: [ 'Set Variable' | 'True' ]</msg>
+<kw name="Set Variable" library="BuiltIn">
+<arg>True</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:16.529" level="TRACE">Arguments: [ 'True' ]</msg>
+<msg timestamp="20261101 22:10:16.529" level="TRACE">Return: 'True'</msg>
+<status status="PASS" starttime="20261101 22:10:16.528" endtime="20261101 22:10:16.529"/>
+</kw>
+<msg timestamp="20261101 22:10:16.529" level="TRACE">Return: 'True'</msg>
+<msg timestamp="20261101 22:10:16.530" level="INFO">${failed} = True</msg>
+<status status="PASS" starttime="20261101 22:10:16.527" endtime="20261101 22:10:16.530"/>
+</kw>
+<if>
+<branch type="IF" condition="${failed}">
+<kw name="Strip String" library="String">
+<var>${message}</var>
+<arg>${TEST_MESSAGE}</arg>
+<arg>mode=right</arg>
+<doc>Remove leading and/or trailing whitespaces from the given string.</doc>
+<msg timestamp="20261101 22:10:16.532" level="TRACE">Arguments: [ "'False' should be true." | mode='right' ]</msg>
+<msg timestamp="20261101 22:10:16.533" level="TRACE">Return: "'False' should be true."</msg>
+<msg timestamp="20261101 22:10:16.533" level="INFO">${message} = 'False' should be true.</msg>
+<status status="PASS" starttime="20261101 22:10:16.531" endtime="20261101 22:10:16.533"/>
+</kw>
+<kw name="Set Test Message" library="BuiltIn">
+<arg>${message}</arg>
+<doc>Sets message for the current test case.</doc>
+<msg timestamp="20261101 22:10:16.534" level="TRACE">Arguments: [ "'False' should be true." ]</msg>
+<msg timestamp="20261101 22:10:16.535" level="INFO">Set test message to:
+'False' should be true.</msg>
+<msg timestamp="20261101 22:10:16.535" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:16.534" endtime="20261101 22:10:16.535"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:16.530" endtime="20261101 22:10:16.536"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:16.530" endtime="20261101 22:10:16.536"/>
+</if>
+<kw name="Run Keyword If Timeout Occurred" library="BuiltIn">
+<var>${timed_out}</var>
+<arg>Set Variable</arg>
+<arg>True</arg>
+<doc>Runs the given keyword if either a test or a keyword timeout has occurred.</doc>
+<msg timestamp="20261101 22:10:16.537" level="TRACE">Arguments: [ 'Set Variable' | 'True' ]</msg>
+<msg timestamp="20261101 22:10:16.537" level="TRACE">Return: None</msg>
+<msg timestamp="20261101 22:10:16.538" level="INFO">${timed_out} = None</msg>
+<status status="PASS" starttime="20261101 22:10:16.536" endtime="20261101 22:10:16.538"/>
+</kw>
+<if>
+<branch type="IF" condition="${timed_out}">
+<return>
+<status status="NOT RUN" starttime="20261101 22:10:16.539" endtime="20261101 22:10:16.539"/>
+</return>
+<status status="NOT RUN" starttime="20261101 22:10:16.538" endtime="20261101 22:10:16.539"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:16.538" endtime="20261101 22:10:16.539"/>
+</if>
+<if>
+<branch type="IF" condition="${CREATE_SNAPSHOT_ON_FAIL}">
+<kw name="Run Keyword If Test Failed" library="BuiltIn">
+<arg>Create Snapshot Of Failed Test</arg>
+<doc>Runs the given keyword with the given arguments, if the test failed.</doc>
+<msg timestamp="20261101 22:10:16.541" level="TRACE">Arguments: [ 'Create Snapshot Of Failed Test' ]</msg>
+<kw name="Create Snapshot Of Failed Test" library="renode-keywords">
+<msg timestamp="20261101 22:10:16.543" level="TRACE">Arguments: [  ]</msg>
+<kw name="Return From Keyword If" library="BuiltIn">
+<arg>'skipped' in @{TEST TAGS}</arg>
+<doc>Returns from the enclosing user keyword if ``condition`` is true.</doc>
+<msg timestamp="20261101 22:10:16.544" level="TRACE">Arguments: [ "'skipped' in []" ]</msg>
+<msg timestamp="20261101 22:10:16.545" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:16.544" endtime="20261101 22:10:16.545"/>
+</kw>
+<kw name="Get Sanitized Test Name" library="renode-keywords">
+<var>${test_name}</var>
+<msg timestamp="20261101 22:10:16.546" level="TRACE">Arguments: [  ]</msg>
+<kw name="Get Variable Value" library="BuiltIn">
+<var>${retry_index}</var>
+<arg>\${RETRYFAILED_RETRY_INDEX}</arg>
+<arg>0</arg>
+<doc>Returns variable value or ``default`` if the variable does not exist.</doc>
+<msg timestamp="20261101 22:10:16.548" level="TRACE">Arguments: [ '\\${RETRYFAILED_RETRY_INDEX}' | '0' ]</msg>
+<msg timestamp="20261101 22:10:16.554" level="TRACE">Return: '0'</msg>
+<msg timestamp="20261101 22:10:16.554" level="INFO">${retry_index} = 0</msg>
+<status status="PASS" starttime="20261101 22:10:16.547" endtime="20261101 22:10:16.554"/>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<var>${test_name}</var>
+<arg>${SUITE NAME}.${TEST NAME}.fail${retry_index}</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:16.556" level="TRACE">Arguments: [ 'access.Correct PIN Unlocks.fail0' ]</msg>
+<msg timestamp="20261101 22:10:16.556" level="TRACE">Return: 'access.Correct PIN Unlocks.fail0'</msg>
+<msg timestamp="20261101 22:10:16.557" level="INFO">${test_name} = access.Correct PIN Unlocks.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:16.555" endtime="20261101 22:10:16.557"/>
+</kw>
+<kw name="Sanitize Test Name" library="renode-keywords">
+<var>${test_name}</var>
+<arg>${test_name}</arg>
+<msg timestamp="20261101 22:10:16.559" level="TRACE">Arguments: [ ${test_name}='access.Correct PIN Unlocks.fail0' ]</msg>
+<kw name="Replace String" library="String">
+<var>${test_name}</var>
+<arg>${test_name}</arg>
+<arg>${SPACE}</arg>
+<arg>_</arg>
+<doc>Replaces ``search_for`` in the given ``string`` with ``replace_with``.</doc>
+<msg timestamp="20261101 22:10:16.561" level="TRACE">Arguments: [ 'access.Correct PIN Unlocks.fail0' | ' ' | '_' ]</msg>
+<msg timestamp="20261101 22:10:16.561" level="TRACE">Return: 'access.Correct_PIN_Unlocks.fail0'</msg>
+<msg timestamp="20261101 22:10:16.561" level="INFO">${test_name} = access.Correct_PIN_Unlocks.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:16.560" endtime="20261101 22:10:16.562"/>
+</kw>
+<kw name="Replace String Using Regexp" library="String">
+<var>${test_name}</var>
+<arg>${test_name}</arg>
+<arg>[/""]</arg>
+<arg>-</arg>
+<doc>Replaces ``pattern`` in the given ``string`` with ``replace_with``.</doc>
+<msg timestamp="20261101 22:10:16.563" level="TRACE">Arguments: [ 'access.Correct_PIN_Unlocks.fail0' | '[/""]' | '-' ]</msg>
+<msg timestamp="20261101 22:10:16.564" level="TRACE">Return: 'access.Correct_PIN_Unlocks.fail0'</msg>
+<msg timestamp="20261101 22:10:16.564" level="INFO">${test_name} = access.Correct_PIN_Unlocks.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:16.562" endtime="20261101 22:10:16.564"/>
+</kw>
+<return>
+<value>${test_name}</value>
+<status status="PASS" starttime="20261101 22:10:16.565" endtime="20261101 22:10:16.565"/>
+</return>
+<msg timestamp="20261101 22:10:16.565" level="TRACE">Return: 'access.Correct_PIN_Unlocks.fail0'</msg>
+<msg timestamp="20261101 22:10:16.566" level="INFO">${test_name} = access.Correct_PIN_Unlocks.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:16.557" endtime="20261101 22:10:16.566"/>
+</kw>
+<return>
+<value>${test_name}</value>
+<status status="PASS" starttime="20261101 22:10:16.566" endtime="20261101 22:10:16.566"/>
+</return>
+<msg timestamp="20261101 22:10:16.567" level="TRACE">Return: 'access.Correct_PIN_Unlocks.fail0'</msg>
+<msg timestamp="20261101 22:10:16.567" level="INFO">${test_name} = access.Correct_PIN_Unlocks.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:16.546" endtime="20261101 22:10:16.567"/>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<var>${snapshots_dir}</var>
+<arg>${RESULTS_DIRECTORY}/snapshots</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:16.569" level="TRACE">Arguments: [ '/home/koenigr/git/stm32f407-register-level-access-control//snapshots' ]</msg>
+<msg timestamp="20261101 22:10:16.569" level="TRACE">Return: '/home/koenigr/git/stm32f407-register-level-access-control//snapshots'</msg>
+<msg timestamp="20261101 22:10:16.570" level="INFO">${snapshots_dir} = /home/koenigr/git/stm32f407-register-level-access-control//snapshots</msg>
+<status status="PASS" starttime="20261101 22:10:16.568" endtime="20261101 22:10:16.570"/>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<arg>${snapshots_dir}</arg>
+<doc>Creates the specified directory.</doc>
+<msg timestamp="20261101 22:10:16.571" level="TRACE">Arguments: [ '/home/koenigr/git/stm32f407-register-level-access-control//snapshots' ]</msg>
+<msg timestamp="20261101 22:10:16.572" level="INFO" html="true">Created directory '&lt;a href="file:///home/koenigr/git/stm32f407-register-level-access-control/snapshots"&gt;/home/koenigr/git/stm32f407-register-level-access-control/snapshots&lt;/a&gt;'.</msg>
+<msg timestamp="20261101 22:10:16.572" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:16.570" endtime="20261101 22:10:16.572"/>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<var>${snapshot_path}</var>
+<arg>"${snapshots_dir}/${test_name}.save"</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:16.574" level="TRACE">Arguments: [ '"/home/koenigr/git/stm32f407-register-level-access-control//snapshots/access.Correct_PIN_Unlocks.fail0.save"' ]</msg>
+<msg timestamp="20261101 22:10:16.574" level="TRACE">Return: '"/home/koenigr/git/stm32f407-register-level-access-control//snapshots/access.Correct_PIN_Unlocks.fail0.save"'</msg>
+<msg timestamp="20261101 22:10:16.575" level="INFO">${snapshot_path} = "/home/koenigr/git/stm32f407-register-level-access-control//snapshots/access.Correct_PIN_Unlocks.fail0.save"</msg>
+<status status="PASS" starttime="20261101 22:10:16.573" endtime="20261101 22:10:16.575"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>Save ${snapshot_path}</arg>
+<msg timestamp="20261101 22:10:16.576" level="TRACE">Arguments: [ 'Save "/home/koenigr/git/stm32f407-register-level-access-control//snapshots/access.Correct_PIN_Unlocks.fail0.save"' ]</msg>
+<msg timestamp="20261101 22:10:18.332" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:16.575" endtime="20261101 22:10:18.333"/>
+</kw>
+<kw name="Log To Console" library="BuiltIn">
+<arg>!!!!! Emulation's state saved to ${snapshot_path}</arg>
+<doc>Logs the given message to the console.</doc>
+<msg timestamp="20261101 22:10:18.333" level="TRACE">Arguments: [ '!!!!! Emulation\'s state saved to "/home/koenigr/git/stm32f407-register-level-access-control//snapshots/access.Correct_PIN_Unlocks.fail0.save"' ]</msg>
+<msg timestamp="20261101 22:10:18.333" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:18.333" endtime="20261101 22:10:18.333"/>
+</kw>
+<msg timestamp="20261101 22:10:18.334" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:16.542" endtime="20261101 22:10:18.334"/>
+</kw>
+<msg timestamp="20261101 22:10:18.334" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:16.541" endtime="20261101 22:10:18.334"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:16.540" endtime="20261101 22:10:18.334"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:16.540" endtime="20261101 22:10:18.334"/>
+</if>
+<kw name="Close Log File" library="Renode">
+<msg timestamp="20261101 22:10:18.334" level="TRACE">Arguments: [  ]</msg>
+<msg timestamp="20261101 22:10:18.337" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:18.334" endtime="20261101 22:10:18.337"/>
+</kw>
+<if>
+<branch type="IF" condition="&quot;${SAVE_LOGS_WHEN}&quot; == &quot;Always&quot; or ${failed}">
+<kw name="Print Log Saved Message" library="renode-keywords">
+<msg timestamp="20261101 22:10:18.338" level="TRACE">Arguments: [  ]</msg>
+<kw name="Return From Keyword If" library="BuiltIn">
+<arg>'skipped' in @{TEST TAGS}</arg>
+<doc>Returns from the enclosing user keyword if ``condition`` is true.</doc>
+<msg timestamp="20261101 22:10:18.338" level="TRACE">Arguments: [ "'skipped' in []" ]</msg>
+<msg timestamp="20261101 22:10:18.338" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:18.338" endtime="20261101 22:10:18.338"/>
+</kw>
+<kw name="Return From Keyword If" library="BuiltIn">
+<arg>not ${SAVE_LOGS}</arg>
+<doc>Returns from the enclosing user keyword if ``condition`` is true.</doc>
+<msg timestamp="20261101 22:10:18.339" level="TRACE">Arguments: [ 'not True' ]</msg>
+<msg timestamp="20261101 22:10:18.339" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:18.338" endtime="20261101 22:10:18.339"/>
+</kw>
+<kw name="Get Test Log Path" library="renode-keywords">
+<var>${log_path}</var>
+<msg timestamp="20261101 22:10:18.339" level="TRACE">Arguments: [  ]</msg>
+<kw name="Get Sanitized Test Name" library="renode-keywords">
+<var>${test_name}</var>
+<msg timestamp="20261101 22:10:18.340" level="TRACE">Arguments: [  ]</msg>
+<kw name="Get Variable Value" library="BuiltIn">
+<var>${retry_index}</var>
+<arg>\${RETRYFAILED_RETRY_INDEX}</arg>
+<arg>0</arg>
+<doc>Returns variable value or ``default`` if the variable does not exist.</doc>
+<msg timestamp="20261101 22:10:18.340" level="TRACE">Arguments: [ '\\${RETRYFAILED_RETRY_INDEX}' | '0' ]</msg>
+<msg timestamp="20261101 22:10:18.342" level="TRACE">Return: '0'</msg>
+<msg timestamp="20261101 22:10:18.342" level="INFO">${retry_index} = 0</msg>
+<status status="PASS" starttime="20261101 22:10:18.340" endtime="20261101 22:10:18.342"/>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<var>${test_name}</var>
+<arg>${SUITE NAME}.${TEST NAME}.fail${retry_index}</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:18.343" level="TRACE">Arguments: [ 'access.Correct PIN Unlocks.fail0' ]</msg>
+<msg timestamp="20261101 22:10:18.343" level="TRACE">Return: 'access.Correct PIN Unlocks.fail0'</msg>
+<msg timestamp="20261101 22:10:18.343" level="INFO">${test_name} = access.Correct PIN Unlocks.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:18.343" endtime="20261101 22:10:18.343"/>
+</kw>
+<kw name="Sanitize Test Name" library="renode-keywords">
+<var>${test_name}</var>
+<arg>${test_name}</arg>
+<msg timestamp="20261101 22:10:18.344" level="TRACE">Arguments: [ ${test_name}='access.Correct PIN Unlocks.fail0' ]</msg>
+<kw name="Replace String" library="String">
+<var>${test_name}</var>
+<arg>${test_name}</arg>
+<arg>${SPACE}</arg>
+<arg>_</arg>
+<doc>Replaces ``search_for`` in the given ``string`` with ``replace_with``.</doc>
+<msg timestamp="20261101 22:10:18.344" level="TRACE">Arguments: [ 'access.Correct PIN Unlocks.fail0' | ' ' | '_' ]</msg>
+<msg timestamp="20261101 22:10:18.344" level="TRACE">Return: 'access.Correct_PIN_Unlocks.fail0'</msg>
+<msg timestamp="20261101 22:10:18.344" level="INFO">${test_name} = access.Correct_PIN_Unlocks.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:18.344" endtime="20261101 22:10:18.344"/>
+</kw>
+<kw name="Replace String Using Regexp" library="String">
+<var>${test_name}</var>
+<arg>${test_name}</arg>
+<arg>[/""]</arg>
+<arg>-</arg>
+<doc>Replaces ``pattern`` in the given ``string`` with ``replace_with``.</doc>
+<msg timestamp="20261101 22:10:18.345" level="TRACE">Arguments: [ 'access.Correct_PIN_Unlocks.fail0' | '[/""]' | '-' ]</msg>
+<msg timestamp="20261101 22:10:18.345" level="TRACE">Return: 'access.Correct_PIN_Unlocks.fail0'</msg>
+<msg timestamp="20261101 22:10:18.345" level="INFO">${test_name} = access.Correct_PIN_Unlocks.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:18.345" endtime="20261101 22:10:18.345"/>
+</kw>
+<return>
+<value>${test_name}</value>
+<status status="PASS" starttime="20261101 22:10:18.345" endtime="20261101 22:10:18.345"/>
+</return>
+<msg timestamp="20261101 22:10:18.345" level="TRACE">Return: 'access.Correct_PIN_Unlocks.fail0'</msg>
+<msg timestamp="20261101 22:10:18.346" level="INFO">${test_name} = access.Correct_PIN_Unlocks.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:18.343" endtime="20261101 22:10:18.346"/>
+</kw>
+<return>
+<value>${test_name}</value>
+<status status="PASS" starttime="20261101 22:10:18.346" endtime="20261101 22:10:18.346"/>
+</return>
+<msg timestamp="20261101 22:10:18.346" level="TRACE">Return: 'access.Correct_PIN_Unlocks.fail0'</msg>
+<msg timestamp="20261101 22:10:18.346" level="INFO">${test_name} = access.Correct_PIN_Unlocks.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:18.339" endtime="20261101 22:10:18.346"/>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<var>${logs_dir}</var>
+<arg>${RESULTS_DIRECTORY}/logs</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:18.347" level="TRACE">Arguments: [ '/home/koenigr/git/stm32f407-register-level-access-control//logs' ]</msg>
+<msg timestamp="20261101 22:10:18.347" level="TRACE">Return: '/home/koenigr/git/stm32f407-register-level-access-control//logs'</msg>
+<msg timestamp="20261101 22:10:18.347" level="INFO">${logs_dir} = /home/koenigr/git/stm32f407-register-level-access-control//logs</msg>
+<status status="PASS" starttime="20261101 22:10:18.347" endtime="20261101 22:10:18.347"/>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<arg>${logs_dir}</arg>
+<doc>Creates the specified directory.</doc>
+<msg timestamp="20261101 22:10:18.347" level="TRACE">Arguments: [ '/home/koenigr/git/stm32f407-register-level-access-control//logs' ]</msg>
+<msg timestamp="20261101 22:10:18.348" level="INFO" html="true">Created directory '&lt;a href="file:///home/koenigr/git/stm32f407-register-level-access-control/logs"&gt;/home/koenigr/git/stm32f407-register-level-access-control/logs&lt;/a&gt;'.</msg>
+<msg timestamp="20261101 22:10:18.348" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:18.347" endtime="20261101 22:10:18.348"/>
+</kw>
+<return>
+<value>${logs_dir}/${test_name}.log</value>
+<status status="PASS" starttime="20261101 22:10:18.348" endtime="20261101 22:10:18.348"/>
+</return>
+<msg timestamp="20261101 22:10:18.348" level="TRACE">Return: '/home/koenigr/git/stm32f407-register-level-access-control//logs/access.Correct_PIN_Unlocks.fail0.log'</msg>
+<msg timestamp="20261101 22:10:18.348" level="INFO">${log_path} = /home/koenigr/git/stm32f407-register-level-access-control//logs/access.Correct_PIN_Unlocks.fail0.log</msg>
+<status status="PASS" starttime="20261101 22:10:18.339" endtime="20261101 22:10:18.348"/>
+</kw>
+<kw name="Log To Console" library="BuiltIn">
+<arg>!!!!! Log saved to "${log_path}"</arg>
+<doc>Logs the given message to the console.</doc>
+<msg timestamp="20261101 22:10:18.349" level="TRACE">Arguments: [ '!!!!! Log saved to "/home/koenigr/git/stm32f407-register-level-access-control//logs/access.Correct_PIN_Unlocks.fail0.log"' ]</msg>
+<msg timestamp="20261101 22:10:18.349" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:18.349" endtime="20261101 22:10:18.349"/>
+</kw>
+<msg timestamp="20261101 22:10:18.349" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:18.337" endtime="20261101 22:10:18.349"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:18.337" endtime="20261101 22:10:18.349"/>
+</branch>
+<branch type="ELSE">
+<kw name="Remove Log" library="renode-keywords">
+<status status="NOT RUN" starttime="20261101 22:10:18.349" endtime="20261101 22:10:18.350"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:18.349" endtime="20261101 22:10:18.350"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:18.337" endtime="20261101 22:10:18.350"/>
+</if>
+<if>
+<branch type="IF" condition="${HOLD_ON_ERROR}">
+<kw name="Run Keyword If Test Failed" library="BuiltIn">
+<var>${res}</var>
+<arg>Run Keyword And Ignore Error</arg>
+<arg>Import Library</arg>
+<arg>Dialogs</arg>
+<doc>Runs the given keyword with the given arguments, if the test failed.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:18.350" endtime="20261101 22:10:18.350"/>
+</kw>
+<kw name="Run Keyword If Test Failed" library="BuiltIn">
+<arg>Run Keywords</arg>
+<arg>Run Keyword If</arg>
+<arg>'${res[0]}' == 'FAIL'</arg>
+<arg>Log</arg>
+<arg>Couldn't load the Dialogs library - interactive debugging is not possible</arg>
+<arg>console=True</arg>
+<arg>AND</arg>
+<arg>Run Keyword If</arg>
+<arg>'${res[0]}' != 'FAIL'</arg>
+<arg>Open GUI</arg>
+<arg>AND</arg>
+<arg>Run Keyword If</arg>
+<arg>'${res[0]}' != 'FAIL'</arg>
+<arg>Pause Execution</arg>
+<arg>Test failed. Press OK once done debugging.</arg>
+<arg>AND</arg>
+<arg>Run Keyword If</arg>
+<arg>'${res[0]}' != 'FAIL'</arg>
+<arg>Close GUI</arg>
+<doc>Runs the given keyword with the given arguments, if the test failed.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:18.350" endtime="20261101 22:10:18.351"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:18.350" endtime="20261101 22:10:18.351"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:18.350" endtime="20261101 22:10:18.351"/>
+</if>
+<kw name="Reset Emulation" library="Renode">
+<msg timestamp="20261101 22:10:18.351" level="TRACE">Arguments: [  ]</msg>
+<msg timestamp="20261101 22:10:18.459" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:18.351" endtime="20261101 22:10:18.459"/>
+</kw>
+<msg timestamp="20261101 22:10:18.459" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:16.519" endtime="20261101 22:10:18.460"/>
+</kw>
+<status status="FAIL" starttime="20261101 22:10:06.531" endtime="20261101 22:10:18.462">'False' should be true.</status>
+</test>
+<test id="s1-t2" name="Wrong PIN Stays Locked" line="78">
+<kw name="Reset Emulation" library="Renode" type="SETUP">
+<msg timestamp="20261101 22:10:18.464" level="TRACE">Arguments: [  ]</msg>
+<msg timestamp="20261101 22:10:18.469" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:18.464" endtime="20261101 22:10:18.469"/>
+</kw>
+<kw name="Prepare Machine">
+<msg timestamp="20261101 22:10:18.470" level="TRACE">Arguments: [  ]</msg>
+<kw name="Execute Command" library="Renode">
+<arg>mach create "access"</arg>
+<msg timestamp="20261101 22:10:18.470" level="TRACE">Arguments: [ 'mach create "access"' ]</msg>
+<msg timestamp="20261101 22:10:18.473" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:18.470" endtime="20261101 22:10:18.473"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>machine LoadPlatformDescription @${REPO}/renode/stm32f407_access.repl</arg>
+<msg timestamp="20261101 22:10:18.474" level="TRACE">Arguments: [ 'machine LoadPlatformDescription @/home/koenigr/git/stm32f407-register-level-access-control/Tests/renode/../../renode/stm32f407_access.repl' ]</msg>
+<msg timestamp="20261101 22:10:19.013" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:18.473" endtime="20261101 22:10:19.013"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus LoadELF @${ELF}</arg>
+<msg timestamp="20261101 22:10:19.014" level="TRACE">Arguments: [ 'sysbus LoadELF @/home/koenigr/git/stm32f407-register-level-access-control/Tests/renode/../../build-firmware/stm32f407_access_control' ]</msg>
+<msg timestamp="20261101 22:10:19.034" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:19.014" endtime="20261101 22:10:19.034"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>logLevel 3 sysbus</arg>
+<msg timestamp="20261101 22:10:19.035" level="TRACE">Arguments: [ 'logLevel 3 sysbus' ]</msg>
+<msg timestamp="20261101 22:10:19.038" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:19.035" endtime="20261101 22:10:19.038"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<var>${sp}</var>
+<arg>sysbus ReadDoubleWord 0x08000000</arg>
+<msg timestamp="20261101 22:10:19.038" level="TRACE">Arguments: [ 'sysbus ReadDoubleWord 0x08000000' ]</msg>
+<msg timestamp="20261101 22:10:19.040" level="TRACE">Return: '0x20020000\n\n'</msg>
+<msg timestamp="20261101 22:10:19.041" level="INFO">${sp} = 0x20020000
+
+</msg>
+<status status="PASS" starttime="20261101 22:10:19.038" endtime="20261101 22:10:19.041"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<var>${pc}</var>
+<arg>sysbus ReadDoubleWord 0x08000004</arg>
+<msg timestamp="20261101 22:10:19.041" level="TRACE">Arguments: [ 'sysbus ReadDoubleWord 0x08000004' ]</msg>
+<msg timestamp="20261101 22:10:19.044" level="TRACE">Return: '0x08000259\n\n'</msg>
+<msg timestamp="20261101 22:10:19.044" level="INFO">${pc} = 0x08000259
+
+</msg>
+<status status="PASS" starttime="20261101 22:10:19.041" endtime="20261101 22:10:19.044"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.cpu VectorTableOffset 0x08000000</arg>
+<msg timestamp="20261101 22:10:19.044" level="TRACE">Arguments: [ 'sysbus.cpu VectorTableOffset 0x08000000' ]</msg>
+<msg timestamp="20261101 22:10:19.055" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:19.044" endtime="20261101 22:10:19.055"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.cpu SP ${sp.strip()}</arg>
+<msg timestamp="20261101 22:10:19.056" level="TRACE">Arguments: [ 'sysbus.cpu SP 0x20020000' ]</msg>
+<msg timestamp="20261101 22:10:19.061" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:19.055" endtime="20261101 22:10:19.062"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.cpu PC ${pc.strip()}</arg>
+<msg timestamp="20261101 22:10:19.063" level="TRACE">Arguments: [ 'sysbus.cpu PC 0x08000259' ]</msg>
+<msg timestamp="20261101 22:10:19.065" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:19.062" endtime="20261101 22:10:19.065"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "0.1"</arg>
+<msg timestamp="20261101 22:10:19.066" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:19.212" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:19.066" endtime="20261101 22:10:19.212"/>
+</kw>
+<msg timestamp="20261101 22:10:19.212" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:18.470" endtime="20261101 22:10:19.212"/>
+</kw>
+<kw name="Enter PIN">
+<arg>9999</arg>
+<msg timestamp="20261101 22:10:19.213" level="TRACE">Arguments: [ ${pin}='9999' ]</msg>
+<kw name="Get Regexp Matches" library="String">
+<var>@{digits}</var>
+<arg>${pin}</arg>
+<arg>.</arg>
+<doc>Returns a list of all non-overlapping matches in the given string.</doc>
+<msg timestamp="20261101 22:10:19.213" level="TRACE">Arguments: [ '9999' | '.' ]</msg>
+<msg timestamp="20261101 22:10:19.213" level="TRACE">Return: ['9', '9', '9', '9']</msg>
+<msg timestamp="20261101 22:10:19.214" level="INFO">@{digits} = [ 9 | 9 | 9 | 9 ]</msg>
+<status status="PASS" starttime="20261101 22:10:19.213" endtime="20261101 22:10:19.214"/>
+</kw>
+<for flavor="IN">
+<var>${d}</var>
+<value>@{digits}</value>
+<iter>
+<var name="${d}">9</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:19.214" level="TRACE">Arguments: [ ${key}='9' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:19.215" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '9' ]</msg>
+<msg timestamp="20261101 22:10:19.215" level="TRACE">Return: '2,2'</msg>
+<msg timestamp="20261101 22:10:19.215" level="INFO">${rc} = 2,2</msg>
+<status status="PASS" starttime="20261101 22:10:19.215" endtime="20261101 22:10:19.215"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:19.216" level="TRACE">Arguments: [ '2,2' | ',' ]</msg>
+<msg timestamp="20261101 22:10:19.216" level="TRACE">Return: ['2', '2']</msg>
+<msg timestamp="20261101 22:10:19.216" level="INFO">${r} = 2</msg>
+<msg timestamp="20261101 22:10:19.216" level="INFO">${c} = 2</msg>
+<status status="PASS" starttime="20261101 22:10:19.215" endtime="20261101 22:10:19.216"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:19.216" level="TRACE">Arguments: [ 'sysbus.keypad Press 2 2' ]</msg>
+<msg timestamp="20261101 22:10:19.221" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:19.216" endtime="20261101 22:10:19.221"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:19.222" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:19.845" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:19.222" endtime="20261101 22:10:19.845"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:19.846" level="TRACE">Arguments: [ 'sysbus.keypad Release 2 2' ]</msg>
+<msg timestamp="20261101 22:10:19.849" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:19.845" endtime="20261101 22:10:19.849"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:19.849" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:20.630" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:19.849" endtime="20261101 22:10:20.631"/>
+</kw>
+<msg timestamp="20261101 22:10:20.631" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:19.214" endtime="20261101 22:10:20.631"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:19.214" endtime="20261101 22:10:20.631"/>
+</iter>
+<iter>
+<var name="${d}">9</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:20.633" level="TRACE">Arguments: [ ${key}='9' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:20.635" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '9' ]</msg>
+<msg timestamp="20261101 22:10:20.636" level="TRACE">Return: '2,2'</msg>
+<msg timestamp="20261101 22:10:20.637" level="INFO">${rc} = 2,2</msg>
+<status status="PASS" starttime="20261101 22:10:20.634" endtime="20261101 22:10:20.637"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:20.638" level="TRACE">Arguments: [ '2,2' | ',' ]</msg>
+<msg timestamp="20261101 22:10:20.638" level="TRACE">Return: ['2', '2']</msg>
+<msg timestamp="20261101 22:10:20.639" level="INFO">${r} = 2</msg>
+<msg timestamp="20261101 22:10:20.639" level="INFO">${c} = 2</msg>
+<status status="PASS" starttime="20261101 22:10:20.637" endtime="20261101 22:10:20.639"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:20.641" level="TRACE">Arguments: [ 'sysbus.keypad Press 2 2' ]</msg>
+<msg timestamp="20261101 22:10:20.646" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:20.640" endtime="20261101 22:10:20.646"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:20.648" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:21.476" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:20.647" endtime="20261101 22:10:21.476"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:21.477" level="TRACE">Arguments: [ 'sysbus.keypad Release 2 2' ]</msg>
+<msg timestamp="20261101 22:10:21.482" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:21.477" endtime="20261101 22:10:21.483"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:21.483" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:22.167" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:21.483" endtime="20261101 22:10:22.167"/>
+</kw>
+<msg timestamp="20261101 22:10:22.167" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:20.632" endtime="20261101 22:10:22.167"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:20.632" endtime="20261101 22:10:22.167"/>
+</iter>
+<iter>
+<var name="${d}">9</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:22.168" level="TRACE">Arguments: [ ${key}='9' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:22.169" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '9' ]</msg>
+<msg timestamp="20261101 22:10:22.170" level="TRACE">Return: '2,2'</msg>
+<msg timestamp="20261101 22:10:22.170" level="INFO">${rc} = 2,2</msg>
+<status status="PASS" starttime="20261101 22:10:22.169" endtime="20261101 22:10:22.170"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:22.171" level="TRACE">Arguments: [ '2,2' | ',' ]</msg>
+<msg timestamp="20261101 22:10:22.171" level="TRACE">Return: ['2', '2']</msg>
+<msg timestamp="20261101 22:10:22.171" level="INFO">${r} = 2</msg>
+<msg timestamp="20261101 22:10:22.171" level="INFO">${c} = 2</msg>
+<status status="PASS" starttime="20261101 22:10:22.170" endtime="20261101 22:10:22.171"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:22.172" level="TRACE">Arguments: [ 'sysbus.keypad Press 2 2' ]</msg>
+<msg timestamp="20261101 22:10:22.175" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:22.171" endtime="20261101 22:10:22.175"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:22.177" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:22.905" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:22.176" endtime="20261101 22:10:22.906"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:22.907" level="TRACE">Arguments: [ 'sysbus.keypad Release 2 2' ]</msg>
+<msg timestamp="20261101 22:10:22.912" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:22.906" endtime="20261101 22:10:22.912"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:22.914" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:23.595" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:22.913" endtime="20261101 22:10:23.596"/>
+</kw>
+<msg timestamp="20261101 22:10:23.596" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:22.168" endtime="20261101 22:10:23.596"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:22.168" endtime="20261101 22:10:23.596"/>
+</iter>
+<iter>
+<var name="${d}">9</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:23.598" level="TRACE">Arguments: [ ${key}='9' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:23.600" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '9' ]</msg>
+<msg timestamp="20261101 22:10:23.601" level="TRACE">Return: '2,2'</msg>
+<msg timestamp="20261101 22:10:23.601" level="INFO">${rc} = 2,2</msg>
+<status status="PASS" starttime="20261101 22:10:23.599" endtime="20261101 22:10:23.602"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:23.603" level="TRACE">Arguments: [ '2,2' | ',' ]</msg>
+<msg timestamp="20261101 22:10:23.603" level="TRACE">Return: ['2', '2']</msg>
+<msg timestamp="20261101 22:10:23.604" level="INFO">${r} = 2</msg>
+<msg timestamp="20261101 22:10:23.604" level="INFO">${c} = 2</msg>
+<status status="PASS" starttime="20261101 22:10:23.602" endtime="20261101 22:10:23.604"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:23.606" level="TRACE">Arguments: [ 'sysbus.keypad Press 2 2' ]</msg>
+<msg timestamp="20261101 22:10:23.611" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:23.605" endtime="20261101 22:10:23.611"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:23.612" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:24.309" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:23.611" endtime="20261101 22:10:24.310"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:24.311" level="TRACE">Arguments: [ 'sysbus.keypad Release 2 2' ]</msg>
+<msg timestamp="20261101 22:10:24.315" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:24.310" endtime="20261101 22:10:24.315"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:24.317" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:25.004" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:24.316" endtime="20261101 22:10:25.005"/>
+</kw>
+<msg timestamp="20261101 22:10:25.005" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:23.597" endtime="20261101 22:10:25.005"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:23.597" endtime="20261101 22:10:25.005"/>
+</iter>
+<status status="PASS" starttime="20261101 22:10:19.214" endtime="20261101 22:10:25.005"/>
+</for>
+<msg timestamp="20261101 22:10:25.005" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:19.213" endtime="20261101 22:10:25.005"/>
+</kw>
+<kw name="Led Is On">
+<var>${g}</var>
+<arg>${GREEN}</arg>
+<msg timestamp="20261101 22:10:25.006" level="TRACE">Arguments: [ ${pin}='12' ]</msg>
+<kw name="Execute Command" library="Renode">
+<var>${out}</var>
+<arg>sysbus ReadDoubleWord ${GPIOD_ODR}</arg>
+<msg timestamp="20261101 22:10:25.006" level="TRACE">Arguments: [ 'sysbus ReadDoubleWord 0x40020C14' ]</msg>
+<msg timestamp="20261101 22:10:25.010" level="TRACE">Return: '0x00004B0E\n\n'</msg>
+<msg timestamp="20261101 22:10:25.010" level="INFO">${out} = 0x00004B0E
+
+</msg>
+<status status="PASS" starttime="20261101 22:10:25.006" endtime="20261101 22:10:25.010"/>
+</kw>
+<kw name="Convert To Integer" library="BuiltIn">
+<var>${val}</var>
+<arg>${out.strip()}</arg>
+<doc>Converts the given item to an integer number.</doc>
+<msg timestamp="20261101 22:10:25.012" level="TRACE">Arguments: [ '0x00004B0E' ]</msg>
+<msg timestamp="20261101 22:10:25.012" level="DEBUG">Argument types are:
+&lt;class 'str'&gt;</msg>
+<msg timestamp="20261101 22:10:25.012" level="TRACE">Return: 19214</msg>
+<msg timestamp="20261101 22:10:25.012" level="INFO">${val} = 19214</msg>
+<status status="PASS" starttime="20261101 22:10:25.010" endtime="20261101 22:10:25.012"/>
+</kw>
+<kw name="Evaluate" library="BuiltIn">
+<var>${on}</var>
+<arg>(${val} &gt;&gt; ${pin}) &amp; 1 == 1</arg>
+<doc>Evaluates the given expression in Python and returns the result.</doc>
+<msg timestamp="20261101 22:10:25.013" level="TRACE">Arguments: [ '(19214 &gt;&gt; 12) &amp; 1 == 1' ]</msg>
+<msg timestamp="20261101 22:10:25.013" level="TRACE">Return: False</msg>
+<msg timestamp="20261101 22:10:25.013" level="INFO">${on} = False</msg>
+<status status="PASS" starttime="20261101 22:10:25.012" endtime="20261101 22:10:25.013"/>
+</kw>
+<return>
+<value>${on}</value>
+<status status="PASS" starttime="20261101 22:10:25.013" endtime="20261101 22:10:25.013"/>
+</return>
+<msg timestamp="20261101 22:10:25.013" level="TRACE">Return: False</msg>
+<msg timestamp="20261101 22:10:25.014" level="INFO">${g} = False</msg>
+<status status="PASS" starttime="20261101 22:10:25.005" endtime="20261101 22:10:25.014"/>
+</kw>
+<kw name="Should Not Be True" library="BuiltIn">
+<arg>${g}</arg>
+<doc>Fails if the given condition is true.</doc>
+<msg timestamp="20261101 22:10:25.014" level="TRACE">Arguments: [ False ]</msg>
+<msg timestamp="20261101 22:10:25.014" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:25.014" endtime="20261101 22:10:25.014"/>
+</kw>
+<kw name="Test Teardown" library="renode-keywords" type="TEARDOWN">
+<msg timestamp="20261101 22:10:25.015" level="TRACE">Arguments: [  ]</msg>
+<kw name="Stop Profiler" library="renode-keywords">
+<msg timestamp="20261101 22:10:25.015" level="TRACE">Arguments: [  ]</msg>
+<if>
+<branch type="IF" condition="${PROFILER_PROCESS}">
+<kw name="Terminate Process" library="Process">
+<arg>${PROFILER_PROCESS}</arg>
+<doc>Stops the process gracefully or forcefully.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:25.015" endtime="20261101 22:10:25.015"/>
+</kw>
+<kw name="Set Test Variable" library="BuiltIn">
+<arg>${PROFILER_PROCESS}</arg>
+<arg>None</arg>
+<doc>Makes a variable available everywhere within the scope of the current test.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:25.016" endtime="20261101 22:10:25.016"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:25.015" endtime="20261101 22:10:25.016"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:25.015" endtime="20261101 22:10:25.016"/>
+</if>
+<msg timestamp="20261101 22:10:25.016" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:25.015" endtime="20261101 22:10:25.016"/>
+</kw>
+<kw name="Run Keyword If Test Failed" library="BuiltIn">
+<var>${failed}</var>
+<arg>Set Variable</arg>
+<arg>True</arg>
+<doc>Runs the given keyword with the given arguments, if the test failed.</doc>
+<msg timestamp="20261101 22:10:25.016" level="TRACE">Arguments: [ 'Set Variable' | 'True' ]</msg>
+<msg timestamp="20261101 22:10:25.016" level="TRACE">Return: None</msg>
+<msg timestamp="20261101 22:10:25.016" level="INFO">${failed} = None</msg>
+<status status="PASS" starttime="20261101 22:10:25.016" endtime="20261101 22:10:25.017"/>
+</kw>
+<if>
+<branch type="IF" condition="${failed}">
+<kw name="Strip String" library="String">
+<var>${message}</var>
+<arg>${TEST_MESSAGE}</arg>
+<arg>mode=right</arg>
+<doc>Remove leading and/or trailing whitespaces from the given string.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:25.017" endtime="20261101 22:10:25.017"/>
+</kw>
+<kw name="Set Test Message" library="BuiltIn">
+<arg>${message}</arg>
+<doc>Sets message for the current test case.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:25.017" endtime="20261101 22:10:25.017"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:25.017" endtime="20261101 22:10:25.017"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:25.017" endtime="20261101 22:10:25.017"/>
+</if>
+<kw name="Run Keyword If Timeout Occurred" library="BuiltIn">
+<var>${timed_out}</var>
+<arg>Set Variable</arg>
+<arg>True</arg>
+<doc>Runs the given keyword if either a test or a keyword timeout has occurred.</doc>
+<msg timestamp="20261101 22:10:25.018" level="TRACE">Arguments: [ 'Set Variable' | 'True' ]</msg>
+<msg timestamp="20261101 22:10:25.018" level="TRACE">Return: None</msg>
+<msg timestamp="20261101 22:10:25.018" level="INFO">${timed_out} = None</msg>
+<status status="PASS" starttime="20261101 22:10:25.017" endtime="20261101 22:10:25.018"/>
+</kw>
+<if>
+<branch type="IF" condition="${timed_out}">
+<return>
+<status status="NOT RUN" starttime="20261101 22:10:25.018" endtime="20261101 22:10:25.018"/>
+</return>
+<status status="NOT RUN" starttime="20261101 22:10:25.018" endtime="20261101 22:10:25.018"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:25.018" endtime="20261101 22:10:25.018"/>
+</if>
+<if>
+<branch type="IF" condition="${CREATE_SNAPSHOT_ON_FAIL}">
+<kw name="Run Keyword If Test Failed" library="BuiltIn">
+<arg>Create Snapshot Of Failed Test</arg>
+<doc>Runs the given keyword with the given arguments, if the test failed.</doc>
+<msg timestamp="20261101 22:10:25.019" level="TRACE">Arguments: [ 'Create Snapshot Of Failed Test' ]</msg>
+<msg timestamp="20261101 22:10:25.019" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:25.019" endtime="20261101 22:10:25.019"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:25.018" endtime="20261101 22:10:25.019"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:25.018" endtime="20261101 22:10:25.019"/>
+</if>
+<kw name="Close Log File" library="Renode">
+<msg timestamp="20261101 22:10:25.019" level="TRACE">Arguments: [  ]</msg>
+<msg timestamp="20261101 22:10:25.023" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:25.019" endtime="20261101 22:10:25.023"/>
+</kw>
+<if>
+<branch type="IF" condition="&quot;${SAVE_LOGS_WHEN}&quot; == &quot;Always&quot; or ${failed}">
+<kw name="Print Log Saved Message" library="renode-keywords">
+<status status="NOT RUN" starttime="20261101 22:10:25.023" endtime="20261101 22:10:25.023"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:25.023" endtime="20261101 22:10:25.023"/>
+</branch>
+<branch type="ELSE">
+<kw name="Remove Log" library="renode-keywords">
+<msg timestamp="20261101 22:10:25.024" level="TRACE">Arguments: [  ]</msg>
+<kw name="Return From Keyword If" library="BuiltIn">
+<arg>'skipped' in @{TEST TAGS}</arg>
+<doc>Returns from the enclosing user keyword if ``condition`` is true.</doc>
+<msg timestamp="20261101 22:10:25.024" level="TRACE">Arguments: [ "'skipped' in []" ]</msg>
+<msg timestamp="20261101 22:10:25.025" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:25.024" endtime="20261101 22:10:25.025"/>
+</kw>
+<kw name="Return From Keyword If" library="BuiltIn">
+<arg>not ${SAVE_LOGS}</arg>
+<doc>Returns from the enclosing user keyword if ``condition`` is true.</doc>
+<msg timestamp="20261101 22:10:25.025" level="TRACE">Arguments: [ 'not True' ]</msg>
+<msg timestamp="20261101 22:10:25.025" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:25.025" endtime="20261101 22:10:25.025"/>
+</kw>
+<kw name="Get Test Log Path" library="renode-keywords">
+<var>${log_path}</var>
+<msg timestamp="20261101 22:10:25.026" level="TRACE">Arguments: [  ]</msg>
+<kw name="Get Sanitized Test Name" library="renode-keywords">
+<var>${test_name}</var>
+<msg timestamp="20261101 22:10:25.026" level="TRACE">Arguments: [  ]</msg>
+<kw name="Get Variable Value" library="BuiltIn">
+<var>${retry_index}</var>
+<arg>\${RETRYFAILED_RETRY_INDEX}</arg>
+<arg>0</arg>
+<doc>Returns variable value or ``default`` if the variable does not exist.</doc>
+<msg timestamp="20261101 22:10:25.026" level="TRACE">Arguments: [ '\\${RETRYFAILED_RETRY_INDEX}' | '0' ]</msg>
+<msg timestamp="20261101 22:10:25.028" level="TRACE">Return: '0'</msg>
+<msg timestamp="20261101 22:10:25.028" level="INFO">${retry_index} = 0</msg>
+<status status="PASS" starttime="20261101 22:10:25.026" endtime="20261101 22:10:25.028"/>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<var>${test_name}</var>
+<arg>${SUITE NAME}.${TEST NAME}.fail${retry_index}</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:25.029" level="TRACE">Arguments: [ 'access.Wrong PIN Stays Locked.fail0' ]</msg>
+<msg timestamp="20261101 22:10:25.029" level="TRACE">Return: 'access.Wrong PIN Stays Locked.fail0'</msg>
+<msg timestamp="20261101 22:10:25.029" level="INFO">${test_name} = access.Wrong PIN Stays Locked.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:25.028" endtime="20261101 22:10:25.029"/>
+</kw>
+<kw name="Sanitize Test Name" library="renode-keywords">
+<var>${test_name}</var>
+<arg>${test_name}</arg>
+<msg timestamp="20261101 22:10:25.029" level="TRACE">Arguments: [ ${test_name}='access.Wrong PIN Stays Locked.fail0' ]</msg>
+<kw name="Replace String" library="String">
+<var>${test_name}</var>
+<arg>${test_name}</arg>
+<arg>${SPACE}</arg>
+<arg>_</arg>
+<doc>Replaces ``search_for`` in the given ``string`` with ``replace_with``.</doc>
+<msg timestamp="20261101 22:10:25.030" level="TRACE">Arguments: [ 'access.Wrong PIN Stays Locked.fail0' | ' ' | '_' ]</msg>
+<msg timestamp="20261101 22:10:25.030" level="TRACE">Return: 'access.Wrong_PIN_Stays_Locked.fail0'</msg>
+<msg timestamp="20261101 22:10:25.030" level="INFO">${test_name} = access.Wrong_PIN_Stays_Locked.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:25.030" endtime="20261101 22:10:25.030"/>
+</kw>
+<kw name="Replace String Using Regexp" library="String">
+<var>${test_name}</var>
+<arg>${test_name}</arg>
+<arg>[/""]</arg>
+<arg>-</arg>
+<doc>Replaces ``pattern`` in the given ``string`` with ``replace_with``.</doc>
+<msg timestamp="20261101 22:10:25.030" level="TRACE">Arguments: [ 'access.Wrong_PIN_Stays_Locked.fail0' | '[/""]' | '-' ]</msg>
+<msg timestamp="20261101 22:10:25.031" level="TRACE">Return: 'access.Wrong_PIN_Stays_Locked.fail0'</msg>
+<msg timestamp="20261101 22:10:25.031" level="INFO">${test_name} = access.Wrong_PIN_Stays_Locked.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:25.030" endtime="20261101 22:10:25.031"/>
+</kw>
+<return>
+<value>${test_name}</value>
+<status status="PASS" starttime="20261101 22:10:25.031" endtime="20261101 22:10:25.031"/>
+</return>
+<msg timestamp="20261101 22:10:25.031" level="TRACE">Return: 'access.Wrong_PIN_Stays_Locked.fail0'</msg>
+<msg timestamp="20261101 22:10:25.031" level="INFO">${test_name} = access.Wrong_PIN_Stays_Locked.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:25.029" endtime="20261101 22:10:25.031"/>
+</kw>
+<return>
+<value>${test_name}</value>
+<status status="PASS" starttime="20261101 22:10:25.031" endtime="20261101 22:10:25.031"/>
+</return>
+<msg timestamp="20261101 22:10:25.031" level="TRACE">Return: 'access.Wrong_PIN_Stays_Locked.fail0'</msg>
+<msg timestamp="20261101 22:10:25.032" level="INFO">${test_name} = access.Wrong_PIN_Stays_Locked.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:25.026" endtime="20261101 22:10:25.032"/>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<var>${logs_dir}</var>
+<arg>${RESULTS_DIRECTORY}/logs</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:25.032" level="TRACE">Arguments: [ '/home/koenigr/git/stm32f407-register-level-access-control//logs' ]</msg>
+<msg timestamp="20261101 22:10:25.032" level="TRACE">Return: '/home/koenigr/git/stm32f407-register-level-access-control//logs'</msg>
+<msg timestamp="20261101 22:10:25.032" level="INFO">${logs_dir} = /home/koenigr/git/stm32f407-register-level-access-control//logs</msg>
+<status status="PASS" starttime="20261101 22:10:25.032" endtime="20261101 22:10:25.032"/>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<arg>${logs_dir}</arg>
+<doc>Creates the specified directory.</doc>
+<msg timestamp="20261101 22:10:25.033" level="TRACE">Arguments: [ '/home/koenigr/git/stm32f407-register-level-access-control//logs' ]</msg>
+<msg timestamp="20261101 22:10:25.033" level="INFO" html="true">Directory '&lt;a href="file:///home/koenigr/git/stm32f407-register-level-access-control/logs"&gt;/home/koenigr/git/stm32f407-register-level-access-control/logs&lt;/a&gt;' already exists.</msg>
+<msg timestamp="20261101 22:10:25.033" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:25.032" endtime="20261101 22:10:25.033"/>
+</kw>
+<return>
+<value>${logs_dir}/${test_name}.log</value>
+<status status="PASS" starttime="20261101 22:10:25.033" endtime="20261101 22:10:25.033"/>
+</return>
+<msg timestamp="20261101 22:10:25.033" level="TRACE">Return: '/home/koenigr/git/stm32f407-register-level-access-control//logs/access.Wrong_PIN_Stays_Locked.fail0.log'</msg>
+<msg timestamp="20261101 22:10:25.033" level="INFO">${log_path} = /home/koenigr/git/stm32f407-register-level-access-control//logs/access.Wrong_PIN_Stays_Locked.fail0.log</msg>
+<status status="PASS" starttime="20261101 22:10:25.025" endtime="20261101 22:10:25.033"/>
+</kw>
+<kw name="Remove File" library="OperatingSystem">
+<arg>${log_path}</arg>
+<doc>Removes a file with the given path.</doc>
+<msg timestamp="20261101 22:10:25.034" level="TRACE">Arguments: [ '/home/koenigr/git/stm32f407-register-level-access-control//logs/access.Wrong_PIN_Stays_Locked.fail0.log' ]</msg>
+<msg timestamp="20261101 22:10:25.034" level="INFO" html="true">File '&lt;a href="file:///home/koenigr/git/stm32f407-register-level-access-control/logs/access.Wrong_PIN_Stays_Locked.fail0.log"&gt;/home/koenigr/git/stm32f407-register-level-access-control/logs/access.Wrong_PIN_Stays_Locked.fail0.log&lt;/a&gt;' does not exist.</msg>
+<msg timestamp="20261101 22:10:25.034" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:25.034" endtime="20261101 22:10:25.034"/>
+</kw>
+<msg timestamp="20261101 22:10:25.034" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:25.023" endtime="20261101 22:10:25.034"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:25.023" endtime="20261101 22:10:25.034"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:25.023" endtime="20261101 22:10:25.034"/>
+</if>
+<if>
+<branch type="IF" condition="${HOLD_ON_ERROR}">
+<kw name="Run Keyword If Test Failed" library="BuiltIn">
+<var>${res}</var>
+<arg>Run Keyword And Ignore Error</arg>
+<arg>Import Library</arg>
+<arg>Dialogs</arg>
+<doc>Runs the given keyword with the given arguments, if the test failed.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:25.035" endtime="20261101 22:10:25.035"/>
+</kw>
+<kw name="Run Keyword If Test Failed" library="BuiltIn">
+<arg>Run Keywords</arg>
+<arg>Run Keyword If</arg>
+<arg>'${res[0]}' == 'FAIL'</arg>
+<arg>Log</arg>
+<arg>Couldn't load the Dialogs library - interactive debugging is not possible</arg>
+<arg>console=True</arg>
+<arg>AND</arg>
+<arg>Run Keyword If</arg>
+<arg>'${res[0]}' != 'FAIL'</arg>
+<arg>Open GUI</arg>
+<arg>AND</arg>
+<arg>Run Keyword If</arg>
+<arg>'${res[0]}' != 'FAIL'</arg>
+<arg>Pause Execution</arg>
+<arg>Test failed. Press OK once done debugging.</arg>
+<arg>AND</arg>
+<arg>Run Keyword If</arg>
+<arg>'${res[0]}' != 'FAIL'</arg>
+<arg>Close GUI</arg>
+<doc>Runs the given keyword with the given arguments, if the test failed.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:25.035" endtime="20261101 22:10:25.035"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:25.034" endtime="20261101 22:10:25.035"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:25.034" endtime="20261101 22:10:25.035"/>
+</if>
+<kw name="Reset Emulation" library="Renode">
+<msg timestamp="20261101 22:10:25.035" level="TRACE">Arguments: [  ]</msg>
+<msg timestamp="20261101 22:10:25.120" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:25.035" endtime="20261101 22:10:25.120"/>
+</kw>
+<msg timestamp="20261101 22:10:25.121" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:25.014" endtime="20261101 22:10:25.121"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:18.463" endtime="20261101 22:10:25.121"/>
+</test>
+<test id="s1-t3" name="Three Wrong PINs Lock Out" line="84">
+<kw name="Reset Emulation" library="Renode" type="SETUP">
+<msg timestamp="20261101 22:10:25.124" level="TRACE">Arguments: [  ]</msg>
+<msg timestamp="20261101 22:10:25.129" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:25.124" endtime="20261101 22:10:25.129"/>
+</kw>
+<kw name="Prepare Machine">
+<msg timestamp="20261101 22:10:25.131" level="TRACE">Arguments: [  ]</msg>
+<kw name="Execute Command" library="Renode">
+<arg>mach create "access"</arg>
+<msg timestamp="20261101 22:10:25.132" level="TRACE">Arguments: [ 'mach create "access"' ]</msg>
+<msg timestamp="20261101 22:10:25.135" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:25.131" endtime="20261101 22:10:25.136"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>machine LoadPlatformDescription @${REPO}/renode/stm32f407_access.repl</arg>
+<msg timestamp="20261101 22:10:25.137" level="TRACE">Arguments: [ 'machine LoadPlatformDescription @/home/koenigr/git/stm32f407-register-level-access-control/Tests/renode/../../renode/stm32f407_access.repl' ]</msg>
+<msg timestamp="20261101 22:10:25.626" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:25.136" endtime="20261101 22:10:25.626"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus LoadELF @${ELF}</arg>
+<msg timestamp="20261101 22:10:25.627" level="TRACE">Arguments: [ 'sysbus LoadELF @/home/koenigr/git/stm32f407-register-level-access-control/Tests/renode/../../build-firmware/stm32f407_access_control' ]</msg>
+<msg timestamp="20261101 22:10:25.646" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:25.627" endtime="20261101 22:10:25.646"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>logLevel 3 sysbus</arg>
+<msg timestamp="20261101 22:10:25.647" level="TRACE">Arguments: [ 'logLevel 3 sysbus' ]</msg>
+<msg timestamp="20261101 22:10:25.651" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:25.647" endtime="20261101 22:10:25.651"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<var>${sp}</var>
+<arg>sysbus ReadDoubleWord 0x08000000</arg>
+<msg timestamp="20261101 22:10:25.651" level="TRACE">Arguments: [ 'sysbus ReadDoubleWord 0x08000000' ]</msg>
+<msg timestamp="20261101 22:10:25.654" level="TRACE">Return: '0x20020000\n\n'</msg>
+<msg timestamp="20261101 22:10:25.654" level="INFO">${sp} = 0x20020000
+
+</msg>
+<status status="PASS" starttime="20261101 22:10:25.651" endtime="20261101 22:10:25.654"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<var>${pc}</var>
+<arg>sysbus ReadDoubleWord 0x08000004</arg>
+<msg timestamp="20261101 22:10:25.654" level="TRACE">Arguments: [ 'sysbus ReadDoubleWord 0x08000004' ]</msg>
+<msg timestamp="20261101 22:10:25.657" level="TRACE">Return: '0x08000259\n\n'</msg>
+<msg timestamp="20261101 22:10:25.657" level="INFO">${pc} = 0x08000259
+
+</msg>
+<status status="PASS" starttime="20261101 22:10:25.654" endtime="20261101 22:10:25.657"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.cpu VectorTableOffset 0x08000000</arg>
+<msg timestamp="20261101 22:10:25.657" level="TRACE">Arguments: [ 'sysbus.cpu VectorTableOffset 0x08000000' ]</msg>
+<msg timestamp="20261101 22:10:25.671" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:25.657" endtime="20261101 22:10:25.671"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.cpu SP ${sp.strip()}</arg>
+<msg timestamp="20261101 22:10:25.676" level="TRACE">Arguments: [ 'sysbus.cpu SP 0x20020000' ]</msg>
+<msg timestamp="20261101 22:10:25.679" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:25.672" endtime="20261101 22:10:25.680"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.cpu PC ${pc.strip()}</arg>
+<msg timestamp="20261101 22:10:25.684" level="TRACE">Arguments: [ 'sysbus.cpu PC 0x08000259' ]</msg>
+<msg timestamp="20261101 22:10:25.687" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:25.680" endtime="20261101 22:10:25.687"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "0.1"</arg>
+<msg timestamp="20261101 22:10:25.689" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:25.822" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:25.688" endtime="20261101 22:10:25.822"/>
+</kw>
+<msg timestamp="20261101 22:10:25.822" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:25.130" endtime="20261101 22:10:25.823"/>
+</kw>
+<for flavor="IN RANGE">
+<var>${i}</var>
+<value>3</value>
+<iter>
+<var name="${i}">0</var>
+<kw name="Enter PIN">
+<arg>0000</arg>
+<msg timestamp="20261101 22:10:25.825" level="TRACE">Arguments: [ ${pin}='0000' ]</msg>
+<kw name="Get Regexp Matches" library="String">
+<var>@{digits}</var>
+<arg>${pin}</arg>
+<arg>.</arg>
+<doc>Returns a list of all non-overlapping matches in the given string.</doc>
+<msg timestamp="20261101 22:10:25.827" level="TRACE">Arguments: [ '0000' | '.' ]</msg>
+<msg timestamp="20261101 22:10:25.827" level="TRACE">Return: ['0', '0', '0', '0']</msg>
+<msg timestamp="20261101 22:10:25.828" level="INFO">@{digits} = [ 0 | 0 | 0 | 0 ]</msg>
+<status status="PASS" starttime="20261101 22:10:25.826" endtime="20261101 22:10:25.828"/>
+</kw>
+<for flavor="IN">
+<var>${d}</var>
+<value>@{digits}</value>
+<iter>
+<var name="${d}">0</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:25.831" level="TRACE">Arguments: [ ${key}='0' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:25.833" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '0' ]</msg>
+<msg timestamp="20261101 22:10:25.834" level="TRACE">Return: '3,1'</msg>
+<msg timestamp="20261101 22:10:25.834" level="INFO">${rc} = 3,1</msg>
+<status status="PASS" starttime="20261101 22:10:25.832" endtime="20261101 22:10:25.834"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:25.836" level="TRACE">Arguments: [ '3,1' | ',' ]</msg>
+<msg timestamp="20261101 22:10:25.836" level="TRACE">Return: ['3', '1']</msg>
+<msg timestamp="20261101 22:10:25.837" level="INFO">${r} = 3</msg>
+<msg timestamp="20261101 22:10:25.837" level="INFO">${c} = 1</msg>
+<status status="PASS" starttime="20261101 22:10:25.835" endtime="20261101 22:10:25.837"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:25.838" level="TRACE">Arguments: [ 'sysbus.keypad Press 3 1' ]</msg>
+<msg timestamp="20261101 22:10:25.842" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:25.837" endtime="20261101 22:10:25.842"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:25.844" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:26.545" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:25.843" endtime="20261101 22:10:26.545"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:26.547" level="TRACE">Arguments: [ 'sysbus.keypad Release 3 1' ]</msg>
+<msg timestamp="20261101 22:10:26.556" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:26.546" endtime="20261101 22:10:26.557"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:26.558" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:27.353" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:26.557" endtime="20261101 22:10:27.353"/>
+</kw>
+<msg timestamp="20261101 22:10:27.354" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:25.829" endtime="20261101 22:10:27.354"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:25.829" endtime="20261101 22:10:27.354"/>
+</iter>
+<iter>
+<var name="${d}">0</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:27.357" level="TRACE">Arguments: [ ${key}='0' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:27.358" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '0' ]</msg>
+<msg timestamp="20261101 22:10:27.359" level="TRACE">Return: '3,1'</msg>
+<msg timestamp="20261101 22:10:27.360" level="INFO">${rc} = 3,1</msg>
+<status status="PASS" starttime="20261101 22:10:27.358" endtime="20261101 22:10:27.360"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:27.361" level="TRACE">Arguments: [ '3,1' | ',' ]</msg>
+<msg timestamp="20261101 22:10:27.362" level="TRACE">Return: ['3', '1']</msg>
+<msg timestamp="20261101 22:10:27.362" level="INFO">${r} = 3</msg>
+<msg timestamp="20261101 22:10:27.362" level="INFO">${c} = 1</msg>
+<status status="PASS" starttime="20261101 22:10:27.360" endtime="20261101 22:10:27.362"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:27.364" level="TRACE">Arguments: [ 'sysbus.keypad Press 3 1' ]</msg>
+<msg timestamp="20261101 22:10:27.373" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:27.363" endtime="20261101 22:10:27.373"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:27.374" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:28.105" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:27.374" endtime="20261101 22:10:28.106"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:28.107" level="TRACE">Arguments: [ 'sysbus.keypad Release 3 1' ]</msg>
+<msg timestamp="20261101 22:10:28.114" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:28.106" endtime="20261101 22:10:28.114"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:28.116" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:28.883" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:28.115" endtime="20261101 22:10:28.883"/>
+</kw>
+<msg timestamp="20261101 22:10:28.883" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:27.356" endtime="20261101 22:10:28.884"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:27.355" endtime="20261101 22:10:28.884"/>
+</iter>
+<iter>
+<var name="${d}">0</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:28.884" level="TRACE">Arguments: [ ${key}='0' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:28.885" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '0' ]</msg>
+<msg timestamp="20261101 22:10:28.885" level="TRACE">Return: '3,1'</msg>
+<msg timestamp="20261101 22:10:28.885" level="INFO">${rc} = 3,1</msg>
+<status status="PASS" starttime="20261101 22:10:28.885" endtime="20261101 22:10:28.885"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:28.886" level="TRACE">Arguments: [ '3,1' | ',' ]</msg>
+<msg timestamp="20261101 22:10:28.886" level="TRACE">Return: ['3', '1']</msg>
+<msg timestamp="20261101 22:10:28.886" level="INFO">${r} = 3</msg>
+<msg timestamp="20261101 22:10:28.886" level="INFO">${c} = 1</msg>
+<status status="PASS" starttime="20261101 22:10:28.885" endtime="20261101 22:10:28.886"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:28.886" level="TRACE">Arguments: [ 'sysbus.keypad Press 3 1' ]</msg>
+<msg timestamp="20261101 22:10:28.892" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:28.886" endtime="20261101 22:10:28.893"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:28.894" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:29.653" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:28.893" endtime="20261101 22:10:29.653"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:29.654" level="TRACE">Arguments: [ 'sysbus.keypad Release 3 1' ]</msg>
+<msg timestamp="20261101 22:10:29.656" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:29.653" endtime="20261101 22:10:29.657"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:29.657" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:30.407" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:29.657" endtime="20261101 22:10:30.407"/>
+</kw>
+<msg timestamp="20261101 22:10:30.408" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:28.884" endtime="20261101 22:10:30.408"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:28.884" endtime="20261101 22:10:30.408"/>
+</iter>
+<iter>
+<var name="${d}">0</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:30.410" level="TRACE">Arguments: [ ${key}='0' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:30.412" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '0' ]</msg>
+<msg timestamp="20261101 22:10:30.413" level="TRACE">Return: '3,1'</msg>
+<msg timestamp="20261101 22:10:30.413" level="INFO">${rc} = 3,1</msg>
+<status status="PASS" starttime="20261101 22:10:30.411" endtime="20261101 22:10:30.414"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:30.415" level="TRACE">Arguments: [ '3,1' | ',' ]</msg>
+<msg timestamp="20261101 22:10:30.415" level="TRACE">Return: ['3', '1']</msg>
+<msg timestamp="20261101 22:10:30.416" level="INFO">${r} = 3</msg>
+<msg timestamp="20261101 22:10:30.416" level="INFO">${c} = 1</msg>
+<status status="PASS" starttime="20261101 22:10:30.414" endtime="20261101 22:10:30.416"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:30.417" level="TRACE">Arguments: [ 'sysbus.keypad Press 3 1' ]</msg>
+<msg timestamp="20261101 22:10:30.422" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:30.417" endtime="20261101 22:10:30.422"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:30.424" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:31.215" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:30.423" endtime="20261101 22:10:31.216"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:31.216" level="TRACE">Arguments: [ 'sysbus.keypad Release 3 1' ]</msg>
+<msg timestamp="20261101 22:10:31.221" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:31.216" endtime="20261101 22:10:31.221"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:31.222" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:32.000" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:31.222" endtime="20261101 22:10:32.000"/>
+</kw>
+<msg timestamp="20261101 22:10:32.001" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:30.409" endtime="20261101 22:10:32.001"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:30.409" endtime="20261101 22:10:32.001"/>
+</iter>
+<status status="PASS" starttime="20261101 22:10:25.828" endtime="20261101 22:10:32.001"/>
+</for>
+<msg timestamp="20261101 22:10:32.002" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:25.824" endtime="20261101 22:10:32.002"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:25.824" endtime="20261101 22:10:32.002"/>
+</iter>
+<iter>
+<var name="${i}">1</var>
+<kw name="Enter PIN">
+<arg>0000</arg>
+<msg timestamp="20261101 22:10:32.004" level="TRACE">Arguments: [ ${pin}='0000' ]</msg>
+<kw name="Get Regexp Matches" library="String">
+<var>@{digits}</var>
+<arg>${pin}</arg>
+<arg>.</arg>
+<doc>Returns a list of all non-overlapping matches in the given string.</doc>
+<msg timestamp="20261101 22:10:32.006" level="TRACE">Arguments: [ '0000' | '.' ]</msg>
+<msg timestamp="20261101 22:10:32.006" level="TRACE">Return: ['0', '0', '0', '0']</msg>
+<msg timestamp="20261101 22:10:32.006" level="INFO">@{digits} = [ 0 | 0 | 0 | 0 ]</msg>
+<status status="PASS" starttime="20261101 22:10:32.005" endtime="20261101 22:10:32.007"/>
+</kw>
+<for flavor="IN">
+<var>${d}</var>
+<value>@{digits}</value>
+<iter>
+<var name="${d}">0</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:32.009" level="TRACE">Arguments: [ ${key}='0' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:32.011" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '0' ]</msg>
+<msg timestamp="20261101 22:10:32.012" level="TRACE">Return: '3,1'</msg>
+<msg timestamp="20261101 22:10:32.012" level="INFO">${rc} = 3,1</msg>
+<status status="PASS" starttime="20261101 22:10:32.010" endtime="20261101 22:10:32.012"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:32.014" level="TRACE">Arguments: [ '3,1' | ',' ]</msg>
+<msg timestamp="20261101 22:10:32.014" level="TRACE">Return: ['3', '1']</msg>
+<msg timestamp="20261101 22:10:32.014" level="INFO">${r} = 3</msg>
+<msg timestamp="20261101 22:10:32.015" level="INFO">${c} = 1</msg>
+<status status="PASS" starttime="20261101 22:10:32.013" endtime="20261101 22:10:32.015"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:32.016" level="TRACE">Arguments: [ 'sysbus.keypad Press 3 1' ]</msg>
+<msg timestamp="20261101 22:10:32.024" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:32.015" endtime="20261101 22:10:32.024"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:32.025" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:32.789" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:32.025" endtime="20261101 22:10:32.789"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:32.791" level="TRACE">Arguments: [ 'sysbus.keypad Release 3 1' ]</msg>
+<msg timestamp="20261101 22:10:32.797" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:32.790" endtime="20261101 22:10:32.797"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:32.798" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:33.569" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:32.798" endtime="20261101 22:10:33.569"/>
+</kw>
+<msg timestamp="20261101 22:10:33.569" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:32.008" endtime="20261101 22:10:33.569"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:32.008" endtime="20261101 22:10:33.569"/>
+</iter>
+<iter>
+<var name="${d}">0</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:33.570" level="TRACE">Arguments: [ ${key}='0' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:33.571" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '0' ]</msg>
+<msg timestamp="20261101 22:10:33.571" level="TRACE">Return: '3,1'</msg>
+<msg timestamp="20261101 22:10:33.571" level="INFO">${rc} = 3,1</msg>
+<status status="PASS" starttime="20261101 22:10:33.570" endtime="20261101 22:10:33.571"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:33.571" level="TRACE">Arguments: [ '3,1' | ',' ]</msg>
+<msg timestamp="20261101 22:10:33.572" level="TRACE">Return: ['3', '1']</msg>
+<msg timestamp="20261101 22:10:33.572" level="INFO">${r} = 3</msg>
+<msg timestamp="20261101 22:10:33.572" level="INFO">${c} = 1</msg>
+<status status="PASS" starttime="20261101 22:10:33.571" endtime="20261101 22:10:33.572"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:33.572" level="TRACE">Arguments: [ 'sysbus.keypad Press 3 1' ]</msg>
+<msg timestamp="20261101 22:10:33.577" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:33.572" endtime="20261101 22:10:33.577"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:33.577" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:34.313" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:33.577" endtime="20261101 22:10:34.313"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:34.314" level="TRACE">Arguments: [ 'sysbus.keypad Release 3 1' ]</msg>
+<msg timestamp="20261101 22:10:34.320" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:34.314" endtime="20261101 22:10:34.320"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:34.321" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:35.069" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:34.321" endtime="20261101 22:10:35.069"/>
+</kw>
+<msg timestamp="20261101 22:10:35.069" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:33.570" endtime="20261101 22:10:35.069"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:33.570" endtime="20261101 22:10:35.070"/>
+</iter>
+<iter>
+<var name="${d}">0</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:35.071" level="TRACE">Arguments: [ ${key}='0' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:35.072" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '0' ]</msg>
+<msg timestamp="20261101 22:10:35.072" level="TRACE">Return: '3,1'</msg>
+<msg timestamp="20261101 22:10:35.072" level="INFO">${rc} = 3,1</msg>
+<status status="PASS" starttime="20261101 22:10:35.071" endtime="20261101 22:10:35.072"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:35.073" level="TRACE">Arguments: [ '3,1' | ',' ]</msg>
+<msg timestamp="20261101 22:10:35.073" level="TRACE">Return: ['3', '1']</msg>
+<msg timestamp="20261101 22:10:35.073" level="INFO">${r} = 3</msg>
+<msg timestamp="20261101 22:10:35.073" level="INFO">${c} = 1</msg>
+<status status="PASS" starttime="20261101 22:10:35.072" endtime="20261101 22:10:35.073"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:35.074" level="TRACE">Arguments: [ 'sysbus.keypad Press 3 1' ]</msg>
+<msg timestamp="20261101 22:10:35.078" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:35.074" endtime="20261101 22:10:35.078"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:35.080" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:35.885" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:35.079" endtime="20261101 22:10:35.885"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:35.887" level="TRACE">Arguments: [ 'sysbus.keypad Release 3 1' ]</msg>
+<msg timestamp="20261101 22:10:35.898" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:35.886" endtime="20261101 22:10:35.898"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:35.900" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:36.719" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:35.899" endtime="20261101 22:10:36.719"/>
+</kw>
+<msg timestamp="20261101 22:10:36.719" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:35.070" endtime="20261101 22:10:36.719"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:35.070" endtime="20261101 22:10:36.720"/>
+</iter>
+<iter>
+<var name="${d}">0</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:36.721" level="TRACE">Arguments: [ ${key}='0' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:36.721" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '0' ]</msg>
+<msg timestamp="20261101 22:10:36.722" level="TRACE">Return: '3,1'</msg>
+<msg timestamp="20261101 22:10:36.722" level="INFO">${rc} = 3,1</msg>
+<status status="PASS" starttime="20261101 22:10:36.721" endtime="20261101 22:10:36.722"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:36.723" level="TRACE">Arguments: [ '3,1' | ',' ]</msg>
+<msg timestamp="20261101 22:10:36.723" level="TRACE">Return: ['3', '1']</msg>
+<msg timestamp="20261101 22:10:36.723" level="INFO">${r} = 3</msg>
+<msg timestamp="20261101 22:10:36.723" level="INFO">${c} = 1</msg>
+<status status="PASS" starttime="20261101 22:10:36.722" endtime="20261101 22:10:36.723"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:36.724" level="TRACE">Arguments: [ 'sysbus.keypad Press 3 1' ]</msg>
+<msg timestamp="20261101 22:10:36.728" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:36.723" endtime="20261101 22:10:36.728"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:36.730" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:37.459" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:36.729" endtime="20261101 22:10:37.460"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:37.461" level="TRACE">Arguments: [ 'sysbus.keypad Release 3 1' ]</msg>
+<msg timestamp="20261101 22:10:37.466" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:37.460" endtime="20261101 22:10:37.466"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:37.467" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:38.260" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:37.467" endtime="20261101 22:10:38.260"/>
+</kw>
+<msg timestamp="20261101 22:10:38.260" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:36.720" endtime="20261101 22:10:38.260"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:36.720" endtime="20261101 22:10:38.260"/>
+</iter>
+<status status="PASS" starttime="20261101 22:10:32.007" endtime="20261101 22:10:38.260"/>
+</for>
+<msg timestamp="20261101 22:10:38.260" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:32.003" endtime="20261101 22:10:38.260"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:32.002" endtime="20261101 22:10:38.260"/>
+</iter>
+<iter>
+<var name="${i}">2</var>
+<kw name="Enter PIN">
+<arg>0000</arg>
+<msg timestamp="20261101 22:10:38.261" level="TRACE">Arguments: [ ${pin}='0000' ]</msg>
+<kw name="Get Regexp Matches" library="String">
+<var>@{digits}</var>
+<arg>${pin}</arg>
+<arg>.</arg>
+<doc>Returns a list of all non-overlapping matches in the given string.</doc>
+<msg timestamp="20261101 22:10:38.262" level="TRACE">Arguments: [ '0000' | '.' ]</msg>
+<msg timestamp="20261101 22:10:38.262" level="TRACE">Return: ['0', '0', '0', '0']</msg>
+<msg timestamp="20261101 22:10:38.262" level="INFO">@{digits} = [ 0 | 0 | 0 | 0 ]</msg>
+<status status="PASS" starttime="20261101 22:10:38.261" endtime="20261101 22:10:38.262"/>
+</kw>
+<for flavor="IN">
+<var>${d}</var>
+<value>@{digits}</value>
+<iter>
+<var name="${d}">0</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:38.263" level="TRACE">Arguments: [ ${key}='0' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:38.263" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '0' ]</msg>
+<msg timestamp="20261101 22:10:38.263" level="TRACE">Return: '3,1'</msg>
+<msg timestamp="20261101 22:10:38.263" level="INFO">${rc} = 3,1</msg>
+<status status="PASS" starttime="20261101 22:10:38.263" endtime="20261101 22:10:38.263"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:38.264" level="TRACE">Arguments: [ '3,1' | ',' ]</msg>
+<msg timestamp="20261101 22:10:38.264" level="TRACE">Return: ['3', '1']</msg>
+<msg timestamp="20261101 22:10:38.264" level="INFO">${r} = 3</msg>
+<msg timestamp="20261101 22:10:38.264" level="INFO">${c} = 1</msg>
+<status status="PASS" starttime="20261101 22:10:38.264" endtime="20261101 22:10:38.264"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:38.265" level="TRACE">Arguments: [ 'sysbus.keypad Press 3 1' ]</msg>
+<msg timestamp="20261101 22:10:38.267" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:38.264" endtime="20261101 22:10:38.268"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:38.268" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:39.062" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:38.268" endtime="20261101 22:10:39.063"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:39.063" level="TRACE">Arguments: [ 'sysbus.keypad Release 3 1' ]</msg>
+<msg timestamp="20261101 22:10:39.065" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:39.063" endtime="20261101 22:10:39.065"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:39.066" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:39.917" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:39.066" endtime="20261101 22:10:39.918"/>
+</kw>
+<msg timestamp="20261101 22:10:39.918" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:38.262" endtime="20261101 22:10:39.918"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:38.262" endtime="20261101 22:10:39.918"/>
+</iter>
+<iter>
+<var name="${d}">0</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:39.921" level="TRACE">Arguments: [ ${key}='0' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:39.923" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '0' ]</msg>
+<msg timestamp="20261101 22:10:39.924" level="TRACE">Return: '3,1'</msg>
+<msg timestamp="20261101 22:10:39.925" level="INFO">${rc} = 3,1</msg>
+<status status="PASS" starttime="20261101 22:10:39.922" endtime="20261101 22:10:39.925"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:39.926" level="TRACE">Arguments: [ '3,1' | ',' ]</msg>
+<msg timestamp="20261101 22:10:39.927" level="TRACE">Return: ['3', '1']</msg>
+<msg timestamp="20261101 22:10:39.927" level="INFO">${r} = 3</msg>
+<msg timestamp="20261101 22:10:39.927" level="INFO">${c} = 1</msg>
+<status status="PASS" starttime="20261101 22:10:39.926" endtime="20261101 22:10:39.928"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:39.929" level="TRACE">Arguments: [ 'sysbus.keypad Press 3 1' ]</msg>
+<msg timestamp="20261101 22:10:39.934" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:39.928" endtime="20261101 22:10:39.934"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:39.936" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:40.763" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:39.935" endtime="20261101 22:10:40.763"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:40.764" level="TRACE">Arguments: [ 'sysbus.keypad Release 3 1' ]</msg>
+<msg timestamp="20261101 22:10:40.767" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:40.763" endtime="20261101 22:10:40.767"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:40.769" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:41.588" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:40.768" endtime="20261101 22:10:41.588"/>
+</kw>
+<msg timestamp="20261101 22:10:41.589" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:39.919" endtime="20261101 22:10:41.589"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:39.919" endtime="20261101 22:10:41.589"/>
+</iter>
+<iter>
+<var name="${d}">0</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:41.590" level="TRACE">Arguments: [ ${key}='0' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:41.590" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '0' ]</msg>
+<msg timestamp="20261101 22:10:41.590" level="TRACE">Return: '3,1'</msg>
+<msg timestamp="20261101 22:10:41.590" level="INFO">${rc} = 3,1</msg>
+<status status="PASS" starttime="20261101 22:10:41.590" endtime="20261101 22:10:41.591"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:41.591" level="TRACE">Arguments: [ '3,1' | ',' ]</msg>
+<msg timestamp="20261101 22:10:41.591" level="TRACE">Return: ['3', '1']</msg>
+<msg timestamp="20261101 22:10:41.591" level="INFO">${r} = 3</msg>
+<msg timestamp="20261101 22:10:41.591" level="INFO">${c} = 1</msg>
+<status status="PASS" starttime="20261101 22:10:41.591" endtime="20261101 22:10:41.591"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:41.592" level="TRACE">Arguments: [ 'sysbus.keypad Press 3 1' ]</msg>
+<msg timestamp="20261101 22:10:41.594" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:41.591" endtime="20261101 22:10:41.594"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:41.595" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:42.464" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:41.595" endtime="20261101 22:10:42.465"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:42.465" level="TRACE">Arguments: [ 'sysbus.keypad Release 3 1' ]</msg>
+<msg timestamp="20261101 22:10:42.467" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:42.465" endtime="20261101 22:10:42.467"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:42.468" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:43.285" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:42.468" endtime="20261101 22:10:43.285"/>
+</kw>
+<msg timestamp="20261101 22:10:43.286" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:41.589" endtime="20261101 22:10:43.286"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:41.589" endtime="20261101 22:10:43.286"/>
+</iter>
+<iter>
+<var name="${d}">0</var>
+<kw name="Tap Key">
+<arg>${d}</arg>
+<msg timestamp="20261101 22:10:43.287" level="TRACE">Arguments: [ ${key}='0' ]</msg>
+<kw name="Get From Dictionary" library="Collections">
+<var>${rc}</var>
+<arg>${KEYS}</arg>
+<arg>${key}</arg>
+<doc>Returns a value from the given ``dictionary`` based on the given ``key``.</doc>
+<msg timestamp="20261101 22:10:43.288" level="TRACE">Arguments: [ {'0': '3,1',
+ '1': '0,0',
+ '2': '0,1',
+ '3': '0,2',
+ '4': '1,0',
+ '5': '1,1',
+ '6': '1,2',
+ '7': '2,0',
+ '8': '2,1',
+ '9': '2,2'} | '0' ]</msg>
+<msg timestamp="20261101 22:10:43.288" level="TRACE">Return: '3,1'</msg>
+<msg timestamp="20261101 22:10:43.288" level="INFO">${rc} = 3,1</msg>
+<status status="PASS" starttime="20261101 22:10:43.287" endtime="20261101 22:10:43.288"/>
+</kw>
+<kw name="Split String" library="String">
+<var>${r}</var>
+<var>${c}</var>
+<arg>${rc}</arg>
+<arg>,</arg>
+<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
+<msg timestamp="20261101 22:10:43.289" level="TRACE">Arguments: [ '3,1' | ',' ]</msg>
+<msg timestamp="20261101 22:10:43.289" level="TRACE">Return: ['3', '1']</msg>
+<msg timestamp="20261101 22:10:43.289" level="INFO">${r} = 3</msg>
+<msg timestamp="20261101 22:10:43.290" level="INFO">${c} = 1</msg>
+<status status="PASS" starttime="20261101 22:10:43.289" endtime="20261101 22:10:43.290"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Press ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:43.290" level="TRACE">Arguments: [ 'sysbus.keypad Press 3 1' ]</msg>
+<msg timestamp="20261101 22:10:43.294" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:43.290" endtime="20261101 22:10:43.294"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${HOLD}"</arg>
+<msg timestamp="20261101 22:10:43.295" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:44.064" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:43.295" endtime="20261101 22:10:44.064"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>sysbus.keypad Release ${r} ${c}</arg>
+<msg timestamp="20261101 22:10:44.065" level="TRACE">Arguments: [ 'sysbus.keypad Release 3 1' ]</msg>
+<msg timestamp="20261101 22:10:44.068" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:44.064" endtime="20261101 22:10:44.068"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "${GAP}"</arg>
+<msg timestamp="20261101 22:10:44.069" level="TRACE">Arguments: [ 'emulation RunFor "0.1"' ]</msg>
+<msg timestamp="20261101 22:10:44.910" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:44.069" endtime="20261101 22:10:44.910"/>
+</kw>
+<msg timestamp="20261101 22:10:44.911" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:43.286" endtime="20261101 22:10:44.911"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:43.286" endtime="20261101 22:10:44.911"/>
+</iter>
+<status status="PASS" starttime="20261101 22:10:38.262" endtime="20261101 22:10:44.911"/>
+</for>
+<msg timestamp="20261101 22:10:44.911" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:38.261" endtime="20261101 22:10:44.911"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:38.261" endtime="20261101 22:10:44.911"/>
+</iter>
+<status status="PASS" starttime="20261101 22:10:25.823" endtime="20261101 22:10:44.911"/>
+</for>
+<kw name="Red Led Blinks">
+<msg timestamp="20261101 22:10:44.912" level="TRACE">Arguments: [  ]</msg>
+<kw name="Set Variable" library="BuiltIn">
+<var>${seen}</var>
+<arg>${False}</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:44.912" level="TRACE">Arguments: [ False ]</msg>
+<msg timestamp="20261101 22:10:44.912" level="TRACE">Return: False</msg>
+<msg timestamp="20261101 22:10:44.912" level="INFO">${seen} = False</msg>
+<status status="PASS" starttime="20261101 22:10:44.912" endtime="20261101 22:10:44.912"/>
+</kw>
+<for flavor="IN RANGE">
+<var>${i}</var>
+<value>40</value>
+<iter>
+<var name="${i}">0</var>
+<kw name="Execute Command" library="Renode">
+<arg>emulation RunFor "0.05"</arg>
+<msg timestamp="20261101 22:10:44.913" level="TRACE">Arguments: [ 'emulation RunFor "0.05"' ]</msg>
+<msg timestamp="20261101 22:10:45.339" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:44.913" endtime="20261101 22:10:45.339"/>
+</kw>
+<kw name="Led Is On">
+<var>${on}</var>
+<arg>${RED}</arg>
+<msg timestamp="20261101 22:10:45.340" level="TRACE">Arguments: [ ${pin}='14' ]</msg>
+<kw name="Execute Command" library="Renode">
+<var>${out}</var>
+<arg>sysbus ReadDoubleWord ${GPIOD_ODR}</arg>
+<msg timestamp="20261101 22:10:45.341" level="TRACE">Arguments: [ 'sysbus ReadDoubleWord 0x40020C14' ]</msg>
+<msg timestamp="20261101 22:10:45.344" level="TRACE">Return: '0x00004D0E\n\n'</msg>
+<msg timestamp="20261101 22:10:45.345" level="INFO">${out} = 0x00004D0E
+
+</msg>
+<status status="PASS" starttime="20261101 22:10:45.340" endtime="20261101 22:10:45.345"/>
+</kw>
+<kw name="Convert To Integer" library="BuiltIn">
+<var>${val}</var>
+<arg>${out.strip()}</arg>
+<doc>Converts the given item to an integer number.</doc>
+<msg timestamp="20261101 22:10:45.346" level="TRACE">Arguments: [ '0x00004D0E' ]</msg>
+<msg timestamp="20261101 22:10:45.346" level="DEBUG">Argument types are:
+&lt;class 'str'&gt;</msg>
+<msg timestamp="20261101 22:10:45.346" level="TRACE">Return: 19726</msg>
+<msg timestamp="20261101 22:10:45.346" level="INFO">${val} = 19726</msg>
+<status status="PASS" starttime="20261101 22:10:45.345" endtime="20261101 22:10:45.346"/>
+</kw>
+<kw name="Evaluate" library="BuiltIn">
+<var>${on}</var>
+<arg>(${val} &gt;&gt; ${pin}) &amp; 1 == 1</arg>
+<doc>Evaluates the given expression in Python and returns the result.</doc>
+<msg timestamp="20261101 22:10:45.347" level="TRACE">Arguments: [ '(19726 &gt;&gt; 14) &amp; 1 == 1' ]</msg>
+<msg timestamp="20261101 22:10:45.347" level="TRACE">Return: True</msg>
+<msg timestamp="20261101 22:10:45.347" level="INFO">${on} = True</msg>
+<status status="PASS" starttime="20261101 22:10:45.347" endtime="20261101 22:10:45.347"/>
+</kw>
+<return>
+<value>${on}</value>
+<status status="PASS" starttime="20261101 22:10:45.347" endtime="20261101 22:10:45.347"/>
+</return>
+<msg timestamp="20261101 22:10:45.348" level="TRACE">Return: True</msg>
+<msg timestamp="20261101 22:10:45.348" level="INFO">${on} = True</msg>
+<status status="PASS" starttime="20261101 22:10:45.339" endtime="20261101 22:10:45.348"/>
+</kw>
+<if>
+<branch type="IF" condition="${on}">
+<kw name="Set Variable" library="BuiltIn">
+<var>${seen}</var>
+<arg>${True}</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:45.348" endtime="20261101 22:10:45.348"/>
+</kw>
+<msg timestamp="20261101 22:10:45.348" level="FAIL">Inline IF branches cannot contain assignments.</msg>
+<status status="FAIL" starttime="20261101 22:10:45.348" endtime="20261101 22:10:45.348"/>
+</branch>
+<status status="FAIL" starttime="20261101 22:10:45.348" endtime="20261101 22:10:45.348"/>
+</if>
+<kw name="Led Is On">
+<var>${g}</var>
+<arg>${GREEN}</arg>
+<status status="NOT RUN" starttime="20261101 22:10:45.349" endtime="20261101 22:10:45.349"/>
+</kw>
+<kw name="Should Not Be True" library="BuiltIn">
+<arg>${g}</arg>
+<doc>Fails if the given condition is true.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:45.349" endtime="20261101 22:10:45.349"/>
+</kw>
+<status status="FAIL" starttime="20261101 22:10:44.913" endtime="20261101 22:10:45.349"/>
+</iter>
+<status status="FAIL" starttime="20261101 22:10:44.912" endtime="20261101 22:10:45.349"/>
+</for>
+<kw name="Should Be True" library="BuiltIn">
+<arg>${seen}</arg>
+<doc>Fails if the given condition is not true.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:45.349" endtime="20261101 22:10:45.349"/>
+</kw>
+<status status="FAIL" starttime="20261101 22:10:44.911" endtime="20261101 22:10:45.350"/>
+</kw>
+<kw name="Test Teardown" library="renode-keywords" type="TEARDOWN">
+<msg timestamp="20261101 22:10:45.351" level="TRACE">Arguments: [  ]</msg>
+<kw name="Stop Profiler" library="renode-keywords">
+<msg timestamp="20261101 22:10:45.351" level="TRACE">Arguments: [  ]</msg>
+<if>
+<branch type="IF" condition="${PROFILER_PROCESS}">
+<kw name="Terminate Process" library="Process">
+<arg>${PROFILER_PROCESS}</arg>
+<doc>Stops the process gracefully or forcefully.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:45.351" endtime="20261101 22:10:45.351"/>
+</kw>
+<kw name="Set Test Variable" library="BuiltIn">
+<arg>${PROFILER_PROCESS}</arg>
+<arg>None</arg>
+<doc>Makes a variable available everywhere within the scope of the current test.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:45.352" endtime="20261101 22:10:45.353"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:45.351" endtime="20261101 22:10:45.353"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:45.351" endtime="20261101 22:10:45.353"/>
+</if>
+<msg timestamp="20261101 22:10:45.353" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:45.351" endtime="20261101 22:10:45.353"/>
+</kw>
+<kw name="Run Keyword If Test Failed" library="BuiltIn">
+<var>${failed}</var>
+<arg>Set Variable</arg>
+<arg>True</arg>
+<doc>Runs the given keyword with the given arguments, if the test failed.</doc>
+<msg timestamp="20261101 22:10:45.354" level="TRACE">Arguments: [ 'Set Variable' | 'True' ]</msg>
+<kw name="Set Variable" library="BuiltIn">
+<arg>True</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:45.354" level="TRACE">Arguments: [ 'True' ]</msg>
+<msg timestamp="20261101 22:10:45.354" level="TRACE">Return: 'True'</msg>
+<status status="PASS" starttime="20261101 22:10:45.354" endtime="20261101 22:10:45.355"/>
+</kw>
+<msg timestamp="20261101 22:10:45.355" level="TRACE">Return: 'True'</msg>
+<msg timestamp="20261101 22:10:45.355" level="INFO">${failed} = True</msg>
+<status status="PASS" starttime="20261101 22:10:45.353" endtime="20261101 22:10:45.355"/>
+</kw>
+<if>
+<branch type="IF" condition="${failed}">
+<kw name="Strip String" library="String">
+<var>${message}</var>
+<arg>${TEST_MESSAGE}</arg>
+<arg>mode=right</arg>
+<doc>Remove leading and/or trailing whitespaces from the given string.</doc>
+<msg timestamp="20261101 22:10:45.356" level="TRACE">Arguments: [ 'Inline IF branches cannot contain assignments.' | mode='right' ]</msg>
+<msg timestamp="20261101 22:10:45.356" level="TRACE">Return: 'Inline IF branches cannot contain assignments.'</msg>
+<msg timestamp="20261101 22:10:45.357" level="INFO">${message} = Inline IF branches cannot contain assignments.</msg>
+<status status="PASS" starttime="20261101 22:10:45.356" endtime="20261101 22:10:45.357"/>
+</kw>
+<kw name="Set Test Message" library="BuiltIn">
+<arg>${message}</arg>
+<doc>Sets message for the current test case.</doc>
+<msg timestamp="20261101 22:10:45.357" level="TRACE">Arguments: [ 'Inline IF branches cannot contain assignments.' ]</msg>
+<msg timestamp="20261101 22:10:45.358" level="INFO">Set test message to:
+Inline IF branches cannot contain assignments.</msg>
+<msg timestamp="20261101 22:10:45.358" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:45.357" endtime="20261101 22:10:45.358"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:45.355" endtime="20261101 22:10:45.358"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:45.355" endtime="20261101 22:10:45.358"/>
+</if>
+<kw name="Run Keyword If Timeout Occurred" library="BuiltIn">
+<var>${timed_out}</var>
+<arg>Set Variable</arg>
+<arg>True</arg>
+<doc>Runs the given keyword if either a test or a keyword timeout has occurred.</doc>
+<msg timestamp="20261101 22:10:45.358" level="TRACE">Arguments: [ 'Set Variable' | 'True' ]</msg>
+<msg timestamp="20261101 22:10:45.359" level="TRACE">Return: None</msg>
+<msg timestamp="20261101 22:10:45.359" level="INFO">${timed_out} = None</msg>
+<status status="PASS" starttime="20261101 22:10:45.358" endtime="20261101 22:10:45.359"/>
+</kw>
+<if>
+<branch type="IF" condition="${timed_out}">
+<return>
+<status status="NOT RUN" starttime="20261101 22:10:45.359" endtime="20261101 22:10:45.359"/>
+</return>
+<status status="NOT RUN" starttime="20261101 22:10:45.359" endtime="20261101 22:10:45.359"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:45.359" endtime="20261101 22:10:45.360"/>
+</if>
+<if>
+<branch type="IF" condition="${CREATE_SNAPSHOT_ON_FAIL}">
+<kw name="Run Keyword If Test Failed" library="BuiltIn">
+<arg>Create Snapshot Of Failed Test</arg>
+<doc>Runs the given keyword with the given arguments, if the test failed.</doc>
+<msg timestamp="20261101 22:10:45.361" level="TRACE">Arguments: [ 'Create Snapshot Of Failed Test' ]</msg>
+<kw name="Create Snapshot Of Failed Test" library="renode-keywords">
+<msg timestamp="20261101 22:10:45.362" level="TRACE">Arguments: [  ]</msg>
+<kw name="Return From Keyword If" library="BuiltIn">
+<arg>'skipped' in @{TEST TAGS}</arg>
+<doc>Returns from the enclosing user keyword if ``condition`` is true.</doc>
+<msg timestamp="20261101 22:10:45.363" level="TRACE">Arguments: [ "'skipped' in []" ]</msg>
+<msg timestamp="20261101 22:10:45.363" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:45.362" endtime="20261101 22:10:45.363"/>
+</kw>
+<kw name="Get Sanitized Test Name" library="renode-keywords">
+<var>${test_name}</var>
+<msg timestamp="20261101 22:10:45.363" level="TRACE">Arguments: [  ]</msg>
+<kw name="Get Variable Value" library="BuiltIn">
+<var>${retry_index}</var>
+<arg>\${RETRYFAILED_RETRY_INDEX}</arg>
+<arg>0</arg>
+<doc>Returns variable value or ``default`` if the variable does not exist.</doc>
+<msg timestamp="20261101 22:10:45.364" level="TRACE">Arguments: [ '\\${RETRYFAILED_RETRY_INDEX}' | '0' ]</msg>
+<msg timestamp="20261101 22:10:45.367" level="TRACE">Return: '0'</msg>
+<msg timestamp="20261101 22:10:45.367" level="INFO">${retry_index} = 0</msg>
+<status status="PASS" starttime="20261101 22:10:45.364" endtime="20261101 22:10:45.367"/>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<var>${test_name}</var>
+<arg>${SUITE NAME}.${TEST NAME}.fail${retry_index}</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:45.368" level="TRACE">Arguments: [ 'access.Three Wrong PINs Lock Out.fail0' ]</msg>
+<msg timestamp="20261101 22:10:45.368" level="TRACE">Return: 'access.Three Wrong PINs Lock Out.fail0'</msg>
+<msg timestamp="20261101 22:10:45.368" level="INFO">${test_name} = access.Three Wrong PINs Lock Out.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:45.367" endtime="20261101 22:10:45.368"/>
+</kw>
+<kw name="Sanitize Test Name" library="renode-keywords">
+<var>${test_name}</var>
+<arg>${test_name}</arg>
+<msg timestamp="20261101 22:10:45.369" level="TRACE">Arguments: [ ${test_name}='access.Three Wrong PINs Lock Out.fail0' ]</msg>
+<kw name="Replace String" library="String">
+<var>${test_name}</var>
+<arg>${test_name}</arg>
+<arg>${SPACE}</arg>
+<arg>_</arg>
+<doc>Replaces ``search_for`` in the given ``string`` with ``replace_with``.</doc>
+<msg timestamp="20261101 22:10:45.370" level="TRACE">Arguments: [ 'access.Three Wrong PINs Lock Out.fail0' | ' ' | '_' ]</msg>
+<msg timestamp="20261101 22:10:45.370" level="TRACE">Return: 'access.Three_Wrong_PINs_Lock_Out.fail0'</msg>
+<msg timestamp="20261101 22:10:45.370" level="INFO">${test_name} = access.Three_Wrong_PINs_Lock_Out.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:45.369" endtime="20261101 22:10:45.370"/>
+</kw>
+<kw name="Replace String Using Regexp" library="String">
+<var>${test_name}</var>
+<arg>${test_name}</arg>
+<arg>[/""]</arg>
+<arg>-</arg>
+<doc>Replaces ``pattern`` in the given ``string`` with ``replace_with``.</doc>
+<msg timestamp="20261101 22:10:45.371" level="TRACE">Arguments: [ 'access.Three_Wrong_PINs_Lock_Out.fail0' | '[/""]' | '-' ]</msg>
+<msg timestamp="20261101 22:10:45.371" level="TRACE">Return: 'access.Three_Wrong_PINs_Lock_Out.fail0'</msg>
+<msg timestamp="20261101 22:10:45.371" level="INFO">${test_name} = access.Three_Wrong_PINs_Lock_Out.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:45.370" endtime="20261101 22:10:45.371"/>
+</kw>
+<return>
+<value>${test_name}</value>
+<status status="PASS" starttime="20261101 22:10:45.372" endtime="20261101 22:10:45.372"/>
+</return>
+<msg timestamp="20261101 22:10:45.372" level="TRACE">Return: 'access.Three_Wrong_PINs_Lock_Out.fail0'</msg>
+<msg timestamp="20261101 22:10:45.372" level="INFO">${test_name} = access.Three_Wrong_PINs_Lock_Out.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:45.368" endtime="20261101 22:10:45.372"/>
+</kw>
+<return>
+<value>${test_name}</value>
+<status status="PASS" starttime="20261101 22:10:45.372" endtime="20261101 22:10:45.372"/>
+</return>
+<msg timestamp="20261101 22:10:45.373" level="TRACE">Return: 'access.Three_Wrong_PINs_Lock_Out.fail0'</msg>
+<msg timestamp="20261101 22:10:45.373" level="INFO">${test_name} = access.Three_Wrong_PINs_Lock_Out.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:45.363" endtime="20261101 22:10:45.373"/>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<var>${snapshots_dir}</var>
+<arg>${RESULTS_DIRECTORY}/snapshots</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:45.373" level="TRACE">Arguments: [ '/home/koenigr/git/stm32f407-register-level-access-control//snapshots' ]</msg>
+<msg timestamp="20261101 22:10:45.374" level="TRACE">Return: '/home/koenigr/git/stm32f407-register-level-access-control//snapshots'</msg>
+<msg timestamp="20261101 22:10:45.374" level="INFO">${snapshots_dir} = /home/koenigr/git/stm32f407-register-level-access-control//snapshots</msg>
+<status status="PASS" starttime="20261101 22:10:45.373" endtime="20261101 22:10:45.374"/>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<arg>${snapshots_dir}</arg>
+<doc>Creates the specified directory.</doc>
+<msg timestamp="20261101 22:10:45.374" level="TRACE">Arguments: [ '/home/koenigr/git/stm32f407-register-level-access-control//snapshots' ]</msg>
+<msg timestamp="20261101 22:10:45.375" level="INFO" html="true">Directory '&lt;a href="file:///home/koenigr/git/stm32f407-register-level-access-control/snapshots"&gt;/home/koenigr/git/stm32f407-register-level-access-control/snapshots&lt;/a&gt;' already exists.</msg>
+<msg timestamp="20261101 22:10:45.375" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:45.374" endtime="20261101 22:10:45.375"/>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<var>${snapshot_path}</var>
+<arg>"${snapshots_dir}/${test_name}.save"</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:45.376" level="TRACE">Arguments: [ '"/home/koenigr/git/stm32f407-register-level-access-control//snapshots/access.Three_Wrong_PINs_Lock_Out.fail0.save"' ]</msg>
+<msg timestamp="20261101 22:10:45.376" level="TRACE">Return: '"/home/koenigr/git/stm32f407-register-level-access-control//snapshots/access.Three_Wrong_PINs_Lock_Out.fail0.save"'</msg>
+<msg timestamp="20261101 22:10:45.376" level="INFO">${snapshot_path} = "/home/koenigr/git/stm32f407-register-level-access-control//snapshots/access.Three_Wrong_PINs_Lock_Out.fail0.save"</msg>
+<status status="PASS" starttime="20261101 22:10:45.375" endtime="20261101 22:10:45.376"/>
+</kw>
+<kw name="Execute Command" library="Renode">
+<arg>Save ${snapshot_path}</arg>
+<msg timestamp="20261101 22:10:45.377" level="TRACE">Arguments: [ 'Save "/home/koenigr/git/stm32f407-register-level-access-control//snapshots/access.Three_Wrong_PINs_Lock_Out.fail0.save"' ]</msg>
+<msg timestamp="20261101 22:10:45.697" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:45.376" endtime="20261101 22:10:45.697"/>
+</kw>
+<kw name="Log To Console" library="BuiltIn">
+<arg>!!!!! Emulation's state saved to ${snapshot_path}</arg>
+<doc>Logs the given message to the console.</doc>
+<msg timestamp="20261101 22:10:45.697" level="TRACE">Arguments: [ '!!!!! Emulation\'s state saved to "/home/koenigr/git/stm32f407-register-level-access-control//snapshots/access.Three_Wrong_PINs_Lock_Out.fail0.save"' ]</msg>
+<msg timestamp="20261101 22:10:45.698" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:45.697" endtime="20261101 22:10:45.698"/>
+</kw>
+<msg timestamp="20261101 22:10:45.698" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:45.361" endtime="20261101 22:10:45.698"/>
+</kw>
+<msg timestamp="20261101 22:10:45.698" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:45.360" endtime="20261101 22:10:45.698"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:45.360" endtime="20261101 22:10:45.698"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:45.360" endtime="20261101 22:10:45.698"/>
+</if>
+<kw name="Close Log File" library="Renode">
+<msg timestamp="20261101 22:10:45.698" level="TRACE">Arguments: [  ]</msg>
+<msg timestamp="20261101 22:10:45.701" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:45.698" endtime="20261101 22:10:45.701"/>
+</kw>
+<if>
+<branch type="IF" condition="&quot;${SAVE_LOGS_WHEN}&quot; == &quot;Always&quot; or ${failed}">
+<kw name="Print Log Saved Message" library="renode-keywords">
+<msg timestamp="20261101 22:10:45.702" level="TRACE">Arguments: [  ]</msg>
+<kw name="Return From Keyword If" library="BuiltIn">
+<arg>'skipped' in @{TEST TAGS}</arg>
+<doc>Returns from the enclosing user keyword if ``condition`` is true.</doc>
+<msg timestamp="20261101 22:10:45.702" level="TRACE">Arguments: [ "'skipped' in []" ]</msg>
+<msg timestamp="20261101 22:10:45.702" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:45.702" endtime="20261101 22:10:45.702"/>
+</kw>
+<kw name="Return From Keyword If" library="BuiltIn">
+<arg>not ${SAVE_LOGS}</arg>
+<doc>Returns from the enclosing user keyword if ``condition`` is true.</doc>
+<msg timestamp="20261101 22:10:45.703" level="TRACE">Arguments: [ 'not True' ]</msg>
+<msg timestamp="20261101 22:10:45.703" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:45.703" endtime="20261101 22:10:45.703"/>
+</kw>
+<kw name="Get Test Log Path" library="renode-keywords">
+<var>${log_path}</var>
+<msg timestamp="20261101 22:10:45.703" level="TRACE">Arguments: [  ]</msg>
+<kw name="Get Sanitized Test Name" library="renode-keywords">
+<var>${test_name}</var>
+<msg timestamp="20261101 22:10:45.704" level="TRACE">Arguments: [  ]</msg>
+<kw name="Get Variable Value" library="BuiltIn">
+<var>${retry_index}</var>
+<arg>\${RETRYFAILED_RETRY_INDEX}</arg>
+<arg>0</arg>
+<doc>Returns variable value or ``default`` if the variable does not exist.</doc>
+<msg timestamp="20261101 22:10:45.704" level="TRACE">Arguments: [ '\\${RETRYFAILED_RETRY_INDEX}' | '0' ]</msg>
+<msg timestamp="20261101 22:10:45.706" level="TRACE">Return: '0'</msg>
+<msg timestamp="20261101 22:10:45.706" level="INFO">${retry_index} = 0</msg>
+<status status="PASS" starttime="20261101 22:10:45.704" endtime="20261101 22:10:45.706"/>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<var>${test_name}</var>
+<arg>${SUITE NAME}.${TEST NAME}.fail${retry_index}</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:45.707" level="TRACE">Arguments: [ 'access.Three Wrong PINs Lock Out.fail0' ]</msg>
+<msg timestamp="20261101 22:10:45.707" level="TRACE">Return: 'access.Three Wrong PINs Lock Out.fail0'</msg>
+<msg timestamp="20261101 22:10:45.707" level="INFO">${test_name} = access.Three Wrong PINs Lock Out.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:45.706" endtime="20261101 22:10:45.707"/>
+</kw>
+<kw name="Sanitize Test Name" library="renode-keywords">
+<var>${test_name}</var>
+<arg>${test_name}</arg>
+<msg timestamp="20261101 22:10:45.708" level="TRACE">Arguments: [ ${test_name}='access.Three Wrong PINs Lock Out.fail0' ]</msg>
+<kw name="Replace String" library="String">
+<var>${test_name}</var>
+<arg>${test_name}</arg>
+<arg>${SPACE}</arg>
+<arg>_</arg>
+<doc>Replaces ``search_for`` in the given ``string`` with ``replace_with``.</doc>
+<msg timestamp="20261101 22:10:45.708" level="TRACE">Arguments: [ 'access.Three Wrong PINs Lock Out.fail0' | ' ' | '_' ]</msg>
+<msg timestamp="20261101 22:10:45.709" level="TRACE">Return: 'access.Three_Wrong_PINs_Lock_Out.fail0'</msg>
+<msg timestamp="20261101 22:10:45.709" level="INFO">${test_name} = access.Three_Wrong_PINs_Lock_Out.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:45.708" endtime="20261101 22:10:45.709"/>
+</kw>
+<kw name="Replace String Using Regexp" library="String">
+<var>${test_name}</var>
+<arg>${test_name}</arg>
+<arg>[/""]</arg>
+<arg>-</arg>
+<doc>Replaces ``pattern`` in the given ``string`` with ``replace_with``.</doc>
+<msg timestamp="20261101 22:10:45.709" level="TRACE">Arguments: [ 'access.Three_Wrong_PINs_Lock_Out.fail0' | '[/""]' | '-' ]</msg>
+<msg timestamp="20261101 22:10:45.709" level="TRACE">Return: 'access.Three_Wrong_PINs_Lock_Out.fail0'</msg>
+<msg timestamp="20261101 22:10:45.709" level="INFO">${test_name} = access.Three_Wrong_PINs_Lock_Out.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:45.709" endtime="20261101 22:10:45.709"/>
+</kw>
+<return>
+<value>${test_name}</value>
+<status status="PASS" starttime="20261101 22:10:45.709" endtime="20261101 22:10:45.710"/>
+</return>
+<msg timestamp="20261101 22:10:45.710" level="TRACE">Return: 'access.Three_Wrong_PINs_Lock_Out.fail0'</msg>
+<msg timestamp="20261101 22:10:45.710" level="INFO">${test_name} = access.Three_Wrong_PINs_Lock_Out.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:45.707" endtime="20261101 22:10:45.710"/>
+</kw>
+<return>
+<value>${test_name}</value>
+<status status="PASS" starttime="20261101 22:10:45.710" endtime="20261101 22:10:45.710"/>
+</return>
+<msg timestamp="20261101 22:10:45.710" level="TRACE">Return: 'access.Three_Wrong_PINs_Lock_Out.fail0'</msg>
+<msg timestamp="20261101 22:10:45.710" level="INFO">${test_name} = access.Three_Wrong_PINs_Lock_Out.fail0</msg>
+<status status="PASS" starttime="20261101 22:10:45.704" endtime="20261101 22:10:45.710"/>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<var>${logs_dir}</var>
+<arg>${RESULTS_DIRECTORY}/logs</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20261101 22:10:45.711" level="TRACE">Arguments: [ '/home/koenigr/git/stm32f407-register-level-access-control//logs' ]</msg>
+<msg timestamp="20261101 22:10:45.711" level="TRACE">Return: '/home/koenigr/git/stm32f407-register-level-access-control//logs'</msg>
+<msg timestamp="20261101 22:10:45.711" level="INFO">${logs_dir} = /home/koenigr/git/stm32f407-register-level-access-control//logs</msg>
+<status status="PASS" starttime="20261101 22:10:45.710" endtime="20261101 22:10:45.711"/>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<arg>${logs_dir}</arg>
+<doc>Creates the specified directory.</doc>
+<msg timestamp="20261101 22:10:45.711" level="TRACE">Arguments: [ '/home/koenigr/git/stm32f407-register-level-access-control//logs' ]</msg>
+<msg timestamp="20261101 22:10:45.712" level="INFO" html="true">Directory '&lt;a href="file:///home/koenigr/git/stm32f407-register-level-access-control/logs"&gt;/home/koenigr/git/stm32f407-register-level-access-control/logs&lt;/a&gt;' already exists.</msg>
+<msg timestamp="20261101 22:10:45.712" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:45.711" endtime="20261101 22:10:45.712"/>
+</kw>
+<return>
+<value>${logs_dir}/${test_name}.log</value>
+<status status="PASS" starttime="20261101 22:10:45.712" endtime="20261101 22:10:45.712"/>
+</return>
+<msg timestamp="20261101 22:10:45.712" level="TRACE">Return: '/home/koenigr/git/stm32f407-register-level-access-control//logs/access.Three_Wrong_PINs_Lock_Out.fail0.log'</msg>
+<msg timestamp="20261101 22:10:45.712" level="INFO">${log_path} = /home/koenigr/git/stm32f407-register-level-access-control//logs/access.Three_Wrong_PINs_Lock_Out.fail0.log</msg>
+<status status="PASS" starttime="20261101 22:10:45.703" endtime="20261101 22:10:45.712"/>
+</kw>
+<kw name="Log To Console" library="BuiltIn">
+<arg>!!!!! Log saved to "${log_path}"</arg>
+<doc>Logs the given message to the console.</doc>
+<msg timestamp="20261101 22:10:45.713" level="TRACE">Arguments: [ '!!!!! Log saved to "/home/koenigr/git/stm32f407-register-level-access-control//logs/access.Three_Wrong_PINs_Lock_Out.fail0.log"' ]</msg>
+<msg timestamp="20261101 22:10:45.713" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:45.713" endtime="20261101 22:10:45.713"/>
+</kw>
+<msg timestamp="20261101 22:10:45.713" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:45.701" endtime="20261101 22:10:45.713"/>
+</kw>
+<status status="PASS" starttime="20261101 22:10:45.701" endtime="20261101 22:10:45.713"/>
+</branch>
+<branch type="ELSE">
+<kw name="Remove Log" library="renode-keywords">
+<status status="NOT RUN" starttime="20261101 22:10:45.714" endtime="20261101 22:10:45.714"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:45.714" endtime="20261101 22:10:45.714"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:45.701" endtime="20261101 22:10:45.714"/>
+</if>
+<if>
+<branch type="IF" condition="${HOLD_ON_ERROR}">
+<kw name="Run Keyword If Test Failed" library="BuiltIn">
+<var>${res}</var>
+<arg>Run Keyword And Ignore Error</arg>
+<arg>Import Library</arg>
+<arg>Dialogs</arg>
+<doc>Runs the given keyword with the given arguments, if the test failed.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:45.715" endtime="20261101 22:10:45.715"/>
+</kw>
+<kw name="Run Keyword If Test Failed" library="BuiltIn">
+<arg>Run Keywords</arg>
+<arg>Run Keyword If</arg>
+<arg>'${res[0]}' == 'FAIL'</arg>
+<arg>Log</arg>
+<arg>Couldn't load the Dialogs library - interactive debugging is not possible</arg>
+<arg>console=True</arg>
+<arg>AND</arg>
+<arg>Run Keyword If</arg>
+<arg>'${res[0]}' != 'FAIL'</arg>
+<arg>Open GUI</arg>
+<arg>AND</arg>
+<arg>Run Keyword If</arg>
+<arg>'${res[0]}' != 'FAIL'</arg>
+<arg>Pause Execution</arg>
+<arg>Test failed. Press OK once done debugging.</arg>
+<arg>AND</arg>
+<arg>Run Keyword If</arg>
+<arg>'${res[0]}' != 'FAIL'</arg>
+<arg>Close GUI</arg>
+<doc>Runs the given keyword with the given arguments, if the test failed.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:45.715" endtime="20261101 22:10:45.715"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:45.714" endtime="20261101 22:10:45.715"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:45.714" endtime="20261101 22:10:45.715"/>
+</if>
+<kw name="Reset Emulation" library="Renode">
+<msg timestamp="20261101 22:10:45.716" level="TRACE">Arguments: [  ]</msg>
+<msg timestamp="20261101 22:10:45.763" level="TRACE">Return: ''</msg>
+<status status="PASS" starttime="20261101 22:10:45.715" endtime="20261101 22:10:45.763"/>
+</kw>
+<msg timestamp="20261101 22:10:45.763" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:45.350" endtime="20261101 22:10:45.763"/>
+</kw>
+<status status="FAIL" starttime="20261101 22:10:25.122" endtime="20261101 22:10:45.763">Inline IF branches cannot contain assignments.</status>
+</test>
+<kw name="Teardown" library="renode-keywords" type="TEARDOWN">
+<msg timestamp="20261101 22:10:45.767" level="TRACE">Arguments: [  ]</msg>
+<if>
+<branch type="IF" condition="not ${SKIP_RUNNING_SERVER}">
+<kw name="Stop Remote Server" library="Renode">
+<status status="NOT RUN" starttime="20261101 22:10:45.768" endtime="20261101 22:10:45.768"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:45.767" endtime="20261101 22:10:45.768"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:45.767" endtime="20261101 22:10:45.768"/>
+</if>
+<if>
+<branch type="IF" condition="not ${SKIP_RUNNING_SERVER}">
+<kw name="Wait For Process" library="Process">
+<doc>Waits for the process to complete or to reach the given timeout.</doc>
+<status status="NOT RUN" starttime="20261101 22:10:45.769" endtime="20261101 22:10:45.769"/>
+</kw>
+<status status="NOT RUN" starttime="20261101 22:10:45.768" endtime="20261101 22:10:45.769"/>
+</branch>
+<status status="PASS" starttime="20261101 22:10:45.768" endtime="20261101 22:10:45.769"/>
+</if>
+<msg timestamp="20261101 22:10:45.770" level="TRACE">Return: None</msg>
+<status status="PASS" starttime="20261101 22:10:45.767" endtime="20261101 22:10:45.770"/>
+</kw>
+<meta name="HotSpot_Action">-</meta>
+<status status="FAIL" starttime="20261101 22:10:02.400" endtime="20261101 22:10:45.770"/>
+</suite>
+<statistics>
+<total>
+<stat pass="1" fail="2" skip="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat pass="1" fail="2" skip="0" id="s1" name="Test Suite">Test Suite</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>
