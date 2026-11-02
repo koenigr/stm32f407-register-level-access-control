@@ -1,4 +1,4 @@
-name: renode
+name: Renode
 
 on: [push, pull_request]
 
