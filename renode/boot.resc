@@ -1,0 +1,10 @@
+using sysbus
+mach create "access"
+include @renode/KeypadMatrix.cs
+machine LoadPlatformDescription @renode/stm32f407_access.repl
+sysbus LoadELF @build-firmware/stm32f407_access_control
+sysbus.cpu VectorTableOffset 0x08000000
+sysbus.cpu SP 0x20020000
+sysbus.cpu PC 0x08000259
+logLevel 3 sysbus
+sysbus.cpu AddSymbolHook "EXTI9_5_IRQHandler" "print 'EXTI9_5 hit'"

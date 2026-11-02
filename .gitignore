@@ -2,6 +2,7 @@
 build/
 build-firmware/
 build-tests/
+build-board-tests/
 
 *.drawio
 *.drawio.bkp
