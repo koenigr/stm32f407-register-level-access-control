@@ -1,8 +1,35 @@
 # Debug Log: Renode keypad scan hangs (ODR read-modify-write)
 
-Date: 2026-11-01 to 2026-11-02 · Renode 1.17.0 (portable `.deb`), `stm32f4_discovery-kit.repl` + `renode/KeypadMatrix.cs`
-Firmware: `build-firmware/stm32f407_access_control`
+Date: 2026-11-01 to 2026-11-02  
+Renode 1.17.0 (portable `.deb`), `stm32f4_discovery-kit.repl` + `renode/KeypadMatrix.cs`  
+Firmware: `build-firmware/stm32f407_access_control`  
 Files involved: `renode/boot.resc`, `renode/stm32f407_access.repl`, `renode/KeypadMatrix.cs`, `Tests/renode/access.robot`, `keypad.c`, `stm32f407xx_gpio.c`
+
+
+## Run Renode
+Run inside the project root:
+```bash
+renode renode/boot.resc
+```
+## Important values
+
+### Base addresses
+
+| Register/Module | Function | Base Address |
+| --- | --- | --- |
+| GPIOD | Peripheral Base | 0x40020C00 |
+| IDR | Input Data Register | 0x40020C10 |
+| ODR | Output Data Register | 0x40020C14 |
+| BSRR | Bit Set/Reset Register | 0x40020C18 |
+
+### Register content
+
+| Hex-Value | LED-Part | COLUMNS | x | ROWS |
+| --- | --- | --- | --- | --- |
+| 4F00 | 0100 | 1111 | 0000 | 0000 |
+| 4E0E | 0100 | 1110 | 0000 | 1110 |
+| 4B0E | 0100 | 1011 | 0000 | 1110 |
+| 4D0E | 0100 | 1101 | 0000 | 1110 |
 
 ## Symptom
 Robot test "Correct PIN Unlocks" fails. Keys in row 0 work, keys in row 1+ leave the
@@ -211,8 +238,9 @@ so a column held LOW by a key press is forced LOW again.
 `GPIO_WritePin` / `GPIO_TogglePin` via BSRR (atomic, no ODR read).
 Order of work:
 1. add host tests (`GpioTest.cpp`), green on the old code
-2. change both functions to BSRR, tests stay green
-3. run `renode-test Tests/renode/access.robot`
+2. change both functions to BSRR
+3. tests stay green
+4. run `renode-test Tests/renode/access.robot`
 
 ## Verification
 - [ ] E8 run A and run B match the predictions
