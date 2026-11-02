@@ -225,6 +225,8 @@ sysbus ReadDoubleWord 0x40020C10
 ```
 Prediction (H3): IDR bit 8 reads 1.
 
+![Experiment output](../img/hypothesis_3_experiment_8.jpg)
+
 Result: _pending_
 
 Related: [H3](#h3-renode-gpio-keeps-one-state-per-pin)
