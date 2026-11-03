@@ -1,6 +1,7 @@
-# Debug Log: Renode keypad scan hangs (ODR read-modify-write)
+# Debug Log: Renode keypad scan hangs
 
-Date: 2026-11-01 to 2026-11-02  
+Status: parked (2026-11-03), cause narrowed down to H4, see [Follow-ups](#follow-ups)  
+Date: 2026-11-01 to 2026-11-03  
 Renode 1.17.0 (portable `.deb`), `stm32f4_discovery-kit.repl` + `renode/KeypadMatrix.cs`  
 Firmware: `build-firmware/stm32f407_access_control`  
 Files involved: `renode/boot.resc`, `renode/stm32f407_access.repl`, `renode/KeypadMatrix.cs`, `Tests/renode/access.robot`, `keypad.c`, `stm32f407xx_gpio.c`
@@ -27,6 +28,9 @@ renode renode/boot.resc
 | Hex-Value | LED-Part | COLUMNS | x | ROWS |
 | --- | --- | --- | --- | --- |
 | 4F00 | 0100 | 1111 | 0000 | 0000 |
+| 4E00 | 0100 | 1110 | 0000 | 0000 |
+| 4E02 | 0100 | 1110 | 0000 | 0010 |
+| 4F02 | 0100 | 1111 | 0000 | 0010 |
 | 4E0E | 0100 | 1110 | 0000 | 1110 |
 | 4B0E | 0100 | 1011 | 0000 | 1110 |
 | 4D0E | 0100 | 1101 | 0000 | 1110 |
@@ -50,7 +54,8 @@ That is the state in the middle of the row-0 pass of `Keypad_Scan()`.
 |----|------------|--------|----------|
 | [H1](#h1-timing-too-short) | Timing too short | rejected | [E1](#e1), [E2](#e2) |
 | [H2](#h2-keypad-model-wrong) | Keypad model wrong | rejected | [E3](#e3) |
-| [H3](#h3-renode-gpio-keeps-one-state-per-pin) | Renode GPIO: one state per pin | open | [E4](#e4), [E5](#e5), [E6](#e6), [E7](#e7), [E8](#e8) |
+| [H3](#h3-renode-gpio-keeps-one-state-per-pin) | Renode GPIO: one state per pin (ODR read-modify-write is the cause) | refuted in this form | [E4](#e4), [E5](#e5), [E6](#e6), [E7](#e7), [E8](#e8) |
+| [H4](#h4-input-changes-lost-during-a-write-to-the-same-port) | Input changes made during a write to the same port are lost | supported, mechanism not confirmed | [E6](#e6), [E7](#e7), [E8](#e8), [E9](#e9) |
 
 ## Setup findings (no hypothesis)
 | # | Action | Result | Consequence |
@@ -80,28 +85,53 @@ Status: rejected
 | [E3](#e3) | logging added to `KeypadMatrix.cs` (row inputs, column outputs) | `Press 1 0`: `col 0 -> False`; row 1 HIGH: `col 0 -> True` | model logic is correct |
 
 ## H3: Renode GPIO keeps one state per pin
-Status: open (strong evidence, decisive test E8 pending)
+Status: refuted in this form. E8 shows that BSRR behaves like ODR, so the ODR write is not the cause. Only the ODR read part holds ([E5](#e5)).
 
 Hypothesis: Renode's STM32 GPIO port keeps one state per pin, shared by input and output.
 An ODR read returns the pin level, and an ODR write overwrites input pins.
 On real hardware ODR holds only the output latch and ignores pins in input mode.
 
-Mechanism in the stuck run:
+Original mechanism (refuted by E8):
 1. A key is held, so column 0 is LOW and an ODR read returns bit 8 = 0.
 2. `GPIO_WritePin(row, 1)` does `ODR |= bit`, which reads ODR (bit 8 = 0) and writes it all back.
 3. The write sets the row pin, the keypad model drives column 0 HIGH, then the same write sets bit 8 to 0 again.
 4. The port now reads LOW while the model believes HIGH. No further event corrects it,
    so `Keypad_Scan()` waits forever for a release.
 
-Falsified if: in run A of E8 the IDR bit 8 reads 1.
+Falsified if: in run B of E8 (BSRR) the IDR bit 8 reads 1. Result: it reads 0 in both runs, so H3 is refuted (see [H4](#h4-input-changes-lost-during-a-write-to-the-same-port)).
 
 | # | Action | Result | Conclusion |
 |---|--------|--------|------------|
 | [E4](#e4) | `gpioPortD OnGPIO 8 false/true`, read IDR | bit 8 = 0 / 1 | control: the input path of the port works |
 | [E5](#e5) | `Press 0 0`, read ODR | `0x0E00` (bit 8 = 0) | an ODR read returns the pin level |
-| [E6](#e6) | `Press 1 0`, write ODR `0x4F0D` (row 1 LOW) | IDR bit 8 stays 1 | an ODR write overwrites an input pin (consistent, not yet isolated) |
+| [E6](#e6) | `Press 1 0`, write ODR `0x4F0D` (row 1 LOW) | IDR bit 8 stays 1 | the column update triggered by the row write is lost (re-interpreted after E8, see H4) |
 | [E7](#e7) | keypad log of the stuck run | last event "row 0 = False", no column change afterwards | firmware reads column LOW, model says HIGH |
-| [E8](#e8) | run A (ODR read-modify-write) vs run B (BSRR) in the monitor | pending | decisive test |
+| [E8](#e8) | run A (ODR read-modify-write) vs run B (BSRR) in the monitor | IDR `0x4E02` in both runs (bit 8 = 0) | prediction falsified: BSRR does not help |
+
+## H4: input changes lost during a write to the same port
+Status: supported (E9 matches all five predictions), mechanism not confirmed
+
+Hypothesis: a write to the GPIO port changes a row pin. The keypad model answers inside that
+callback by changing a column pin (input) of the same port. The port model loses that input change.
+The same change delivered from outside a write (monitor command, `Release`) works.
+
+| # | Action | Result | Conclusion |
+|---|--------|--------|------------|
+| [E6](#e6) | row 1 LOW written while `Press 1 0` is active | IDR bit 8 stays 1 | column update triggered by the write is lost |
+| [E7](#e7) | keypad log of the stuck run | no column change after the last row write | same pattern in the firmware |
+| [E8](#e8) | row 1 HIGH via ODR (run A) or BSRR (run B), model logs `col 0 -> True` | IDR bit 8 stays 0 in both | lost with both register paths, so not an ODR effect |
+| [E9](#e9) | updates from outside a write (`Release`, `OnGPIO`) vs inside a write (BSRR) | outside: bit 8 follows (1); inside: stays 0 | only the update nested in the write is lost |
+
+Consequence: after the lost update the keypad model still believes column 0 is HIGH, the port reads LOW.
+The model sends no new edge, so the two stay out of sync until an external edge arrives ([E9](#e9), last step).
+
+Not confirmed: why the update is lost. "Re-entrancy inside the port's write handler" is an interpretation of the
+symptom; the source of the STM32 GPIO port in Renode has not been read.
+
+Workaround ideas (untested):
+- In `KeypadMatrix.cs` deliver the column update outside the port's write, e.g. scheduled through the machine
+  (needs the `IMachine` injected into the constructor).
+- Fix in Renode's GPIO port itself (separate topic, see Follow-ups).
 
 ## Experiment details
 
@@ -189,22 +219,22 @@ Related: [H3](#h3-renode-gpio-keeps-one-state-per-pin)
 0x00004F0D
 ```
 `0x4F0D` = `0100 1111 0000 1101`: row 1 (bit 1) LOW, rows 0, 2, 3 HIGH, columns (bits 8-11) HIGH.
-With `Press 1 0` active, column 0 should now be LOW. IDR bit 8 stays 1, so the write
-(which contained bit 8 = 1) overwrote the pin after the model had driven it.
+With `Press 1 0` active, column 0 should now be LOW. IDR bit 8 stays 1, so the column update
+that the row write triggers was lost (first read as an ODR overwrite, re-interpreted after E8).
 
 Note: a first attempt wrote `0x0000000F`, which also cleared bits 8-11 and made the result meaningless.
 
-Related: [H3](#h3-renode-gpio-keeps-one-state-per-pin)
+Related: [H3](#h3-renode-gpio-keeps-one-state-per-pin), [H4](#h4-input-changes-lost-during-a-write-to-the-same-port)
 
 ### E7
 Same log as [E3](#e3). After `row 0 = False` no further row or column event appears,
 although the firmware should continue with row 1. The model reports all columns HIGH,
 but the firmware reads column 0 as LOW and waits in the release loop.
 
-Related: [H3](#h3-renode-gpio-keeps-one-state-per-pin)
+Related: [H3](#h3-renode-gpio-keeps-one-state-per-pin), [H4](#h4-input-changes-lost-during-a-write-to-the-same-port)
 
 ### E8
-Decisive test without changing the firmware. Start with `renode renode/boot.resc`.
+Decisive test for H3 without changing the firmware. Start with `renode renode/boot.resc`, one fresh session per run.
 
 Run A (simulates the old `GPIO_WritePin`, read-modify-write):
 ```
@@ -216,7 +246,7 @@ sysbus ReadDoubleWord 0x40020C10
 ```
 Prediction (H3): the log shows `col 0 -> True`, but IDR bit 8 reads 0.
 
-Run B (BSRR, restart Renode first):
+Run B (BSRR):
 ```
 emulation RunFor "0.5"
 sysbus.keypad Press 1 0
@@ -227,33 +257,84 @@ Prediction (H3): IDR bit 8 reads 1.
 
 ![Experiment output](../img/hypothesis_3_experiment_8.jpg)
 
-Result: _pending_
+The screenshot shows run B in a fresh session (BSRR write, IDR `0x4E02`, bit 8 = 0).
+Run A was taken in a separate fresh session; its values are listed below.
 
-Related: [H3](#h3-renode-gpio-keeps-one-state-per-pin)
+Values of both runs:
+
+```
+Run A:  Press 1 0 -> ODR 0x00004E00;  WriteDoubleWord 0x40020C14 0x00004E02  ->  IDR 0x00004E02
+Run B:  Press 1 0 -> ODR 0x00004E00;  WriteDoubleWord 0x40020C18 0x2         ->  IDR 0x00004E02
+```
+In both runs the log shows `col 0 -> False`, then `keypad row 1 = True` and `col 0 -> True`.
+The model reports column 0 HIGH, but IDR bit 8 stays 0 with both register paths.
+Prediction for run B (`0x4F02`) falsified, H3 refuted.
+
+### E9
+Fresh session, emulation paused between the commands:
+```
+(access) emulation RunFor "0.5"
+(access) sysbus.keypad Press 1 0
+(access) sysbus ReadDoubleWord 0x40020C10
+0x00004E00
+(access) sysbus.keypad Release 1 0
+(access) sysbus ReadDoubleWord 0x40020C10
+0x00004F00
+(access) sysbus.keypad Press 1 0
+(access) sysbus ReadDoubleWord 0x40020C10
+0x00004E00
+(access) sysbus WriteDoubleWord 0x40020C18 0x2
+(access) sysbus ReadDoubleWord 0x40020C10
+0x00004E02
+(access) gpioPortD OnGPIO 8 true
+(access) sysbus ReadDoubleWord 0x40020C10
+0x00004F02
+```
+
+| Step | Predicted bit 8 (H4) | Observed | What it shows |
+|------|----------------------|----------|---------------|
+| `Press 1 0` (rows LOW) | 0 | 0 | model to port, LOW works |
+| `Release 1 0` (outside a write) | 1 | 1 | model to port, HIGH works outside a write |
+| `Press 1 0` again | 0 | 0 | as before |
+| BSRR sets row 1 HIGH (inside a write) | 0 | 0 | the column update nested in the write is lost |
+| `gpioPortD OnGPIO 8 true` | 1 | 1 | the port still accepts a plain external update |
+
+All five predictions hit. The port is not broken: LOW and HIGH both work when they arrive outside a write.
+The model also stays unaware of the loss, since it already believes column 0 is HIGH.
+
+Related: [H4](#h4-input-changes-lost-during-a-write-to-the-same-port)
 
 ## Root cause
-Pending (H3, confirmation by [E8](#e8)). `GPIO_WritePin` uses `ODR |=` / `ODR &=` (read-modify-write).
-In Renode the ODR read returns the pin level of input pins and the write overwrites them,
-so a column held LOW by a key press is forced LOW again.
+Supported by [E8](#e8) and [E9](#e9), mechanism not confirmed: a column update that the keypad model triggers
+from inside a write to the same GPIO port is lost in Renode's port model, so the firmware reads a column LOW
+that the model has already released. It is independent of how the firmware writes (ODR read-modify-write
+or BSRR). On real hardware the keypad lines change independently of the write, so the firmware logic is not affected.
 
 ## Fix
-`GPIO_WritePin` / `GPIO_TogglePin` via BSRR (atomic, no ODR read).
-Order of work:
+Not decided yet. E8 shows that BSRR alone does not remove the Renode problem.
+`GPIO_WritePin` / `GPIO_TogglePin` via BSRR (atomic, no ODR read) stays a code-quality item, independent of this bug.
+Order of work if it is done:
 1. add host tests (`GpioTest.cpp`), green on the old code
 2. change both functions to BSRR
 3. tests stay green
-4. run `renode-test Tests/renode/access.robot`
+
+For the Renode test: deliver the column update outside the write (workaround ideas under [H4](#h4-input-changes-lost-during-a-write-to-the-same-port)).
 
 ## Verification
-- [ ] E8 run A and run B match the predictions
-- [ ] host tests (`GpioTest.cpp`) green before and after the change
+- [x] E8 done: run A and run B both leave IDR bit 8 = 0 (H3 refuted)
+- [x] E9 done: all five predictions of H4 hit
+- [ ] workaround in `KeypadMatrix.cs` or upstream fix
+- [ ] host tests (`GpioTest.cpp`) green before and after a BSRR change
 - [ ] `renode-test Tests/renode/access.robot` green (3 tests)
 
 ## Lessons
-- Renode's GPIO model differs from hardware for ODR reads and writes of input pins.
+- Renode's GPIO model differs from hardware: ODR reads return the pin level, and input changes made during a write to the same port can be lost.
+- Edge-based models can drift out of sync with the port; a model that sends only edges cannot repair a lost one.
 - Wait for the firmware to be idle before injecting the next key.
 - Isolate a hypothesis with a small monitor experiment before changing firmware code.
+- Write the prediction down before the experiment: E8 falsified H3 and avoided a firmware change that would not have fixed the problem.
 - `LogFunctionNames` on a busy-polling main loop floods the log; hook single functions instead.
 
 ## Follow-ups
-- Report the Renode behaviour upstream once E8 confirms it (tracked separately).
+- `.github/workflows/renode.yml` is added; the Robot test still fails, so the job is red until the workaround exists.
+- Report the Renode behaviour upstream (tracked separately); read `STM32_GPIOPort.cs` first to confirm the mechanism.
