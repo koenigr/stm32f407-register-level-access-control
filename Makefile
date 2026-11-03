@@ -4,7 +4,7 @@
         configure-firmware configure-tests configure-board-tests \
         rebuild-firmware rebuild-tests rebuild-board-tests \
         gdb openocd size disasm symbols sections elfinfo swo misra tidy \
-        reset reboot keypad-test board-tests-run
+        reset reboot keypad-test board-tests-run renode clean-robot
 
 # ------------------------------------------------------------------
 # Configuration
@@ -21,6 +21,9 @@ GCC_VER := $(shell arm-none-eabi-gcc -dumpfullversion)
 OPENOCD        = openocd
 INTERFACE_CFG  = /usr/share/openocd/scripts/interface/stlink.cfg
 TARGET_CFG     = /usr/share/openocd/scripts/target/stm32f4x.cfg
+
+ROBOT_DIR = robot_results
+RENODE_BOOT = renode/boot.resc
 
 # ------------------------------------------------------------------
 # Default target
@@ -200,6 +203,8 @@ clean-all:
 	rm -rf $(FIRMWARE_BUILD)
 	rm -rf $(TEST_BUILD)
 	rm -rf $(BOARD_TEST_BUILD)
+	rm -rf $(ROBOT_DIR)
+	rm -f swo.log
 
 
 # ------------------------------------------------------------------
@@ -227,3 +232,16 @@ tidy: build-firmware/compile_commands.json
 	  --extra-arg=-isystem/usr/lib/gcc/arm-none-eabi/$(GCC_VER)/include-fixed \
 	  --extra-arg=-isystem$(ARM_INC) \
 	  $(shell find App Core -name '*.cpp')
+
+
+# ------------------------------------------------------------------
+# Renode Testing
+# ------------------------------------------------------------------
+renode:
+	@echo "Running Robot Framework tests..."
+	@mkdir -p $(ROBOT_DIR)
+	RESULTS_DIRECTORY=$(ROBOT_DIR) renode $(RENODE_BOOT)
+
+clean-robot:
+	@echo "Cleaning up Robot Framework outputs..."
+	rm -rf $(ROBOT_DIR)

@@ -2,7 +2,26 @@
 build/
 build-firmware/
 build-tests/
-build-board-tests/
+build_board-tests/
+.cache/
+
+# Other directories
+snapshots/
+Testing/
+
+# Robot Framework outputs
+output.xml
+robot_output.xml
+log.html
+report.html
+robot_results/
+
+# misra outputs
+misra.log
+
+# swo outputs
+swo.log
+
 
 *.drawio
 *.drawio.bkp
