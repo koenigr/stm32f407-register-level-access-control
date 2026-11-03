@@ -47,7 +47,7 @@ TEST_F(AccessControllerTest, ShortPinIsNotAccepted) {
 }
 
 TEST_F(AccessControllerTest, LongPinIsRejected) {
-	// the last digit is ignored, only 1234 gets validated
+	// this pin is invalid and stays in locked state
 	EnterKeys("12345#");
 
 	EXPECT_FALSE(leds.green);

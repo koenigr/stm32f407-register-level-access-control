@@ -13,7 +13,7 @@ volatile uint32_t* const SYST_RVR = reinterpret_cast<volatile uint32_t*>(0xE000E
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) -- memory-mapped register
 volatile uint32_t* const SYST_CVR = reinterpret_cast<volatile uint32_t*>(0xE000E018);
 
-constexpr uint32_t kCoreClockHz = 16000000U;   // HSI nach Reset
+constexpr uint32_t kCoreClockHz = 16000000U;   // HSI after Reset
 }
 
 extern "C" void SysTick_Handler(void) { ++g_ms; }

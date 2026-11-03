@@ -25,6 +25,7 @@ void LedOutputAdapter::BlinkRed() {
 }
 
 void LedOutputAdapter::Off() {
+	blinking_ = false;
 	GPIO_WritePin(GPIOD, 12, 0);
 	GPIO_WritePin(GPIOD, 14, 0);
 }
