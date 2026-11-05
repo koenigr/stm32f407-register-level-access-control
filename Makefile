@@ -5,7 +5,7 @@
         rebuild-firmware rebuild-tests rebuild-board-tests \
         gdb openocd size disasm symbols sections elfinfo swo misra tidy \
         reset reboot keypad-test board-tests-run renode clean-robot \
-        smoke-test
+        smoke-test renode-robot
 
 # ------------------------------------------------------------------
 # Configuration
@@ -243,9 +243,14 @@ tidy: build-firmware/compile_commands.json
 # Renode Testing
 # ------------------------------------------------------------------
 renode:
-	@echo "Running Robot Framework tests..."
+	@echo "Starting interactive Renode console..."
 	@mkdir -p $(ROBOT_DIR)
 	RESULTS_DIRECTORY=$(ROBOT_DIR) renode $(RENODE_BOOT)
+
+renode-robot:
+	@echo "Running Robot Framework tests..."
+	@mkdir -p $(ROBOT_DIR)
+	renode-test -r $(ROBOT_DIR) Tests/renode/access.robot
 
 clean-robot:
 	@echo "Cleaning up Robot Framework outputs..."

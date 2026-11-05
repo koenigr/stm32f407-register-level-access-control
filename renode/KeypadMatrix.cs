@@ -1,13 +1,17 @@
 using Antmicro.Renode.Core;
 using Antmicro.Renode.Peripherals;
 using Antmicro.Renode.Logging;
+using Antmicro.Renode.Time; // Added for TimeInterval
 
 namespace Antmicro.Renode.Peripherals.Miscellaneous
 {
 	public class KeypadMatrix : IGPIOReceiver
 	{
-		public KeypadMatrix()
+		private readonly IMachine machine;
+
+		public KeypadMatrix(IMachine machine)
 		{
+			this.machine = machine;
 			Col0 = new GPIO(); Col1 = new GPIO(); Col2 = new GPIO(); Col3 = new GPIO();
 			cols = new[] { Col0, Col1, Col2, Col3 };
 			Reset();
@@ -18,7 +22,10 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
 			this.Log(LogLevel.Warning, "keypad row {0} = {1}", number, value);
 			if(number < 0 || number > 3) return;
 			rowLevel[number] = value;
-			Update();
+			
+			// Schedule the matrix update 1 microsecond later
+			// This safely clears the active synchronous write execution frame
+			machine.ScheduleAction(TimeInterval.FromMicroseconds(1), _ => Update());
 		}
 
 		public void Reset()
