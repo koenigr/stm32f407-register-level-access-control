@@ -4,7 +4,8 @@
         configure-firmware configure-tests configure-board-tests \
         rebuild-firmware rebuild-tests rebuild-board-tests \
         gdb openocd size disasm symbols sections elfinfo swo misra tidy \
-        reset reboot keypad-test board-tests-run renode clean-robot
+        reset reboot keypad-test board-tests-run renode clean-robot \
+        smoke-test
 
 # ------------------------------------------------------------------
 # Configuration
@@ -55,6 +56,7 @@ help:
 	@echo "  flash               Flash firmware to STM32"
 	@echo "  openocd             Start OpenOCD debug server"
 	@echo "  gdb                 Start GDB and connect to OpenOCD"
+	@echo "  smoke-test          Run GDB batch mode smoke test"
 	@echo ""
 	@echo "Inspection:"
 	@echo "  size                Show firmware size"
@@ -67,7 +69,7 @@ help:
 	@echo "  clean               Remove build artifacts"
 	@echo "  clean-all           Remove all build directories"
 	@echo ""
-	@rcho "BoardTests:"
+	@echo "BoardTests:"
 	@echo "  board-tests         Build Unity tests for STM32 hardware"
 	@echo "  flash-board-tests   Flash Unity tests to STM32"
 	@echo "  board-tests-run     Run board tests and capture SWO output"
@@ -170,6 +172,9 @@ keypad-test:
 
 board-tests-run:
 	gdb-multiarch -batch -x scripts/board-tests-swo.gdb $(BOARD_TEST_ELF)
+
+smoke-test:
+	gdb-multiarch -batch -x scripts/smoke_test.gdb $(ELF)
 
 # ------------------------------------------------------------------
 # Inspection
