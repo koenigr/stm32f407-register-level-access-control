@@ -9,13 +9,25 @@ Nothing is printed. The values are read in the debugger (locals) at the breakpoi
 
 ## Analysis
 
-1. Resolve the faulting instruction (PC faulted, LR points into the caller):
+When the handler is entered, the debugger stops at `bkpt #0` in `hardfault_c`.
+
+1. Read the values: `pc`, `lr`, `cfsr`, `hfsr` in the locals, or dump the whole stacked frame in GDB (R0-R3, R12, LR, PC, xPSR):
+
+   ```
+   (gdb) x/8wx frame
+   ```
+
+2. Resolve the faulting instruction (PC faulted, LR points into the caller):
 
    ```
    arm-none-eabi-addr2line -f -C -e build-firmware/stm32f407_access_control.elf <PC>
    ```
 
-2. Decode CFSR:
+   Or in GDB: `info line *<PC>` / `list *<PC>`.
+
+   For INVSTATE, PC is the invalid jump target (e.g. `0x20000000`) and cannot be resolved. Resolve LR instead, it points to the code that made the jump. For imprecise bus errors (IMPRECISERR) PC may be a few instructions after the faulting access.
+
+3. Decode CFSR:
 
    | Bits  | Group      | Examples                                     |
    |-------|------------|----------------------------------------------|
@@ -23,7 +35,23 @@ Nothing is printed. The values are read in the debugger (locals) at the breakpoi
    | 8-15  | BusFault   | IBUSERR, PRECISERR (bit 9), BFARVALID (bit 15) |
    | 16-31 | UsageFault | UNDEFINSTR, INVSTATE (bit 17), UNALIGNED, DIVBYZERO |
 
-3. HFSR bit 30 (FORCED): a configurable fault escalated to a HardFault. The cause is in CFSR.
+4. HFSR bit 30 (FORCED): a configurable fault escalated to a HardFault. The cause is in CFSR.
+
+5. If CFSR bit 15 (BFARVALID) is set, read the faulting address from BFAR, if bit 7 (MMARVALID) is set from MMFAR. Both are only valid with their bit set:
+
+   ```
+   (gdb) x/wx 0xE000ED38    # BFAR
+   (gdb) x/wx 0xE000ED34    # MMFAR
+   ```
+
+6. Get the call stack of the faulting code by restoring the stacked registers in GDB:
+
+   ```
+   (gdb) set $pc = frame[6]
+   (gdb) set $lr = frame[5]
+   (gdb) set $sp = (uint32_t)frame + 32
+   (gdb) bt
+   ```
 
 ## Deliberate test
 
