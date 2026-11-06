@@ -23,8 +23,8 @@ The firmware directly controls the MCU peripherals through register-level access
 
 A detailed description of the hardware setup, connections and pin assignments can be found here:
 
-[Hardware Overview](Docs/hardware.md)
-[Keypad Connections](Docs/keypad_connection.md)
+[Hardware Overview](Docs/hardware.md)  
+[Keypad Connections](Docs/keypad_connection.md)  
 
 <br clear="right"/>
 
