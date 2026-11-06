@@ -246,3 +246,14 @@ Details about the MCU register mapping:
 The project has been completed and validated on real hardware.
 
 The STM32F407-based access control system implements register-level hardware control, a layered software architecture, runtime trace output via SWO, host-based unit tests (GoogleTest) and hardware debugging using ST-LINK, OpenOCD and GDB.
+
+
+## V-Model Documentation
+
+This project has been documented retroactively following the v-model guidelines:
+[01 Requirements](Docs/01-requirements.md)
+[02 Architecture](Docs/02-architecture.md)
+[03 Design](Docs/03-design.md)
+[04 Test Specification](Docs/04-test-specification.md)
+[05 Traceability](Docs/05-traceability.md)
+[06 Review](Docs/06-review.md)
