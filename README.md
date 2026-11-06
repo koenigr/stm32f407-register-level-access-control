@@ -218,7 +218,7 @@ The main components are:
 
 The application layer does not directly access STM32 registers. Time is injected through `IClock`: the firmware uses a SysTick-based millisecond counter, the tests use a controllable mock.
 
-A detailed description of the architecture and design decisions can be found in the [Architecture Documentation](Docs/architecture.md).
+A detailed description of the architecture and design decisions can be found in the [Architecture Documentation](Docs/02-architecture.md).
 
 ## Technical Concepts
 
