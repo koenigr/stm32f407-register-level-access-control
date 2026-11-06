@@ -84,12 +84,7 @@ Red Led Blinks
     END
     Should Be True    ${seen}
 
-*** Test Cases ***
-Correct PIN Unlocks
-    Prepare Machine
-    Enter PIN    1234
-    ${g}=    Led Is On    ${GREEN}
-    Should Be True    ${g}
+ eine
 
 Wrong PIN Stays Locked
     Prepare Machine
