@@ -24,6 +24,7 @@ The firmware directly controls the MCU peripherals through register-level access
 A detailed description of the hardware setup, connections and pin assignments can be found here:
 
 [Hardware Overview](Docs/hardware.md)
+[Keypad Connections](Docs/keypad_connection.md)
 
 <br clear="right"/>
 
@@ -40,7 +41,7 @@ The project is built using a minimal toolchain consisting of:
 - clang-tidy
 - Cppcheck (MISRA addon)
 
-## Build
+## Build and Run
 
 The project provides a Makefile as the main entry point.
 
@@ -53,10 +54,13 @@ make help
 ```bash
 make firmware
 ```
+The ELF is written to `build-firmware/stm32f407_access_control.`
 
-### Build and run host tests
+### Flash Firmware
+
+Connect the STM32F407G-DISC1 via ST-Link, then:
 ```bash
-make tests
+make flash
 ```
 
 ## Usage
@@ -68,7 +72,7 @@ The system starts locked (red LED). Input is given on the keypad, `#` submits.
 | Unlock | `1234#` (default PIN) | green LED |
 | Wrong PIN | any other four digits + `#` | red LED, attempt counted |
 | Lockout | three wrong PINs in a row | red LED blinks, input ignored for 30 s |
-| Change PIN | unlock, then `5678#` | new PIN is stored, system locks again |
+| Change PIN | unlock, then enter new 4-digit PIN | new PIN is stored, system locks again |
 | Abort input | any non-digit key (`A-D`, `*`) or a fifth digit | buffer is cleared, no attempt counted |
 
 Notes:
@@ -76,7 +80,7 @@ Notes:
 - Incomplete PINs (fewer than four digits) are rejected and do not count as an attempt.
 - After the lockout time the attempt counter is reset and the system returns to the locked state.
 - The changed PIN is kept in RAM only and is lost on reset (default PIN again).
-- The lockout duration is `kLockoutMs` in `App/AccessController.hpp`.
+- The lockout duration is `kLockoutMs`  = 30 seconds in `App/AccessController.hpp`.
 
 ## Testing
 
@@ -115,7 +119,7 @@ make board-tests-run
 ```
 The on-target test execution and automated SWO result capture still require verification on physical hardware.
 
-### Continuous Inegration
+### Continuous Integration
 
 Firmware build, host-based tests and static analysis run in GitHub Actions. On-target Unity tests require physical hardware and are not part of the current CI workflow.
 
@@ -129,7 +133,8 @@ Static analysis checks support code quality and maintainability.
 | GCC warnings | `make firmware` | `-Wall -Wextra -Wconversion -Wshadow` |
 | Cppcheck (MISRA-oriented checks) | `make misra` | Selected C source files in `App/`, `Drivers/` and `Platform/`, excluding `sha256.c` |
 
-The Cppcheck MISRA addon is used for **MISRA-oriented checks**, not to claim full MISRA compliance. Intentional deviations are documented in `misra_deviations.md`; the corresponding suppressions are maintained in `misra_suppressions.txt` and inline comments where appropriate.
+The Cppcheck MISRA addon is used for **MISRA-oriented checks**, not to claim full MISRA compliance. Intentional deviations are documented in [MISRA DEviations](Docs/misra_deviations.md); the corresponding suppressions are maintained in [MISRA suppressions](misra_suppressions.txt) and inline comments where appropriate.
+
 
 ### Pre-commit hook
 
@@ -139,13 +144,6 @@ The hook in `scripts/pre-commit` runs `make tidy` before every commit. Enable it
 git config core.hooksPath scripts
 ```
 
-### Pre-commit hook
-
-The hook in `scripts/pre-commit` runs `make tidy` before every commit. Enable it once per clone:
-
-```bash
-git config core.hooksPath scripts
-```
 
 ## Flash and Debug
 
@@ -189,7 +187,7 @@ arm-none-eabi-addr2line -e build-firmware/stm32f407_access_control.elf <PC>
 More details about startup and memory layout:
 
 [Startup Code](Docs/startup.md)  
-[Linker Script](Docs/linker-script.md)
+[Linker Script](Docs/linker_script.md)
 
 ## Features
 
@@ -234,7 +232,6 @@ A detailed description of the architecture and design decisions can be found in 
 - Dependency Inversion
 - Unit Testing with GoogleTest (Mocks, Stubs, Hardware Fakes)
 - Interrupt Handling (EXTI, NVIC, SysTick)
-- Fault Analysis (HardFault stack frame, CFSR)
 - CoreSight Trace (ITM/ TPIU)
 
 Details about the MCU register mapping:
@@ -251,9 +248,9 @@ The STM32F407-based access control system implements register-level hardware con
 ## V-Model Documentation
 
 This project has been documented retroactively following the v-model guidelines:
-[01 Requirements](Docs/01-requirements.md)
-[02 Architecture](Docs/02-architecture.md)
-[03 Design](Docs/03-design.md)
-[04 Test Specification](Docs/04-test-specification.md)
-[05 Traceability](Docs/05-traceability.md)
-[06 Review](Docs/06-review.md)
+[01 Requirements](Docs/01-requirements.md)  
+[02 Architecture](Docs/02-architecture.md)  
+[03 Design](Docs/03-design.md)  
+[04 Test Specification](Docs/04-test-specification.md)  
+[05 Traceability](Docs/05-traceability.md)  
+[06 Review](Docs/06-review.md)  
