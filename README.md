@@ -32,7 +32,8 @@ A detailed description of the hardware setup, connections and pin assignments ca
 
 The project is built using a minimal toolchain consisting of:
 
-- arm-none-eabi-gcc (with newlib and libstdc++ headers: `libnewlib-arm-none-eabi`, `libstdc++-arm-none-eabi-newlib`)
+- arm-none-eabi-gcc (with newlib and libstdc++ headers:  
+`libnewlib-arm-none-eabi`, `libstdc++-arm-none-eabi-newlib`)
 - CMake
 - ST-LINK
 - OpenOCD
