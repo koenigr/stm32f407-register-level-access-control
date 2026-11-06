@@ -16,7 +16,7 @@ swoPuts() / ITM_SendChar()
 → swo.log
 ```
 
-SWO is used for startup messages in `main()` and for the HardFault crash dump. The SWO driver (`Drivers/swo.h`, `Drivers/swo.cpp`) is not part of the host-based unit tests, since it writes to addresses that do not exist on the host.
+SWO is used for startup messages in `main()`. The SWO driver (`Drivers/swo.h`, `Drivers/swo.cpp`) is not part of the host-based unit tests, since it writes to addresses that do not exist on the host.
 
 ---
 
@@ -114,67 +114,6 @@ The system runs on HSI (16 MHz), no PLL. If the clock is changed, three places m
 - the core-clock argument of `swoInit()`
 - the matching value in `scripts/swo.gdb`
 - `kCoreClockHz` in `App/Adapters/SysTickClock.cpp` (lockout time base)
-
----
-
-## HardFault Dump
-
-`Drivers/fault.cpp` overrides the weak `HardFault_Handler` of the vector table and prints a crash dump over SWO.
-
-The handler is split into two parts:
-
-- `HardFault_Handler` is a naked trampoline. It tests bit 2 of `LR` (EXC_RETURN) to find out whether the faulting code used MSP or PSP and passes the pointer to the stacked exception frame in `r0`.
-- `HardFault_Handler_C(uint32_t* frame)` prints the stacked `R0-R3`, `R12`, `LR`, `PC`, `xPSR` and the registers `CFSR`, `HFSR`, `MMFAR`, `BFAR`, then loops forever.
-
-The handler only uses the polling SWO driver. It does not use the keypad, the interrupt system or the application layer, since the system state is unknown after a fault.
-
-Example output (values will differ):
-
-```text
-*** HardFault ***
-R0  =0x00000000
-R1  =0x...
-LR  =0x080003A1
-PC  =0x08000412
-xPSR=0x61000000
-CFSR=0x00008200
-HFSR=0x40000000
-BFAR=0xFFFFFFF0
-```
-
-### Analysis
-
-1. Resolve the faulting instruction. `PC` is the instruction that faulted, `LR` points into the caller:
-
-   ```bash
-   arm-none-eabi-addr2line -e build-firmware/stm32f407_access_control.elf <PC>
-   ```
-
-   Use `-f -C` to also print the function name.
-
-2. Decode `CFSR`:
-
-   | Bits | Group | Examples |
-   |---|---|---|
-   | 0-7 | MemManage | `IACCVIOL`, `DACCVIOL`, `MMARVALID` (bit 7) |
-   | 8-15 | BusFault | `IBUSERR`, `PRECISERR` (bit 9), `BFARVALID` (bit 15) |
-   | 16-31 | UsageFault | `UNDEFINSTR`, `INVSTATE`, `UNALIGNED`, `DIVBYZERO` |
-
-   In the example, `0x8200` means a precise bus error (`PRECISERR`) with a valid `BFAR`, here the access to address `0xFFFFFFF0`.
-
-3. `HFSR` bit 30 (`FORCED`) means that a configurable fault (MemManage, BusFault, UsageFault) escalated to a HardFault. The cause is then found in `CFSR`.
-
-4. `BFAR` and `MMFAR` are only valid if the matching valid bit in `CFSR` is set.
-
-### Deliberate test
-
-To check the handler, temporarily add a write to an invalid address and remove it afterwards:
-
-```cpp
-*reinterpret_cast<volatile uint32_t*>(0xFFFFFFF0U) = 0U;
-```
-
-Since BusFault is not enabled separately, it escalates to a HardFault. The dump appears in `swo.log`, with `PC` pointing at the store instruction.
 
 ---
 
