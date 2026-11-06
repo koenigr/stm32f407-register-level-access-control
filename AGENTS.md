@@ -91,11 +91,12 @@ Drivers use the platform layer but do not contain application logic.
   - `EXTI15_10_IRQHandler`: IRQ 40, `ISER1` bit 8.
 - The ISRs clear `EXTI->PR` and set a flag.
 - Debouncing and matrix scanning run in the main loop, with `IMR` masked during the scan.
-- `main()` sleeps with `wfi` and processes key events via `Keypad_ReadEvent()`.
+- `main()` polls in the main loop and processes key events via `Keypad_ReadEvent()`.
 - `Keypad_IrqPending()` exposes the interrupt flag.
 - The application layer reaches the driver only through `KeypadAdapter::Scan`.
 
-With SysTick running at 1 kHz, `wfi` returns every millisecond. The main loop therefore runs `AccessController::Update()` at least once per millisecond, which the lockout timeout relies on. `Update()` with no key pressed must remain inexpensive.
+The main loop polls continuously, so `AccessController::Update()` runs as often as the loop iterates. The lockout timeout is measured against the SysTick clock (1 kHz) and does not depend on the loop rate. `Update()` with no key pressed should remain inexpensive, since it runs on every iteration.
+
 
 The SWO driver is excluded from host-based unit tests because it writes directly to hardware addresses that do not exist on the host.
 
@@ -256,7 +257,7 @@ The following functionality is implemented:
 - Reset handler
 - Custom linker script
 - Register-level GPIO driver
-- 4x4 matrix keypad input, interrupt-driven (EXTI + NVIC, `wfi` in main loop)
+- 4x4 matrix keypad input, interrupt-driven (EXTI + NVIC)
 - PIN authentication with unified input validation
 - PIN change while unlocked
 - Failed-attempt counter

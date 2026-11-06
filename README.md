@@ -195,7 +195,7 @@ More details about startup and memory layout:
 The firmware provides a complete PIN-based access control system:
 
 - register-level GPIO programming
-- interrupt-driven keypad input driver (EXTI, NVIC, `wfi`)
+- interrupt-driven keypad input driver (EXTI, NVIC)
 - PIN authentication with consistent input validation
 - PIN change while unlocked
 - failed attempt tracking and time-based lockout (30 s, SysTick clock)

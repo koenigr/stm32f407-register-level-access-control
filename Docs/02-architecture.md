@@ -122,8 +122,7 @@ NVIC, SysTick, SCB, ITM, TPIU and DEMCR belong to the Cortex-M4 *core*, not to t
 
 ## Runtime in three sentences
 
-Interrupts only flag, the main loop does the work. The loop sleeps in `wfi`; a key press or the 1 ms
-SysTick wakes it, so the controller is updated at least once per millisecond. Time is injected
+Interrupts only flag, the main loop does the work. The loop polls continuously and updates the controller on every iteration. Time is injected
 through `IClock`, never read from a register inside the logic. Sequences and state machines:
 `design.md`.
 
@@ -139,7 +138,7 @@ through `IClock`, never read from a register inside the logic. Sequences and sta
 | ISR only clears and flags | short interrupts, logic in the main loop | single flag, no queue |
 | Debounce and scan outside the ISR, EXTI masked | no re-triggering by bounce or by the scan itself | busy-loop delay, not time-calibrated |
 | Injected clock | instant, deterministic lockout tests, wraparound testable | `SysTickClock` must be running |
-| `wfi` main loop | low power, wakes on key or tick | relies on the 1 ms tick |
+| Polling main loop | simple control flow | CPU runs continuously |
 | Hash instead of plaintext PIN | no PIN digits in RAM | hash code size |
 | 16 MHz HSI, no PLL | simplest valid clock tree | constants tied to 16 MHz |
 | SWO at 125 kHz | 2 MHz was garbled on this ST-LINK | slow trace |

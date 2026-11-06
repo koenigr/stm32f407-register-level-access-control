@@ -308,7 +308,7 @@ sequenceDiagram
     participant AC as AccessController
     participant LA as LedOutputAdapter
 
-    Note over ML: sleeping in wfi
+    Note over ML: polling
     U->>HW: key down
     HW->>KD: ISR sets flag
     HW-->>ML: wake
@@ -318,8 +318,7 @@ sequenceDiagram
     ML->>AC: Update()
     AC->>LA: set LEDs
     ML->>LA: Update()
-    Note over ML: back to wfi
-    HW-->>ML: SysTick every 1 ms wakes the loop
+    Note over ML: next iteration
 ```
 
 Order of calls inside the loop **[confirm]**.
@@ -432,7 +431,7 @@ sequenceDiagram
 | Tick | 1 ms (`SYST_RVR = 15999`) | `SysTickClock` |
 | Counter | 32-bit, wraps after about 49.7 days | wraparound-safe subtraction |
 | Lockout | 30,000 ms | `kLockoutMs`; resolution about 1 ms, absolute accuracy depends on HSI tolerance |
-| Controller update rate | at least once per ms | SysTick wakes `wfi` |
+| Controller update rate | continuous polling, not tied to the tick | main loop |
 | Debounce | busy-loop delay | not specified, not calibrated |
 | LED blink | per `Update()` call count | not clock-based |
 | SWO | 125 kHz async, `ACPR = 127` | 2 MHz was unreliable on this ST-LINK |

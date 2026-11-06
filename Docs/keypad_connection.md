@@ -69,7 +69,7 @@ ISR: clear EXTI->PR, set flag
 
 ↓
 
-Main loop wakes up from wfi
+Main loop polls flag (set by ISR)
 
 ↓
 

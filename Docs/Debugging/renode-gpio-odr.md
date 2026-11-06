@@ -61,7 +61,7 @@ That is the state in the middle of the row-0 pass of `Keypad_Scan()`.
 | # | Action | Result | Consequence |
 |---|--------|--------|-------------|
 | S1 | `cpu PC` after `LoadELF` | `0x0`; vector table at `0x08000000` holds SP `0x20020000`, reset handler `0x08000259` | set `VectorTableOffset`, SP and PC by hand (`boot.resc`, Robot "Prepare Machine") |
-| S2 | `sysbus.cpu LogFunctionNames true` | log flood, Renode hangs (busy-polling main loop, no `wfi`) | use `AddSymbolHook` for single functions |
+| S2 | `sysbus.cpu LogFunctionNames true` | log flood, Renode hangs (busy-polling main loop) | use `AddSymbolHook` for single functions |
 | S3 | `WhatPeripheralIsAt 0x40013800` (SYSCFG) | nothing; warnings "unimplemented register SYSCFG:EXTICR3" | harmless, EXTI still fires |
 | S4 | `gpioPortD OnGPIO 8 false` | `EXTI9_5 hit` | interrupt path works |
 | S5 | `sysbus.cpu PerformanceInMips` | `0x64` (100) by default | set to 16 (HSI clock) so delay loops take realistic simulated time |

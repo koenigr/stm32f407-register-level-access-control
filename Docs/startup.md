@@ -144,7 +144,7 @@ The application then initializes:
 - LED adapter
 - access controller
 
-The firmware enters the main loop. It sleeps with `wfi` until a key press triggers an interrupt, then processes:
+The firmware enters the main loop. It polls continuously and processes:
 
 - keypad events (`Keypad_ReadEvent()`)
 - authentication logic
