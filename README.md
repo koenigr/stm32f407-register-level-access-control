@@ -242,6 +242,7 @@ A detailed description of the architecture and design decisions can be found in 
 - V-Model Documentation (requirements, architecture)
 - Build and Debug Toolchain (arm-none-eabi-gcc, Make, GDB/OpenOCD)
 - Startup Code and Linker Scripts
+- HardFault_Handler analysis: [HardFault](Docs/hardfault.md)
 
 Details about the MCU register mapping:
 
