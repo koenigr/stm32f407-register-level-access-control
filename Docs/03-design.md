@@ -311,7 +311,6 @@ sequenceDiagram
     Note over ML: polling
     U->>HW: key down
     HW->>KD: ISR sets flag
-    HW-->>ML: wake
     ML->>KD: Keypad_ReadEvent()
     KD-->>ML: key (after release)
     ML->>AC: ProcessKey(key)
