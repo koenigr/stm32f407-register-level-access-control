@@ -134,7 +134,7 @@ Static analysis checks support code quality and maintainability.
 | GCC warnings | `make firmware` | `-Wall -Wextra -Wconversion -Wshadow` |
 | Cppcheck (MISRA-oriented checks) | `make misra` | Selected C source files in `App/`, `Drivers/` and `Platform/`, excluding `sha256.c` |
 
-The Cppcheck MISRA addon is used for **MISRA-oriented checks**, not to claim full MISRA compliance. Intentional deviations are documented in [MISRA DEviations](Docs/misra_deviations.md); the corresponding suppressions are maintained in [MISRA suppressions](misra_suppressions.txt) and inline comments where appropriate.
+The Cppcheck MISRA addon is used for **MISRA-oriented checks**, not to claim full MISRA compliance. Intentional deviations are documented in [MISRA Deviations](Docs/misra_deviations.md); the corresponding suppressions are maintained in [MISRA suppressions](misra_suppressions.txt) and inline comments where appropriate.
 
 
 ### Pre-commit hook
@@ -217,7 +217,9 @@ The main components are:
 
 The application layer does not directly access STM32 registers. Time is injected through `IClock`: the firmware uses a SysTick-based millisecond counter, the tests use a controllable mock.
 
-A detailed description of the architecture and design decisions can be found in the [Architecture Documentation](Docs/02-architecture.md).
+A detailed description of the architecture and design decisions can be found in the  
+[Architecture Documentation](Docs/02-architecture.md) and  
+[Design Decisions](Docs/03-design.md).
 
 ## Technical Concepts
 
@@ -241,14 +243,14 @@ Details about the MCU register mapping:
 
 ## Project Summary
 
-The project has been completed and validated on real hardware.
-
-The STM32F407-based access control system implements register-level hardware control, a layered software architecture, runtime trace output via SWO, host-based unit tests (GoogleTest) and hardware debugging using ST-LINK, OpenOCD and GDB.
+Bare-metal access control system for the STM32F407G-DISC1: a four-digit PIN is entered on a 4×4 matrix keypad, and green and red LEDs show the Locked, Unlocked and LockedOut states, including a 30 s lockout after three failed attempts.
+The firmware uses register-level hardware access without HAL, a custom startup and linker script, an interrupt-driven keypad (EXTI), a SysTick time base and SWO trace output with a HardFault crash dump. The software is layered (application, interfaces, adapters, drivers, platform), so the logic runs on the host and is covered by GoogleTest unit tests. Static analysis (clang-tidy, GCC warnings) runs in CI.
+The project is documented retrospectively along the V-model (requirements, architecture, design, test specification, traceability, review). The keypad interrupt path has been checked on the board with ST-LINK, OpenOCD, GDB and SWO; The system has been verified on the target against requirements.
 
 
 ## V-Model Documentation
 
-This project has been documented retroactively following the v-model guidelines:
+This project has been documented retroactively following the v-model guidelines:  
 [01 Requirements](Docs/01-requirements.md)  
 [02 Architecture](Docs/02-architecture.md)  
 [03 Design](Docs/03-design.md)  
