@@ -97,6 +97,7 @@ The debug interface allows:
 - breakpoints
 - variable inspection
 - peripheral register inspection
+- trace output via SWO (ITM stimulus port 0, `printf` redirect), see [SWO](swo.md)
 
 ---
 

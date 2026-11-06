@@ -10,7 +10,7 @@ void swoInit(uint32_t coreClockHz, uint32_t swoBaud) {
 
 	// 3. TPIU: NRZ (UART-artig), Formatter aus, Baudrate
 	TPIU->SPPR = 2;								// Async SWO, NRZ
-	TPIU->ACPR = (coreClockHz / swoBaud) -1;	// z.B. 168 MHz / 2 MHz -1 = 83
+	TPIU->ACPR = (coreClockHz / swoBaud) -1;	// z.B. 16 MHz / 125 kHz -1 = 127
 	TPIU->FFCR = 0x100;							// Formatter bypass
 
 	// 4. ITM entsperren und kofigurieren
