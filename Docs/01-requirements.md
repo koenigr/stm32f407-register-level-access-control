@@ -83,18 +83,7 @@ Each requirement has an implementation status and a verification status.
 | REQ-F-025 | If `#` is pressed in the Unlocked state before four digits have been entered, the input shall be cleared and the system shall remain Unlocked. | Implemented; verify explicit test coverage. |
 | REQ-F-026 | Invalid input while Unlocked shall clear the current PIN input without changing the access state. | Implemented in `ProcessKey()` and `Update()`; verify explicit test coverage. |
 
-## 4. Non-functional requirements and timing characteristics
 
-The following requirements describe timing or operational characteristics visible in the current implementation. Values that have not been measured on hardware are explicitly marked as unverified.
-
-| ID | Requirement / characteristic | Implementation / verification |
-|---|---|---|
-| REQ-NF-001 | The lockout duration shall be 30 seconds. | Implemented as 30,000 ms; host-tested with mock time. Physical timing accuracy open. |
-| REQ-NF-002 | The system clock interface used for lockout measurement shall provide millisecond units. | Implemented by `SysTickClock`; controller tests use a mock. Actual SysTick accuracy open. |
-| REQ-NF-003 | The keypad driver shall not return a detected key event until the key has been released. | Implemented by a blocking release loop in `Keypad_Scan()`; host fake simulates release. Physical behavior open. |
-| REQ-NF-004 | The keypad driver shall mask keypad EXTI interrupts while it scans and processes a key event. | Implemented; host-side fake checks masking during GPIO reads. Board-level behavior open. |
-
-**Not specified as a requirement yet:** keypad debounce time and red LED blink frequency. The current driver uses an empty busy-loop delay, and the LED blink interval depends on the number of calls to `LedOutputAdapter::Update()`. Neither currently establishes a reliable time-based specification.
 
 ## 5. Hardware and implementation constraints
 
@@ -105,13 +94,15 @@ These describe the current design and target platform. They are not necessarily 
 | CON-001 | The target shall be the STM32F407VG microcontroller on the STM32F407G-DISC1 board. | Current firmware target. |
 | CON-002 | The application shall use bare-metal, register-level peripheral access without STM32 HAL or CubeMX-generated application code. | Current project architecture. |
 | CON-003 | The keypad shall be a 4×4 matrix keypad. | Current keypad driver. |
-| CON-004 | Keypad rows shall use GPIOD pins PD0–PD3. | Configured as outputs. |
-| CON-005 | Keypad columns shall use GPIOD pins PD8–PD11. | Configured as inputs with internal pull-ups. |
-| CON-006 | Keypad column interrupts shall use EXTI lines 8–11, mapped to port D and configured for falling edges. | Configured by `Keypad_EnableInterrupt()`. |
-| CON-007 | The keypad EXTI interrupt groups shall use NVIC IRQ23 and IRQ40. | Enabled by `Keypad_EnableInterrupt()`. |
+| CON-004 | Keypad rows shall use GPIOD pins PD0–PD3. | Configured as outputs. Board-test source exists. |
+| CON-005 | Keypad columns shall use GPIOD pins PD8–PD11. | Configured as inputs with internal pull-ups. Board-test source exists. |
+| CON-006 | Keypad column interrupts shall use EXTI lines 8–11, mapped to port D and configured for falling edges. | Configured by `Keypad_EnableInterrupt()`. Board-test source exists. |
+| CON-007 | The keypad EXTI interrupt groups shall use NVIC IRQ23 and IRQ40. | Enabled by `Keypad_EnableInterrupt()`. Board-test source exists. |
 | CON-008 | The green LED shall use GPIOD pin PD12 and the red LED shall use GPIOD pin PD14. | Configured by `LedOutputAdapter`. |
 | CON-009 | The system shall use the 16 MHz HSI clock configuration assumed by the current SysTick setup. | `SysTickClock` calculates a 1 kHz tick from 16 MHz. No PLL setup is used in the described configuration. |
-| CON-010 | The system shall use SysTick as the millisecond time base. | SysTick reload value is 15,999; interrupt increments a 32-bit millisecond counter. |
+| CON-010 | The system shall use SysTick as the millisecond time base. | SysTick reload value is 15,999; interrupt increments a 32-bit millisecond counter. Provided to the controller by `SysTickClock`, which tests replace with a mock. Actual SysTick accuracy open. |
+| CON-011 | The keypad driver shall not return a detected key event until the key has been released. | Implemented by a blocking release loop in `Keypad_Scan()`; host fake simulates release. Physical behavior open. |
+| CON-012 | The keypad driver shall mask keypad EXTI interrupts while it scans and processes a key event. | Implemented; host-side fake checks masking during GPIO reads. Board-level behavior open. |
 
 ## 6. Keypad behavior and known limitations
 
@@ -144,17 +135,6 @@ These points should be revisited if the keypad driver is redesigned.
 | Unity board-test source | Tests check GPIO configuration, pull-ups, SYSCFG/EXTI configuration, NVIC enables and software-triggered EXTI handling. | Source exists, but successful execution on physical hardware must be recorded separately. |
 | Manual hardware tests | No physical execution evidence recorded in this baseline. | Verify real keypad operation, LED outputs, lockout timing, reset behavior and complete user interaction when the board is available. |
 
-### Known verification gaps
-
-1. Measure and specify keypad debounce behavior on real hardware.
-2. Test simultaneous key presses and determine the actual priority/ghosting behavior.
-3. Verify behavior for long-held keys and rapid successive key presses.
-4. Verify LED blink cadence and behavior when the main loop is blocked by keypad scanning.
-5. Verify SysTick timing and the 30-second lockout duration on the target.
-6. Verify that a changed PIN is lost after reset and the default PIN is restored.
-7. Run the Unity board tests on the physical STM32F407 board and record the result.
-8. Perform an end-to-end test of the access-control workflow using the physical keypad and LEDs.
-
 ## 8. Traceability
 
 The following is an initial mapping. Test names are intentionally described by test area rather than guessed file paths; exact test identifiers can be added when the test files are integrated into the repository documentation.
@@ -165,7 +145,6 @@ The following is an initial mapping. Test names are intentionally described by t
 | REQ-F-005–REQ-F-013 | Access-controller host tests for PIN entry, invalid input, buffer clearing and validation. |
 | REQ-F-014–REQ-F-021 | Access-controller and attempt-counter host tests using `MockClock`. |
 | REQ-F-022–REQ-F-026 | Access-controller host tests using `MockLedOutput`; confirm individual edge-case coverage against test assertions. |
-| REQ-NF-001–REQ-NF-002 | Host tests with mock time; SysTick hardware configuration has no confirmed physical timing result. |
-| REQ-NF-003–REQ-NF-004 | Keypad host tests with hardware fakes. |
 | CON-004–CON-007 | Unity board-test source checks GPIO, EXTI and NVIC configuration; physical run status open. |
-| CON-008–CON-010 | Source-code inspection; additional target-level verification remains open. |
+| CON-008–CON-010 | Source-code inspection; SysTick has no confirmed physical timing result. |
+| CON-011–CON-012 | Keypad host tests with hardware fakes. |
