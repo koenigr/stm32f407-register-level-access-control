@@ -236,17 +236,16 @@ A detailed description of the architecture and design decisions can be found in 
 - Unit Testing with GoogleTest (Mocks, Stubs, Hardware Fakes)
 - Interrupt Handling (EXTI, NVIC, SysTick)
 - CoreSight Trace (ITM/ TPIU)
+- Static Analysis (clang-tidy, Cppcheck/MISRA C)
+- CI/CD (GitHub Actions)
+- Simulation-Based Testing (Renode, Robot Framework)
+- V-Model Documentation (requirements, architecture)
+- Build and Debug Toolchain (arm-none-eabi-gcc, Make, GDB/OpenOCD)
+- Startup Code and Linker Scripts
 
 Details about the MCU register mapping:
 
 [Register Map](Docs/register_map.md)
-
-## Project Summary
-
-Bare-metal access control system for the STM32F407G-DISC1: a four-digit PIN is entered on a 4×4 matrix keypad, and green and red LEDs show the Locked, Unlocked and LockedOut states, including a 30 s lockout after three failed attempts.
-The firmware uses register-level hardware access without HAL, a custom startup and linker script, an interrupt-driven keypad (EXTI), a SysTick time base and SWO trace output with a HardFault crash dump. The software is layered (application, interfaces, adapters, drivers, platform), so the logic runs on the host and is covered by GoogleTest unit tests. Static analysis (clang-tidy, GCC warnings) runs in CI.
-The project is documented retrospectively along the V-model (requirements, architecture, design, test specification, traceability, review). The keypad interrupt path has been checked on the board with ST-LINK, OpenOCD, GDB and SWO; The system has been verified on the target against requirements.
-
 
 ## V-Model Documentation
 
