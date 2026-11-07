@@ -2,7 +2,7 @@
 
 > **Status:** retrospective (reverse v-model). Pairs with `requirements.md` (what the system does) and
 > `design.md` (how each module works inside). This document is the big picture: structure, interfaces,
-> decisions. Items marked **[confirm]** need a check against the source.
+> decisions.
 
 ---
 
