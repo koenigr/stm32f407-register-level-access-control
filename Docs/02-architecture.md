@@ -1,6 +1,6 @@
 # Architecture — STM32F407 Register-Level Access Control System
 
-> **Status:** retrospective baseline v0.4. Pairs with `requirements.md` (what the system does) and
+> **Status:** retrospective (reverse v-model). Pairs with `requirements.md` (what the system does) and
 > `design.md` (how each module works inside). This document is the big picture: structure, interfaces,
 > decisions. Items marked **[confirm]** need a check against the source.
 
@@ -176,15 +176,5 @@ exist on a PC. Details and the requirement mapping go into `tests.md`.
 - **Blink rate follows `Update()` calls,** not a clock.
 - **Ghosting with several keys held** is unexplored.
 - **SysTick accuracy** depends on the HSI tolerance, so "30 s" is nominal.
-- **Reset restores `1234`.** Intended, not yet tested on hardware.
+- **Reset restores `1234`.** Verified on hardware (PIN changed, reset, default accepted).
 - **`SysTickClock` reaches into registers** instead of using a driver.
-
----
-
-## Change history
-
-| Version | Description |
-|---|---|
-| 0.4 | Split: module design, interrupt and state logic moved to `design.md`; this file keeps structure, decisions, tests overview. |
-| 0.3 | Added per-module design, interrupt and state logic, boot, SWO, fault handler, memory layout, peripherals. |
-| 0.2 | Merged the earlier layer description with `requirements.md`. |
