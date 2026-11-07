@@ -1,10 +1,10 @@
 # Design — STM32F407 Register-Level Access Control System
 
-> **Status:** retrospective baseline v0.1, reverse-engineered from source, tests and hardware docs.
+> **Status:** retrospective, reverse-engineered from source, tests and hardware docs.
 > Detailed design below the structure in `architecture.md`, tied to `requirements.md`.
-> Items marked **[confirm]** need a check against the source (names, signatures, call order).
 
-**Contents:** 1 Module design · 2 Decision tables and algorithms · 3 Interrupt logic · 4 State machines · 5 Use cases · 6 Timing · 7 Error handling · 8 Open design questions
+**Contents:** 1 Module design · 2 Decision tables and algorithms · 3 Interrupt logic · 4 State machines · 5 Use cases ·  
+6 Timing · 7 Error handling · 8 Open design questions
 
 ---
 
@@ -19,7 +19,7 @@ Each module: purpose, inputs, outputs, dependencies.
 | **Purpose** | The brain. Three-state machine (Locked, Unlocked, LockedOut): collects PIN input, decides, drives the LEDs, runs the lockout. |
 | **Inputs** | `ProcessKey(key)` per key; `Update()` from the main loop; time via `IClock::NowMs()` |
 | **Outputs** | LED commands (green, red, blink) via `ILedOutput`; state change |
-| **Depends on** | `PinValidator`, `AttemptCounter`, `LockState`, `IClock`, `ILedOutput` (injected through the constructor **[confirm]**) |
+| **Depends on** | `PinValidator`, `AttemptCounter`, `LockState`, `IClock`, `ILedOutput`, `IKeypad` (injected through the constructor) |
 | **Owns** | four-digit input buffer, `lockoutStartMs_`, `kLockoutMs` (30 s) |
 
 ## 1.2 `PinValidator` and SHA-256 (application)
@@ -36,15 +36,15 @@ Each module: purpose, inputs, outputs, dependencies.
 
 | Module | Purpose | Inputs | Outputs | Depends on |
 |---|---|---|---|---|
-| `AttemptCounter` | counts failed complete submissions, signals the third | register failure, reset **[confirm API]** | count / limit reached | nothing |
+| `AttemptCounter` | signals when `MaxAttempts`(3) is reached | register failure=`Increment()`, reset=`Reset()` | limit reached | nothing |
 | `LockState` | the three states as a small enum (`uint8_t` base) | n/a | n/a | nothing |
 
 ## 1.4 Interfaces
 
 | Interface | Contract | Production | Test double |
 |---|---|---|---|
-| `IKeypad` | give the next key, or "none" **[confirm]** | `KeypadAdapter` | `MockKeypad` |
-| `ILedOutput` | show locked, unlocked, lockout-blink **[confirm]** | `LedOutputAdapter` | `MockLedOutput` |
+| `IKeypad` | give the next key, or "none" | `KeypadAdapter` uses `keypad.c`-Driver| `MockKeypad` |
+| `ILedOutput` | show locked, unlocked, lockout-blink | `LedOutputAdapter` | `MockLedOutput` |
 | `IClock` | `NowMs()`, monotonic milliseconds, `uint32_t` | `SysTickClock` | `MockClock` |
 
 The application depends only on these three.
@@ -79,7 +79,7 @@ The tick interrupt is exception 15, not an NVIC IRQ, so no `ISER` bit is involve
 
 | Function | Role |
 |---|---|
-| `Keypad_Init()` | clocks, GPIO setup, `Keypad_SetIdle()`, EXTI and NVIC configuration (via `Keypad_EnableInterrupt()` **[confirm]**) |
+| `Keypad_Init()` | clocks, GPIO setup, `Keypad_SetIdle()`, EXTI and NVIC configuration (via `Keypad_EnableInterrupt()` |
 | `Keypad_SetIdle()` | all rows LOW, ready for the next falling edge |
 | `Keypad_IrqPending()` | has an ISR flagged a press? |
 | `Keypad_ReadEvent()` | mask, debounce, scan, wait for release, restore idle, unmask, return the key |
@@ -138,7 +138,7 @@ flowchart LR
 | Module | Purpose | Inputs | Outputs | Depends on |
 |---|---|---|---|---|
 | SWO driver (`Drivers/swo.cpp/.h`) | trace output over ITM stimulus port 0, no UART | `swoInit(coreClockHz, baud)`, `swoPuts()` | characters on PB3 → ST-LINK → OpenOCD → `swo.log` | `Platform/debug_regs.h` |
-| Fault handler (`Drivers/fault.cpp`) | crash dump on HardFault | fault exception | stacked registers and fault status over SWO, then loops forever | SWO driver, SCB registers |
+| **(to be done)** Fault handler (`Drivers/fault.cpp`) | crash dump on HardFault | fault exception | stacked registers and fault status over SWO, then loops forever | SWO driver, SCB registers |
 
 SWO register map (core: DEMCR, ITM, TPIU; chip: DBGMCU):
 
@@ -417,7 +417,7 @@ sequenceDiagram
     AC->>PV: SetPin("5678")
     Note over AC: back to Locked, red on
     U->>AC: 5 6 7 8 #
-    Note over AC: now unlocks; after reset 1234 works again
+    Note over AC: now unlocks, after reset 1234 works again
 ```
 
 ---
@@ -447,7 +447,7 @@ pause until release.
 | Invalid key, fifth digit | current input discarded, state unchanged, no attempt counted |
 | Short PIN submitted | discarded, no attempt counted |
 | Keys during lockout | ignored |
-| Unhandled interrupt | weak alias default handler **[confirm behavior]** |
+| Unhandled interrupt | weak alias default handler |
 | HardFault | register dump over SWO, then loops forever; no recovery, no reset |
 | Reset or power loss | back to `Locked`, default PIN `1234`, attempt counter and lockout cleared |
 
@@ -464,11 +464,3 @@ pause until release.
 | `SysTickClock` | move the register access into a timer driver? |
 | Watchdog | none today; a HardFault just halts. Add one? |
 | `ITM->TPR` | set to `1` now, before an RTOS or unprivileged code could break SWO? |
-
----
-
-# Change history
-
-| Version | Description |
-|---|---|
-| 0.1 | Initial detailed design, split out of `architecture.md` v0.3; added decision tables, algorithms, transition table, use cases, timing, error handling. |
