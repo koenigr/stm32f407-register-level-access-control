@@ -3,9 +3,6 @@
 > **What this file is:** the list of all tests, what each one checks, and what result is expected.
 > V-model: unit tests check the **design** (`design.md`), integration tests check the **architecture**
 > (`architecture.md`), system tests check the **requirements** (`requirements.md`).
-> **Status:** draft v0.1. Test IDs are new and belong to this document. GoogleTest names in the code are
-> not known to this draft, so the column "Code name" is left empty for you to fill in.
-> The requirements doc and project notes say which tests *should* already exist; this is marked below.
 
 ---
 
