@@ -98,11 +98,3 @@ Severity: **High** can make the system behave wrongly, **Medium** documentation 
 
 Exit criteria for this review: all High findings closed or accepted with a reason, all Medium findings
 closed or scheduled, traceability table has no empty cell.
-
----
-
-# Change history
-
-| Version | Description |
-|---|---|
-| 0.1 | First draft review of documents 01–05 and the hardware docs. |

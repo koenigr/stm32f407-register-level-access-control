@@ -1,8 +1,8 @@
 # 04 Test Specification — STM32F407 Register-Level Access Control System
 
 > **What this file is:** the list of all tests, what each one checks, and what result is expected.
-> V-model: unit tests check the **design** ([03-design.md](03-design.md)), integration tests check the **architecture**
-> ([02-architecture.md](02-architecture.md)), system tests check the **requirements** ([01-requirements.md](01-requirements.md)).
+> V-model: unit tests check the **design** ([design.md](03-design.md)), integration tests check the **architecture**
+> ([architecture.md](02-architecture.md)), system tests check the **requirements** ([requirements.md](01-requirements.md)).
 
 ---
 
@@ -18,8 +18,7 @@ design.md         ←→   Unit tests          (UT-xx)   one module, GoogleTest 
 
 | Mark | Meaning |
 |---|---|
-| **E** | Expected to exist already (host test, per `requirements.md` §7 and project notes). Name in the "Test name" column. |
-| **V** | Exists, but coverage of this exact case must be verified (`requirements.md` flags REQ-F-025, REQ-F-026). |
+| **E** | Exists (host test). Name in the "Test name" column. |
 | **P** | Proposed, new test to write. |
 | **B** | Unity board test source exists, never recorded as run on the board. |
 | **M** | Manual test on the board, not run yet. |
@@ -45,61 +44,67 @@ design.md         ←→   Unit tests          (UT-xx)   one module, GoogleTest 
 
 # 2. Unit tests (GoogleTest, host)
 
-## 2.1 `AccessController` (`unit_tests`, design §1.1, §2.1, §2.2, §4)
+## 2.1 `AccessController` (`unit_tests`, fixture `AccessControllerTest`, design §1.1, §2.1, §2.2, §4)
 
-Setup: `MockClock`, `MockLedOutput`, `MockKeypad` where needed, real `PinValidator` and `AttemptCounter`.
+Setup: `MockClock`, `MockLedOutput`, `MockKeypad`, real `PinValidator` and `AttemptCounter`.
 
 | ID | Test name | Test case | Expected | Verifies | Status |
 |---|---|---|---|---|---|
-| UT-AC-01 | | Start up | state Locked; LED mock got red on, green off | REQ-F-001, 002 | E |
-| UT-AC-02 | | Enter `1 2 3 4 #` (default PIN) | state Unlocked; green on, red off | REQ-F-003, 006, 012, 022 | E |
-| UT-AC-03 | | Enter wrong four-digit PIN + `#` | stays Locked; one failure counted | REQ-F-007, 013, 014 | E |
-| UT-AC-04 | | Enter `1 2 #` | discarded, buffer empty, no failure counted | REQ-F-007, 008, 011 | E |
-| UT-AC-05 | | Enter five digits | input cleared; no failure counted; state unchanged | REQ-F-009 | E |
-| UT-AC-06 | | Enter `A`, `B`, `C`, `D`, `*` in Locked (one by one, mid-input) | input cleared each time; state unchanged | REQ-F-010 | E |
-| UT-AC-07 | | After submit (right or wrong PIN) | buffer cleared, next PIN starts empty | REQ-F-011 | E |
-| UT-AC-08 | | Three wrong PINs | state LockedOut; red blink requested, green off | REQ-F-015, 017 | E |
-| UT-AC-09 | | Keys during LockedOut, including the correct PIN | all ignored; state stays LockedOut | REQ-F-016 | E |
-| UT-AC-10 | | Lockout boundary with `MockClock` | at 29,999 ms still LockedOut; at 30,000 ms Locked | REQ-F-018, 019 | E |
-| UT-AC-11 | | Lockout expires | attempt counter 0, buffer empty | REQ-F-020 | E |
-| UT-AC-12 | | Second lockout after the first | new period starts at the third failure of the second round | REQ-F-021 | E |
-| UT-AC-13 | | Lockout started near `0xFFFFFFFF`, clock wraps | still ends exactly 30 s later | REQ-F-018 | E |
-| UT-AC-14 | | Unlocked: enter new PIN `5 6 7 8 #` | PIN stored; state Locked; red on | REQ-F-023, 024 | E |
-| UT-AC-15 | | After PIN change | new PIN unlocks; old PIN counts as failure | REQ-F-024 | P |
-| UT-AC-16 | | Unlocked: `1 2 #` | input cleared; state stays Unlocked; green stays on | REQ-F-025 | V |
-| UT-AC-17 | | Unlocked: invalid key mid-input | input cleared; state stays Unlocked | REQ-F-026 | V |
-| UT-AC-18 | | Unlocked: fifth digit | input cleared; state stays Unlocked | REQ-F-009, 026 | P |
+| UT-AC-01 | | Start up | state Locked; LED mock got red on, green off | REQ-F-001, 002 | P |
+| UT-AC-02 | CorrectPinGrantsAccess | Enter `1 2 3 4 #` (default PIN) | state Unlocked; green on, red off | REQ-F-003, 006, 012, 022 | E |
+| UT-AC-03 | PinBufferIsClearedAfterAttempt, ThreeWrongPinsLockOut | Enter wrong four-digit PIN + `#` | stays Locked (red on, green off) | REQ-F-007, 013, 014 | E |
+| UT-AC-04 | ShortPinIsNotAccepted, ShortPinDoesNotCountAsAttempt | Enter `1 2 #` | discarded, no unlock, no failure counted | REQ-F-007, 008, 011 | E |
+| UT-AC-05 | LongPinIsRejected, OverflowDoesNotCountAsAttempt | Enter five digits + `#` | input cleared; no failure counted; state unchanged | REQ-F-009 | E |
+| UT-AC-06 | InvalidKeyBeforePinIsHarmless, InvalidKeyInMiddleAbortsInput, InvalidKeyAtEndAbortsInput, StarAbortsInput, InvalidKeyDoesNotCountAsAttempt, ValidPinWorksAfterAbortedInput | Invalid key (`a`, `*`) at start, middle or end of the input | input aborted; no failure counted; next valid PIN works | REQ-F-010 | E |
+| UT-AC-07 | PinBufferIsClearedAfterAttempt | After submit (right or wrong PIN) | buffer cleared, next PIN starts empty | REQ-F-011 | E |
+| UT-AC-08 | ThreeWrongPinsLockOut, LockoutIgnoresInput | Three wrong PINs | LockedOut; red blink requested, green off | REQ-F-015, 017 | E |
+| UT-AC-09 | LockoutIgnoresInput, StaysLockedOutBeforeTimeout | Keys during LockedOut, including the correct PIN | all ignored; state stays LockedOut | REQ-F-016 | E |
+| UT-AC-10 | StaysLockedOutBeforeTimeout, LockoutEndsAfterTimeout | Lockout boundary with `MockClock` | at 29,999 ms still LockedOut; at 30,000 ms Locked | REQ-F-018, 019 | E |
+| UT-AC-11 | AttemptsResetAfterTimeout, KeysDuringLockoutAreNotBuffered, CorrectPinWorksAfterTimeout | Lockout expires | attempt counter 0, buffer empty, correct PIN unlocks | REQ-F-019, 020 | E |
+| UT-AC-12 | SecondLockoutRestartsTimer | Second lockout after the first | new period starts at the third failure of the second round | REQ-F-021 | E |
+| UT-AC-13 | LockoutTimeoutSurvivesCounterWraparound | Lockout started near `0xFFFFFFFF`, clock wraps | still LockedOut after 512 ms; ends after 30 s | REQ-F-018 | E |
+| UT-AC-14 | SetNewPinAfterUnlocked | Unlocked: enter new PIN `5 6 7 8 #` | PIN stored; state Locked; red on | REQ-F-023, 024 | E |
+| UT-AC-15 | UseNewPinAfterUnlocked, OldPinRejectedAfterChange | After PIN change | new PIN unlocks; old PIN is rejected | REQ-F-024 | E |
+| UT-AC-16 | ChangePinRejectsShortPin | Unlocked: `5 6 #` | input cleared; state stays Unlocked; green stays on | REQ-F-025 | E |
+| UT-AC-17 | ChangePinRejectsInvalidKeyInMiddle, ChangePinWorksAfterAbortedInput | Unlocked: invalid key mid-input | input cleared; state stays Unlocked; next valid PIN change works | REQ-F-026 | E |
+| UT-AC-18 | ChangePinRejectsOverflow | Unlocked: fifth digit | input cleared; state stays Unlocked | REQ-F-009, 026 | E |
 | UT-AC-19 | | Each digit `0`–`9` | accepted as PIN character (loop over all ten) | REQ-F-005 | P |
-| UT-AC-20 | | `#` with empty buffer | discarded; no failure counted (Locked and Unlocked) | REQ-F-008, 025 | P |
-| UT-AC-21 | `AccessControllerTest.UnlockResetsAttemptsCounter` | Two failures, correct PIN, PIN change, two failures, third failure | no lockout after the two failures; lockout at the third failure | REQ-F-027, 014, 015 | E |
+| UT-AC-20 | ChangePinWithHashOnlyKeepsState | Unlocked: `#` with empty buffer | discarded; state stays Unlocked | REQ-F-025 | E |
+| UT-AC-21 | UnlockResetsAttemptsCounter | Two failures, correct PIN, PIN change, two failures, third failure | no lockout after the two failures; lockout at the third failure | REQ-F-027, 014, 015 | E |
 | UT-AC-22 | | PIN with leading zero `0 1 2 3 #` set via PIN change | accepted and validated correctly | REQ-F-005, 024 | P |
+| UT-AC-23 | | Locked: `#` with empty buffer | discarded; no failure counted | REQ-F-008 | P |
 
-## 2.2 `PinValidator` and SHA-256 (`unit_tests`, design §1.2)
+## 2.2 `PinValidator` and SHA-256 (`unit_tests`, fixture `PinValidatorTest`, design §1.2)
 
 | ID | Test name | Test case | Expected | Verifies | Status |
 |---|---|---|---|---|---|
-| UT-PV-01 | | Default PIN `1234` | accepted | REQ-F-003 | E |
-| UT-PV-02 | | Other four-digit PINs (`0000`, `4321`, `1235`) | rejected | REQ-F-013 | E |
-| UT-PV-03 | | `SetPin("5678")` | `5678` accepted, `1234` rejected | REQ-F-004, 024 | E |
-| UT-PV-04 | | `0000` and `0123` as PIN | work like any other PIN | REQ-F-005 | P |
+| UT-PV-01 | AcceptsCorrectPin | Default PIN `1234` | accepted | REQ-F-003 | E |
+| UT-PV-02 | RejectsWrongPin | Wrong four-digit PIN (`0000`) | rejected | REQ-F-013 | E |
+| UT-PV-03 | SetsNewPin | `SetPin("5678")` | `5678` accepted, `1234` rejected | REQ-F-004, 024 | E |
+| UT-PV-04 | | `0000` and `0123` set as PIN | work like any other PIN | REQ-F-005 | P |
 | UT-PV-05 | | SHA-256 known-answer: `"abc"` | `ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad` | design (hash correctness) | P |
 | UT-PV-06 | | SHA-256 known-answer: empty input | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` | design (hash correctness) | P |
+| UT-PV-07 | RejectsTooLongPin | `Validate("12345")` | rejected | REQ-F-007 | E |
+| UT-PV-08 | RejectsTooShortPin | `Validate("123")` | rejected | REQ-F-007 | E |
+| UT-PV-09 | RejectsNonDigitPin | `Validate("12a4")` | rejected | REQ-F-005, 007 | E |
+| UT-PV-10 | RejectsInvalidNewPin | `SetPin("12a4")` | ignored; `1234` still valid | REQ-F-024 | E |
 
-## 2.3 `AttemptCounter` and `LockState` (`unit_tests`, design §1.3)
+## 2.3 `AttemptCounter` and `LockState` (`unit_tests`, fixture `AttemptCounterTest`, design §1.3)
 
 | ID | Test name | Test case | Expected | Verifies | Status |
 |---|---|---|---|---|---|
-| UT-AT-01 | | New counter | 0 failures, limit not reached | REQ-F-014 | E |
-| UT-AT-02 | | Register failures one by one | limit reached exactly at the third | REQ-F-014, 015 | E |
-| UT-AT-03 | | `Reset()` after failures | back to 0 | REQ-F-020 | E |
+| UT-AT-01 | InitiallyNotLockedOut | New counter | limit not reached | REQ-F-014 | E |
+| UT-AT-02 | NotLockedOutAfterTwoFailures, LockedOutAfterThreeFailures | Register failures one by one | limit reached exactly at the third | REQ-F-014, 015 | E |
+| UT-AT-03 | ResetClearsLockout | `Reset()` after three failures | limit no longer reached | REQ-F-020 | E |
 | UT-LS-01 | | `LockState` values | three distinct states, `uint8_t` base | design | P |
 
-## 2.4 `KeypadAdapter` (`unit_tests` with `keypad_stub.c`, design §1.5)
+## 2.4 `KeypadAdapter` (`unit_tests` with `keypad_stub.c`, fixture `KeypadAdapterTest`, design §1.5)
 
 | ID | Test name | Test case | Expected | Verifies | Status |
 |---|---|---|---|---|---|
-| UT-KA-01 | | Stub returns each of the 16 key events | `Scan` returns the matching character (`1`–`9`, `0`, `A`–`D`, `*`, `#`) | REQ-F-005, 006, CON-003 | E |
-| UT-KA-02 | | Stub reports no event | `Scan` returns "none" | design | E |
+| UT-KA-01 | ScanForwardsReadEvent | Stub returns a key event (`5`) | `Scan` returns the same character | design | E |
+| UT-KA-02 | ScanForwardsReadEvent | Stub reports no event | `Scan` returns `'\0'` | design | E |
+| UT-KA-03 | ConstructorInitializesBeforeEnablingInterrupt | Create the adapter | `Keypad_Init` runs before `Keypad_EnableInterrupt` | design | E |
 
 ## 2.5 `LedOutputAdapter` (needs a GPIO fake, design §1.5)
 
@@ -119,29 +124,30 @@ Setup: `MockClock`, `MockLedOutput`, `MockKeypad` where needed, real `PinValidat
 | UT-SC-02 | | Call `SysTick_Handler` N times | `NowMs()` increases by N | CON-010 | P |
 | UT-SC-03 | | Counter at `0xFFFFFFFF`, one more tick | wraps to 0 without error | CON-010 | P |
 
-## 2.7 Keypad driver (`driver_tests`, design §1.6, §2.3, §3)
+## 2.7 Keypad driver (`driver_tests`, fixture `KeypadDriverTest`, design §1.6, §2.3, §3)
 
 | ID | Test name | Test case | Expected | Verifies | Status |
 |---|---|---|---|---|---|
-| UT-KD-01 | | `Keypad_ReadEvent()` without pending flag | returns "none", no scan | design | E |
-| UT-KD-02 | | Fake press at each of the 16 row/column positions | correct key per the key map | CON-003, REQ-F-005 | E |
-| UT-KD-03 | | Fake key held | no event until the fake reports release | CON-011 | E |
-| UT-KD-04 | | Watch EXTI mask during a scan | lines 8–11 masked during GPIO reads, unmasked afterwards | CON-012 | E |
-| UT-KD-05 | | After a scan | rows back LOW (idle), `EXTI->PR` cleared | design §3.3 | E |
-| UT-KD-06 | | Call `EXTI9_5_IRQHandler` | `PR` bit cleared, flag set | design §3.1 | E |
-| UT-KD-07 | | Call `EXTI15_10_IRQHandler` | `PR` bit cleared, flag set | design §3.1 | E |
-| UT-KD-08 | | `Keypad_IrqPending()` | true after an ISR, false after `ReadEvent()` | design §3.1 | E |
+| UT-KD-01 | ReadEventWithoutIrqReturnsNothing | `Keypad_ReadEvent()` without pending flag | returns "none", no scan | design | E |
+| UT-KD-02 | ReadEventReturnsPressedKey | Fake press at six sample positions (`1`, `A`, `6`, `8`, `*`, `D`) | correct key per the key map | CON-003, REQ-F-005 | E |
+| UT-KD-03 | | Fake key held | no event until the fake reports release | CON-011 | P |
+| UT-KD-04 | ReadEventRestoresStateAfterScan | Watch EXTI mask during a scan | lines 8–11 masked during GPIO reads, unmasked afterwards | CON-012 | E |
+| UT-KD-05 | ReadEventRestoresStateAfterScan | After a scan | rows back LOW (idle), `EXTI->PR` cleared, event consumed | design §3.3 | E |
+| UT-KD-06 | Exti9_5HandlerSetsFlagAndClearsLines | Call `EXTI9_5_IRQHandler` | `PR` bits cleared, flag set | design §3.1 | E |
+| UT-KD-07 | Exti15_10HandlerSetsFlagAndClearsLines | Call `EXTI15_10_IRQHandler` | `PR` bits cleared, flag set | design §3.1 | E |
+| UT-KD-08 | Exti9_5HandlerSetsFlagAndClearsLines | `Keypad_IrqPending()` after an ISR | returns 1 once, then 0 (the call consumes the flag) | design §3.1 | E |
 | UT-KD-09 | | Two columns LOW at once | first LOW column wins (documents current behavior) | requirements §5 | P |
-| UT-KD-10 | | Pending flag set but no column LOW (bounce) | returns "none", idle restored, EXTI unmasked | design §3.3 | P |
+| UT-KD-10 | ReadEventWithoutKeyStillRestoresState | Pending flag set but no column LOW (bounce) | returns "none", idle restored, EXTI unmasked | design §3.3 | E |
 | UT-KD-11 | | Two ISRs before one `ReadEvent()` | one event returned (documents coalescing) | requirements §5 | P |
+| UT-KD-12 | NoPendingBitDoesNotSetFlag | Both handlers called with no `PR` bit set | flag stays clear | design §3.1 | E |
 
-## 2.8 Platform helpers (`platform_tests`, design §1.10, §3.2)
+## 2.8 Platform helpers (`platform_tests`, fixture `ExtiTest`, design §1.10, §3.2)
 
 | ID | Test name | Test case | Expected | Verifies | Status |
 |---|---|---|---|---|---|
-| UT-PL-01 | | EXTI setup for lines 8–11 | `EXTICR3` selects port D, `FTSR` set, `RTSR` untouched, `IMR` set | CON-006 | E |
-| UT-PL-02 | | NVIC enable for IRQ 23 and 40 | `ISER0` bit 23 and `ISER1` bit 8 set, nothing else | CON-007 | E |
-| UT-PL-03 | | Clock enable order | `SYSCFGEN` set in `RCC->APB2ENR` before `EXTICR` write | design §3.2 | P |
+| UT-PL-01 | MapPortUsesCorrectFieldForLines8To11, MapPortSetsFieldInExticr3, SetFallingEdgeSetsFtsrAndClearsRtsr, EnableUnmasksLine | EXTI setup for lines 8–11 | `EXTICR3` selects port D (other fields untouched), `FTSR` set, `RTSR` cleared, `IMR` set | CON-006 | E |
+| UT-PL-02 | NvicEnableIrq23SetsIser0Bit23, NvicEnableIrq40SetsIser1Bit8 | NVIC enable for IRQ 23 and 40 | `ISER0` bit 23 and `ISER1` bit 8 set, nothing else | CON-007 | E |
+| UT-PL-03 | MapPortEnablesSyscfgClock | `EXTI_MapPort` | `SYSCFGEN` set in `RCC->APB2ENR` | design §3.2 | E |
 | UT-PL-04 | | `GPIO_WritePin`, `GPIO_TogglePin` | change only the requested pin | design §1.7 | P |
 
 ---
@@ -153,10 +159,10 @@ Setup: `MockClock`, `MockLedOutput`, `MockKeypad` where needed, real `PinValidat
 | IT-01 | | `AccessController` + `PinValidator` + `AttemptCounter` + mocks | Scenario: unlock → change PIN → lock → three failures → wait 30 s → new PIN unlocks | full sequence passes, LED requests in the right order | Host | REQ-F-012–024 | P |
 | IT-02 | | `KeypadAdapter` + keypad driver (fakes) + controller | Fake presses `1 2 3 4 #` through the whole chain | controller reaches Unlocked | Host | REQ-F-005, 006, 012 | P |
 | IT-03 | | `LedOutputAdapter` + GPIO driver | State changes with a register fake | `ODR` bits PD12 / PD14 as expected for Locked, Unlocked, blink | Host | REQ-F-002, 017, 022 | P |
-| IT-04 | | ISR + flag + `Keypad_ReadEvent()` | Trigger the ISR, then read the event | key returned, `PR` cleared, flag cleared | Host | CON-011, 012 | E |
+| IT-04 | `KeypadDriverTest.ReadEventRestoresStateAfterScan` | ISR + flag + `Keypad_ReadEvent()` | Trigger the ISR, then read the event | key returned, `PR` cleared, flag consumed | Host | CON-011, 012 | E |
 | IT-05 | | `SysTickClock` + controller | Call `SysTick_Handler` 30,000 times | lockout ends at the 30,000th tick | Host | REQ-F-018, CON-010 | P |
-| IT-06 | | EXTI + NVIC + keypad ISR on the chip | Unity: set `EXTI->SWIER` for line 8 | handler runs, flag set, `PR` cleared | Board | CON-006, 007 | B |
-| IT-07 | | GPIO + SYSCFG + EXTI + NVIC | Unity: read back registers after `Keypad_Init()` | pull-ups on PD8–11, rows output, `EXTICR3` port D, `FTSR`, `IMR`, `ISER0` bit 23, `ISER1` bit 8 | Board | CON-004–007 | B |
+| IT-06 | `TestExtiInterrupts` | EXTI + NVIC + keypad ISR on the chip | Unity: set `EXTI->SWIER` for lines 8 and 10 | handler runs, flag set, `PR` cleared | Board | CON-006, 007 | B |
+| IT-07 | `TestKeypadConfiguration` | GPIO + SYSCFG + EXTI + NVIC | Unity: read back registers after `Keypad_Init()` and `Keypad_EnableInterrupt()` | GPIOD clock on, rows output, pull-ups on PD8–11, SYSCFG clock on, `EXTICR3` port D, `FTSR`, `IMR`, `ISER0` bit 23, `ISER1` bit 8 | Board | CON-004–007 | B |
 | IT-08 | | Fault handler + SWO | Temporary write to `0xFFFFFFF0` | crash dump in `swo.log`, `PC` at the store, `CFSR` shows precise bus error | Board | design §1.9 | M |
 | IT-09 | `AccessControllerTest.NoStaleKeyAfterLockout` | Keypad + `AccessController` during LockedOut | Press keys while LockedOut, wait for expiry, then enter a PIN | first PIN after expiry works, no stale key from the lockout | Host | REQ-F-016, 020 | E |
 
@@ -208,7 +214,9 @@ Procedure details for ST-07 and ST-12–16: note date, firmware version (git com
 
 | Item | Why | Proposed action |
 |---|---|---|
-| REQ-F-025, 026 coverage | requirements doc says to verify | check UT-AC-16, 17 against the test file; add if missing |
+| Startup state (UT-AC-01) | no test checks the LEDs or state right after construction | find out whether `main()` or the controller sets the red LED (REQ-F-002), then add the test |
+| Keypad map: 6 of 16 positions tested | `ReadEventReturnsPressedKey` has six cases | add the other ten cases to the array |
+| Key held (UT-KD-03) | release behavior (CON-011) not tested on the host | add a test with a fake that reports release late |
 | LED adapter and SysTick clock have no host tests | hardware access without fakes | add GPIO and SysTick register fakes (UT-LA, UT-SC) |
 | Keypad blocks in LockedOut | `Keypad_Scan()` waits for key release (CON-011), so holding a key during lockout may stop the blinking | check on the board in ST-16 |
 | Board tests never run | Unity sources exist | run IT-06, IT-07 once, note the result |
@@ -222,3 +230,4 @@ Procedure details for ST-07 and ST-12–16: note date, firmware version (git com
 | Attempt counter after a successful unlock | reset to 0 (REQ-F-027, UT-AC-21) |
 | Stale key after lockout | `LockedOut` reads and discards keys (IT-09, review F-05); board check ST-19 open |
 | ST-07 tolerance | ±1 s |
+| REQ-F-025, 026 coverage | covered by `ChangePinRejectsShortPin` (UT-AC-16) and `ChangePinRejectsInvalidKeyInMiddle` (UT-AC-17) |

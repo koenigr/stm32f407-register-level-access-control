@@ -39,7 +39,7 @@ Each requirement has an implementation status and a verification status.
 
 | ID | Requirement | Implementation / verification |
 |---|---|---|
-| REQ-F-001 | After startup, the access controller shall enter the **Locked** state. | Implemented; host-tested through initial-state/default-PIN scenarios. |
+| REQ-F-001 | After startup, the access controller shall enter the **Locked** state. | Implemented; only indirectly host-tested through the default-PIN scenarios. No explicit startup test yet (UT-AC-01). |
 | REQ-F-002 | After startup, the system shall indicate the Locked state by turning on the red LED and turning off the green LED. | Implemented in `main()` and LED adapter; controller LED commands are host-tested. Physical output open. |
 | REQ-F-003 | After startup, the system shall accept the default PIN `1234`. | Implemented through the PIN hash; host-tested. |
 | REQ-F-004 | A PIN changed during operation shall remain changed only until the next reset or power cycle. | Implemented: the changed PIN hash is held in RAM; reset behavior on physical hardware open. |
@@ -81,8 +81,8 @@ Each requirement has an implementation status and a verification status.
 | REQ-F-022 | When the system is Unlocked, it shall indicate this state by turning on the green LED and turning off the red LED. | Implemented; host-tested through the LED mock. Physical output open. |
 | REQ-F-023 | While Unlocked, the user shall be able to enter a new four-digit numeric PIN and submit it using `#`. | Implemented; host-tested. |
 | REQ-F-024 | After a valid four-digit PIN has been submitted in the Unlocked state, the system shall store the new PIN and return to Locked. | Implemented; host-tested. The new hash is stored in RAM. |
-| REQ-F-025 | If `#` is pressed in the Unlocked state before four digits have been entered, the input shall be cleared and the system shall remain Unlocked. | Implemented; verify explicit test coverage. |
-| REQ-F-026 | Invalid input while Unlocked shall clear the current PIN input without changing the access state. | Implemented in `ProcessKey()` and `Update()`; verify explicit test coverage. |
+| REQ-F-025 | If `#` is pressed in the Unlocked state before four digits have been entered, the input shall be cleared and the system shall remain Unlocked. | Implemented; host-tested (`ChangePinRejectsShortPin`, `ChangePinWithHashOnlyKeepsState`). |
+| REQ-F-026 | Invalid input while Unlocked shall clear the current PIN input without changing the access state. | Implemented in `ProcessKey()` and `Update()`; host-tested (`ChangePinRejectsInvalidKeyInMiddle`). |
 
 
 
@@ -144,11 +144,11 @@ Mapping of requirements and constraints to their tests. Test IDs refer to
 | Requirement group | Test IDs |
 |---|---|
 | REQ-F-001–REQ-F-004 | UT-AC-01, UT-AC-02, UT-PV-01, UT-PV-03, ST-01, ST-10 |
-| REQ-F-005–REQ-F-013 | UT-AC-02 to UT-AC-07, UT-AC-19, UT-PV-02, UT-PV-04 |
+| REQ-F-005–REQ-F-013 | UT-AC-02 to UT-AC-07, UT-AC-19, UT-AC-23, UT-PV-02, UT-PV-04, UT-PV-07 to UT-PV-09 |
 | REQ-F-014–REQ-F-021, REQ-F-027 | UT-AC-03, UT-AC-08 to UT-AC-13, UT-AC-21, UT-AT-01 to UT-AT-03, IT-05, IT-09, ST-20 |
-| REQ-F-022–REQ-F-026 | UT-AC-02, UT-AC-14 to UT-AC-18, UT-AC-20, UT-LA-03 |
+| REQ-F-022–REQ-F-026 | UT-AC-02, UT-AC-14 to UT-AC-18, UT-AC-20, UT-PV-10, UT-LA-03 |
+| CON-002 | INS-01 |
+| CON-003 | UT-KD-02 |
 | CON-004–CON-007 | IT-06, IT-07, ST-17 (board test source exists; physical run status open) |
 | CON-008–CON-010 | UT-LA-01, UT-SC-01, INS-02 (no confirmed physical timing result) |
-| CON-011–CON-012 | UT-KD-03, UT-KD-04 |
-| CON-002 | INS-01 |
-| CON-003 | UT-KA-01, UT-KD-02 |
+| CON-011–CON-012 | UT-KD-03, UT-KD-04, IT-04 |
