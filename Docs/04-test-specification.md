@@ -148,20 +148,17 @@ Setup: `MockClock`, `MockLedOutput`, `MockKeypad` where needed, real `PinValidat
 
 # 3. Integration tests
 
-| ID | Modules | Test case | Expected | Env | Verifies | Status |
-|---|---|---|---|---|---|---|
-| IT-01 | `AccessController` + `PinValidator` + `AttemptCounter` + mocks | Scenario: unlock → change PIN → lock → three failures → wait 30 s → new PIN unlocks | full sequence passes, LED requests in the right order | Host | REQ-F-012–024 | P |
-| IT-02 | `KeypadAdapter` + keypad driver (fakes) + controller | Fake presses `1 2 3 4 #` through the whole chain | controller reaches Unlocked | Host | REQ-F-005, 006, 012 | P |
-| IT-03 | `LedOutputAdapter` + GPIO driver | State changes with a register fake | `ODR` bits PD12 / PD14 as expected for Locked, Unlocked, blink | Host | REQ-F-002, 017, 022 | P |
-| IT-04 | ISR + flag + `Keypad_ReadEvent()` | Trigger the ISR, then read the event | key returned, `PR` cleared, flag cleared | Host | REQ-NF-003, 004 | E |
-| IT-05 | `SysTickClock` + controller | Call `SysTick_Handler` 30,000 times | lockout ends at the 30,000th tick | Host | REQ-F-018, NF-002 | P |
-| IT-06 | EXTI + NVIC + keypad ISR on the chip | Unity: set `EXTI->SWIER` for line 8 | handler runs, flag set, `PR` cleared | Board | CON-006, 007 | B |
-| IT-07 | GPIO + SYSCFG + EXTI + NVIC | Unity: read back registers after `Keypad_Init()` | pull-ups on PD8–11, rows output, `EXTICR3` port D, `FTSR`, `IMR`, `ISER0` bit 23, `ISER1` bit 8 | Board | CON-004–007 | B |
-| IT-08 | Fault handler + SWO | Temporary write to `0xFFFFFFF0` | crash dump in `swo.log`, `PC` at the store, `CFSR` shows precise bus error | Board | design §1.9 | M |
-| IT-09 | Keypad + `AccessController` during LockedOut | Press keys while LockedOut, wait for expiry, then enter a PIN | first PIN after expiry works, no stale key from the lockout | Host | REQ-F-016, 020 | P |
-
-IT-09 checks a suspected problem: if the keypad is not scanned in LockedOut, the pending flag stays set and
-could deliver one stale key after the lockout ends (see `06-review.md` F-05).
+| ID | Test name | Modules | Test case | Expected | Env | Verifies | Status |
+|---|---|---|---|---|---|---|---|
+| IT-01 | | `AccessController` + `PinValidator` + `AttemptCounter` + mocks | Scenario: unlock → change PIN → lock → three failures → wait 30 s → new PIN unlocks | full sequence passes, LED requests in the right order | Host | REQ-F-012–024 | P |
+| IT-02 | | `KeypadAdapter` + keypad driver (fakes) + controller | Fake presses `1 2 3 4 #` through the whole chain | controller reaches Unlocked | Host | REQ-F-005, 006, 012 | P |
+| IT-03 | | `LedOutputAdapter` + GPIO driver | State changes with a register fake | `ODR` bits PD12 / PD14 as expected for Locked, Unlocked, blink | Host | REQ-F-002, 017, 022 | P |
+| IT-04 | | ISR + flag + `Keypad_ReadEvent()` | Trigger the ISR, then read the event | key returned, `PR` cleared, flag cleared | Host | REQ-NF-003, 004 | E |
+| IT-05 | | `SysTickClock` + controller | Call `SysTick_Handler` 30,000 times | lockout ends at the 30,000th tick | Host | REQ-F-018, NF-002 | P |
+| IT-06 | | EXTI + NVIC + keypad ISR on the chip | Unity: set `EXTI->SWIER` for line 8 | handler runs, flag set, `PR` cleared | Board | CON-006, 007 | B |
+| IT-07 | | GPIO + SYSCFG + EXTI + NVIC | Unity: read back registers after `Keypad_Init()` | pull-ups on PD8–11, rows output, `EXTICR3` port D, `FTSR`, `IMR`, `ISER0` bit 23, `ISER1` bit 8 | Board | CON-004–007 | B |
+| IT-08 | | Fault handler + SWO | Temporary write to `0xFFFFFFF0` | crash dump in `swo.log`, `PC` at the store, `CFSR` shows precise bus error | Board | design §1.9 | M |
+| IT-09 | `AccessControllerTest.NoStaleKeyAfterLockout` | Keypad + `AccessController` during LockedOut | Press keys while LockedOut, wait for expiry, then enter a PIN | first PIN after expiry works, no stale key from the lockout | Host | REQ-F-016, 020 | E |
 
 ---
 

@@ -336,3 +336,15 @@ TEST_F(AccessControllerTest, UnlockResetsAttemptsCounter) {
 	EnterKeys("9999#");          // third failure: lockout
 	EXPECT_TRUE(leds.blinkRed);
 }
+
+TEST_F(AccessControllerTest, NoStaleKeyAfterLockout) {
+	EnterKeys("9999#9999#9999#");   // three failures -> LockedOut
+
+	keypad.nextKey = '7';           // key pressed during lockout
+	clock.now += 30000;
+	controller.Update();            // lockout expires
+	controller.Update();            // old code: Locked reads the stale '7' here
+
+	EnterKeys("1234#");
+	EXPECT_TRUE(leds.green);
+}

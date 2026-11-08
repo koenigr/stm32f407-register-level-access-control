@@ -54,6 +54,7 @@ void AccessController::Update() {
 	}
 
 	case LockState::LockedOut:
+		(void)keypad_.Scan(); // read and discard keys pressed during lockout
 		if ((clock_.NowMs() - lockoutStartMs_) >= kLockoutMs) {
 			attempts_.Reset();
 			ClearPin();
