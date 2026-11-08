@@ -48,7 +48,7 @@ Severity: **High** can make the system behave wrongly, **Medium** documentation 
 |---|---|---|---|---|---|
 | F-01 | Medium | `hardware.md` says green = "Valid PIN", red = "Invalid PIN". Requirements say red = Locked, blinking red = LockedOut. | `hardware.md` LED table | change the table to Locked / Unlocked / LockedOut | Open |
 | F-02 | Medium | Requirements say `Keypad_EnableInterrupt()` configures EXTI and NVIC; `keypad_connection.md` says `Keypad_Init()` does it. | requirements §5, keypad doc | check the source, align the names | Open |
-| F-03 | Medium | No requirement says what happens to the failed-attempt counter after a successful unlock. Two failures, then a success: does the next failure count as the first or the third? | requirements §3.3 | decide the rule, add a requirement, add test UT-AC-21 | Open |
+| F-03 | Medium | No requirement says what happens to the failed-attempt counter after a successful unlock. Two failures, then a success: does the next failure count as the first or the third? | requirements §3.3 | decide the rule, add a requirement, add test UT-AC-21 | Resolved |
 | F-04 | Medium | Debounce time and blink frequency are not specified. | requirements §4 | measure (ST-15, ST-16), then add NF requirements | Open |
 | F-05 | High (to check) | In LockedOut the keypad is not scanned, so the EXTI pending flag may stay set. After the lockout ends, one stale key could reach the controller, so the first PIN would have a fifth digit and be aborted. | design §1.1, §3.3 | run IT-09 and ST-19; if it fails, clear the flag when leaving LockedOut or keep scanning | Open |
 | F-06 | Medium | REQ-F-025 and REQ-F-026 have no confirmed explicit tests. | requirements §3.4 | check UT-AC-16, 17 against the test file | Open |

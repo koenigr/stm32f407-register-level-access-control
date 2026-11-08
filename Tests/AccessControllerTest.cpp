@@ -319,3 +319,20 @@ TEST_F(AccessControllerTest, SecondLockoutRestartsTimer) {
 
 	EXPECT_TRUE(leds.blinkRed);
 }
+
+TEST_F(AccessControllerTest, UnlockResetsAttemptsCounter) {
+	EnterKeys("9999#9999#");     // two failures
+	EXPECT_TRUE(leds.red);
+
+	EnterKeys("1234#");          // unlock, counter should reset
+	EXPECT_TRUE(leds.green);
+
+	EnterKeys("5678#");          // PIN change, back to Locked
+	EXPECT_TRUE(leds.red);
+
+	EnterKeys("9999#9999#");     // two failures: still no lockout
+	EXPECT_FALSE(leds.blinkRed);
+
+	EnterKeys("9999#");          // third failure: lockout
+	EXPECT_TRUE(leds.blinkRed);
+}

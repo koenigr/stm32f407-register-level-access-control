@@ -72,6 +72,7 @@ Each requirement has an implementation status and a verification status.
 | REQ-F-019 | When the 30-second lockout period expires, the system shall return to Locked. | Implemented; host-tested. |
 | REQ-F-020 | When the lockout period expires, the system shall reset the failed-attempt counter and clear any buffered PIN input. | Implemented; host-tested. |
 | REQ-F-021 | A new lockout period shall start from the time the third failed attempt is registered. | Implemented using `lockoutStartMs_`; host-tested for a subsequent lockout. |
+| REQ-F-027 | After a successul unlock, the system shall reset the failed-attempt counter to 0. | Implemented in `ValidatePin()` (`attempts._Reset()`); host-tested (`UnlockResetsAttemptsCounter`).
 
 ### 3.4 Unlocked state and PIN change
 
@@ -137,14 +138,15 @@ These points should be revisited if the keypad driver is redesigned.
 
 ## 8. Traceability
 
-The following is an initial mapping. Test names are intentionally described by test area rather than guessed file paths; exact test identifiers can be added when the test files are integrated into the repository documentation.
+Mapping of requirements and constraints to their tests. Test IDs refer to
+[04-test-specification.md](04-test-specification.md).
 
-| Requirement group | Existing test evidence |
+| Requirement group | Test IDs |
 |---|---|
-| REQ-F-001–REQ-F-004 | Access-controller and PIN-validator host tests; startup LED initialization visible in source. |
-| REQ-F-005–REQ-F-013 | Access-controller host tests for PIN entry, invalid input, buffer clearing and validation. |
-| REQ-F-014–REQ-F-021 | Access-controller and attempt-counter host tests using `MockClock`. |
-| REQ-F-022–REQ-F-026 | Access-controller host tests using `MockLedOutput`; confirm individual edge-case coverage against test assertions. |
-| CON-004–CON-007 | Unity board-test source checks GPIO, EXTI and NVIC configuration; physical run status open. |
-| CON-008–CON-010 | Source-code inspection; SysTick has no confirmed physical timing result. |
-| CON-011–CON-012 | Keypad host tests with hardware fakes. |
+| REQ-F-001–REQ-F-004 | UT-AC-01, UT-AC-02, UT-PV-01, UT-PV-03, ST-01, ST-10 |
+| REQ-F-005–REQ-F-013 | UT-AC-02 to UT-AC-07, UT-AC-19, UT-PV-02, UT-PV-04 |
+| REQ-F-014–REQ-F-021, REQ-F-027 | UT-AC-03, UT-AC-08 to UT-AC-13, UT-AC-21, UT-AT-01 to UT-AT-03, IT-05, IT-09 |
+| REQ-F-022–REQ-F-026 | UT-AC-02, UT-AC-14 to UT-AC-18, UT-AC-20, UT-LA-03 |
+| CON-004–CON-007 | IT-06, IT-07, ST-17 (board test source exists; physical run status open) |
+| CON-008–CON-010 | UT-LA-01, UT-SC-01, INS-02 (no confirmed physical timing result) |
+| CON-011–CON-012 | UT-KD-03, UT-KD-04 |
