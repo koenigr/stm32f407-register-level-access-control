@@ -1,8 +1,8 @@
 # 04 Test Specification — STM32F407 Register-Level Access Control System
 
 > **What this file is:** the list of all tests, what each one checks, and what result is expected.
-> V-model: unit tests check the **design** ([design.md](03-design.md)), integration tests check the **architecture**
-> [architecture.md](02-architecture.md), system tests check the **requirements** [requirements.md](01-requirements.md).
+> V-model: unit tests check the **design** ([03-design.md](03-design.md)), integration tests check the **architecture**
+> ([02-architecture.md](02-architecture.md)), system tests check the **requirements** ([01-requirements.md](01-requirements.md)).
 
 ---
 
@@ -18,7 +18,7 @@ design.md         ←→   Unit tests          (UT-xx)   one module, GoogleTest 
 
 | Mark | Meaning |
 |---|---|
-| **E** | Expected to exist already (host test, per `requirements.md` §8 and project notes). Name in the "Test name" column. |
+| **E** | Expected to exist already (host test, per `requirements.md` §7 and project notes). Name in the "Test name" column. |
 | **V** | Exists, but coverage of this exact case must be verified (`requirements.md` flags REQ-F-025, REQ-F-026). |
 | **P** | Proposed, new test to write. |
 | **B** | Unity board test source exists, never recorded as run on the board. |
@@ -38,8 +38,8 @@ design.md         ←→   Unit tests          (UT-xx)   one module, GoogleTest 
 | Level | Start when | Done when |
 |---|---|---|
 | Unit | module compiles on the host | all UT cases pass, every REQ in the trace has a test |
-| Integration | unit tests green | all IT host cases pass, board IT cases run once and logged |
-| System | firmware flashed on the board | all ST cases run, results logged, characterization results turned into requirements or accepted limitations |
+| Integration | unit tests green | all IT host cases pass, board IT cases run once |
+| System | firmware flashed on the board | all ST cases run, results noted, characterization results turned into requirements or accepted limitations |
 
 ---
 
@@ -60,7 +60,7 @@ Setup: `MockClock`, `MockLedOutput`, `MockKeypad` where needed, real `PinValidat
 | UT-AC-07 | | After submit (right or wrong PIN) | buffer cleared, next PIN starts empty | REQ-F-011 | E |
 | UT-AC-08 | | Three wrong PINs | state LockedOut; red blink requested, green off | REQ-F-015, 017 | E |
 | UT-AC-09 | | Keys during LockedOut, including the correct PIN | all ignored; state stays LockedOut | REQ-F-016 | E |
-| UT-AC-10 | | Lockout boundary with `MockClock` | at 29,999 ms still LockedOut; at 30,000 ms Locked | REQ-F-018, 019, NF-001 | E |
+| UT-AC-10 | | Lockout boundary with `MockClock` | at 29,999 ms still LockedOut; at 30,000 ms Locked | REQ-F-018, 019 | E |
 | UT-AC-11 | | Lockout expires | attempt counter 0, buffer empty | REQ-F-020 | E |
 | UT-AC-12 | | Second lockout after the first | new period starts at the third failure of the second round | REQ-F-021 | E |
 | UT-AC-13 | | Lockout started near `0xFFFFFFFF`, clock wraps | still ends exactly 30 s later | REQ-F-018 | E |
@@ -116,8 +116,8 @@ Setup: `MockClock`, `MockLedOutput`, `MockKeypad` where needed, real `PinValidat
 | ID | Test name | Test case | Expected | Verifies | Status |
 |---|---|---|---|---|---|
 | UT-SC-01 | | `Init()` writes the SysTick registers | `SYST_RVR = 15999`, `SYST_CVR = 0`, `SYST_CSR = 0x7` | CON-009, 010 | P |
-| UT-SC-02 | | Call `SysTick_Handler` N times | `NowMs()` increases by N | REQ-NF-002 | P |
-| UT-SC-03 | | Counter at `0xFFFFFFFF`, one more tick | wraps to 0 without error | REQ-NF-002 | P |
+| UT-SC-02 | | Call `SysTick_Handler` N times | `NowMs()` increases by N | CON-010 | P |
+| UT-SC-03 | | Counter at `0xFFFFFFFF`, one more tick | wraps to 0 without error | CON-010 | P |
 
 ## 2.7 Keypad driver (`driver_tests`, design §1.6, §2.3, §3)
 
@@ -125,15 +125,15 @@ Setup: `MockClock`, `MockLedOutput`, `MockKeypad` where needed, real `PinValidat
 |---|---|---|---|---|---|
 | UT-KD-01 | | `Keypad_ReadEvent()` without pending flag | returns "none", no scan | design | E |
 | UT-KD-02 | | Fake press at each of the 16 row/column positions | correct key per the key map | CON-003, REQ-F-005 | E |
-| UT-KD-03 | | Fake key held | no event until the fake reports release | REQ-NF-003 | E |
-| UT-KD-04 | | Watch EXTI mask during a scan | lines 8–11 masked during GPIO reads, unmasked afterwards | REQ-NF-004 | E |
+| UT-KD-03 | | Fake key held | no event until the fake reports release | CON-011 | E |
+| UT-KD-04 | | Watch EXTI mask during a scan | lines 8–11 masked during GPIO reads, unmasked afterwards | CON-012 | E |
 | UT-KD-05 | | After a scan | rows back LOW (idle), `EXTI->PR` cleared | design §3.3 | E |
 | UT-KD-06 | | Call `EXTI9_5_IRQHandler` | `PR` bit cleared, flag set | design §3.1 | E |
 | UT-KD-07 | | Call `EXTI15_10_IRQHandler` | `PR` bit cleared, flag set | design §3.1 | E |
 | UT-KD-08 | | `Keypad_IrqPending()` | true after an ISR, false after `ReadEvent()` | design §3.1 | E |
-| UT-KD-09 | | Two columns LOW at once | first LOW column wins (documents current behavior) | requirements §6 | P |
+| UT-KD-09 | | Two columns LOW at once | first LOW column wins (documents current behavior) | requirements §5 | P |
 | UT-KD-10 | | Pending flag set but no column LOW (bounce) | returns "none", idle restored, EXTI unmasked | design §3.3 | P |
-| UT-KD-11 | | Two ISRs before one `ReadEvent()` | one event returned (documents coalescing) | requirements §6 | P |
+| UT-KD-11 | | Two ISRs before one `ReadEvent()` | one event returned (documents coalescing) | requirements §5 | P |
 
 ## 2.8 Platform helpers (`platform_tests`, design §1.10, §3.2)
 
@@ -153,8 +153,8 @@ Setup: `MockClock`, `MockLedOutput`, `MockKeypad` where needed, real `PinValidat
 | IT-01 | | `AccessController` + `PinValidator` + `AttemptCounter` + mocks | Scenario: unlock → change PIN → lock → three failures → wait 30 s → new PIN unlocks | full sequence passes, LED requests in the right order | Host | REQ-F-012–024 | P |
 | IT-02 | | `KeypadAdapter` + keypad driver (fakes) + controller | Fake presses `1 2 3 4 #` through the whole chain | controller reaches Unlocked | Host | REQ-F-005, 006, 012 | P |
 | IT-03 | | `LedOutputAdapter` + GPIO driver | State changes with a register fake | `ODR` bits PD12 / PD14 as expected for Locked, Unlocked, blink | Host | REQ-F-002, 017, 022 | P |
-| IT-04 | | ISR + flag + `Keypad_ReadEvent()` | Trigger the ISR, then read the event | key returned, `PR` cleared, flag cleared | Host | REQ-NF-003, 004 | E |
-| IT-05 | | `SysTickClock` + controller | Call `SysTick_Handler` 30,000 times | lockout ends at the 30,000th tick | Host | REQ-F-018, NF-002 | P |
+| IT-04 | | ISR + flag + `Keypad_ReadEvent()` | Trigger the ISR, then read the event | key returned, `PR` cleared, flag cleared | Host | CON-011, 012 | E |
+| IT-05 | | `SysTickClock` + controller | Call `SysTick_Handler` 30,000 times | lockout ends at the 30,000th tick | Host | REQ-F-018, CON-010 | P |
 | IT-06 | | EXTI + NVIC + keypad ISR on the chip | Unity: set `EXTI->SWIER` for line 8 | handler runs, flag set, `PR` cleared | Board | CON-006, 007 | B |
 | IT-07 | | GPIO + SYSCFG + EXTI + NVIC | Unity: read back registers after `Keypad_Init()` | pull-ups on PD8–11, rows output, `EXTICR3` port D, `FTSR`, `IMR`, `ISER0` bit 23, `ISER1` bit 8 | Board | CON-004–007 | B |
 | IT-08 | | Fault handler + SWO | Temporary write to `0xFFFFFFF0` | crash dump in `swo.log`, `PC` at the store, `CFSR` shows precise bus error | Board | design §1.9 | M |
@@ -172,25 +172,25 @@ a requirement exists.
 | ST-01 | Power on or reset | red LED on, green off | REQ-F-001, 002 | Board, Renode | M |
 | ST-02 | Enter `1 2 3 4 #` | green on, red off | REQ-F-003, 012, 022 | Board, Renode | M |
 | ST-03 | Enter `1 1 1 1 #` | stays locked, red on | REQ-F-013 | Board, Renode | M |
-| ST-04 | Enter `1 2 #` | stays locked; next three-failure count not affected (test: three short PINs, then a valid PIN still works) | REQ-F-008, 014 | Board | M |
+| ST-04 | Enter `1 2 #` three times, then `1 2 3 4 #` | stays locked after each short PIN; then unlocks (short PINs are not counted as failures) | REQ-F-008, 014 | Board | M |
 | ST-05 | Enter `1 2 A`, then `1 2 3 4 5` | each input discarded, no lockout after repeating this five times | REQ-F-009, 010 | Board | M |
 | ST-06 | Three wrong PINs, then press keys | red blinks, green off, keys ignored (try the correct PIN) | REQ-F-015, 016, 017 | Board, Renode | M |
-| ST-07 | Third wrong PIN, start stopwatch, wait for blinking to stop | lockout ends at 30 s (suggested tolerance ±1 s) | REQ-F-018, 019, NF-001, NF-002 | Board | M |
+| ST-07 | Third wrong PIN, start stopwatch, wait for blinking to stop | lockout ends at 30 s (tolerance ±1 s) | REQ-F-018, 019, CON-010 | Board | M |
 | ST-08 | After lockout, enter the correct PIN; then repeat three failures again | unlocks; second lockout again needs three failures | REQ-F-019, 020, 021 | Board | M |
 | ST-09 | Unlock, enter `5 6 7 8 #`, then use the new PIN | locks after the change; `5678` unlocks; `1234` fails | REQ-F-023, 024 | Board, Renode | M |
 | ST-10 | Change PIN, press reset, enter `1234` | `1234` works again, `5678` does not | REQ-F-004 | Board | M |
 | ST-11 | Unlocked: enter `1 2 #`, and an invalid key mid-input | input cleared, green stays on | REQ-F-025, 026 | Board | M |
-| ST-12 | Hold a key for 10 s | exactly one key event after release; note LED behavior meanwhile | REQ-NF-003 | Board | C |
-| ST-13 | Press keys as fast as possible, 20 digits | count lost or merged events | requirements §6 | Board | C |
-| ST-14 | Press two or three keys at once | record which key wins, check for ghost keys | requirements §6 | Board | C |
-| ST-15 | Logic analyzer on a column during a press | measure bounce duration; basis for a debounce requirement | requirements gap 1 | Board | C |
-| ST-16 | In lockout, measure the blink period; repeat while holding a key | record period; does blinking stop while a key is held? | requirements gap 4, REQ-F-017 | Board | C |
+| ST-12 | Hold a key for 10 s | exactly one key event after release; note LED behavior meanwhile | CON-011 | Board | C |
+| ST-13 | Press keys as fast as possible, 20 digits | count lost or merged events | requirements §5 | Board | C |
+| ST-14 | Press two or three keys at once | record which key wins, check for ghost keys | requirements §5 | Board | C |
+| ST-15 | Logic analyzer on a column during a press | measure bounce duration; basis for a debounce requirement | requirements §5 (delay not specified) | Board | C |
+| ST-16 | In lockout, measure the blink period; repeat while holding a key | record period; does blinking stop while a key is held? | requirements §5 (blocking loop), REQ-F-017 | Board | C |
 | ST-17 | Probe or toggle each signal | rows PD0–PD3, columns PD8–PD11, green PD12, red PD14 as specified | CON-003, 004, 005, 008 | Board | M |
-| ST-18 | End-to-end: unlock → change PIN → lock → three failures → wait → new PIN | whole workflow passes | requirements gap 8 | Board | M |
+| ST-18 | End-to-end: unlock → change PIN → lock → three failures → wait → new PIN | whole workflow passes | REQ-F-012–024 | Board | M |
 | ST-19 | Press keys during lockout, wait for expiry, then enter a PIN | PIN works on the first try (see IT-09) | REQ-F-016, 020 | Board | M |
+| ST-20 | Enter `9 9 9 9 #` twice, `1 2 3 4 #`, then `5 6 7 8 #` (PIN change), then `1 1 1 1 #` twice | no lockout after the two failures (counter was reset by the unlock); third failure starts the lockout | REQ-F-027 | Board | M |
 
-Procedure details for ST-07 and ST-12–16: record date, firmware version (git commit), measured values,
-and photo or log in the results table below.
+Procedure details for ST-07 and ST-12–16: note date, firmware version (git commit) and measured values.
 
 ---
 
@@ -204,23 +204,21 @@ and photo or log in the results table below.
 
 ---
 
-# 6. Results log
-
-Fill in per run.
-
-| Date | Test ID | Commit | Env | Result (pass, fail, measured value) | Note |
-|---|---|---|---|---|---|
-| | | | | | |
-
----
-
-# 7. Missing tests and decisions
+# 6. Missing tests and decisions
 
 | Item | Why | Proposed action |
 |---|---|---|
 | REQ-F-025, 026 coverage | requirements doc says to verify | check UT-AC-16, 17 against the test file; add if missing |
 | LED adapter and SysTick clock have no host tests | hardware access without fakes | add GPIO and SysTick register fakes (UT-LA, UT-SC) |
-| Stale key after lockout | possible usability bug | run IT-09 first; fix the design if it fails |
-| Board tests never run | Unity sources exist | run IT-06, IT-07 once, log the result |
+| Keypad blocks in LockedOut | `Keypad_Scan()` waits for key release (CON-011), so holding a key during lockout may stop the blinking | check on the board in ST-16 |
+| Board tests never run | Unity sources exist | run IT-06, IT-07 once, note the result |
 | Renode tests | on hold | revive ST-01, 02, 03, 06, 09 as Robot tests after the GPIO issue is solved |
-| Characterization (ST-12–16) | requirements §4, §6 gaps | turn the results into new NF requirements |
+| Characterization (ST-12–16) | requirements §5 | turn the results into new requirements |
+
+## Decided
+
+| Item | Decision |
+|---|---|
+| Attempt counter after a successful unlock | reset to 0 (REQ-F-027, UT-AC-21) |
+| Stale key after lockout | `LockedOut` reads and discards keys (IT-09, review F-05); board check ST-19 open |
+| ST-07 tolerance | ±1 s |

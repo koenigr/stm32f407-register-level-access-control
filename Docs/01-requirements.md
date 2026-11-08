@@ -72,7 +72,7 @@ Each requirement has an implementation status and a verification status.
 | REQ-F-019 | When the 30-second lockout period expires, the system shall return to Locked. | Implemented; host-tested. |
 | REQ-F-020 | When the lockout period expires, the system shall reset the failed-attempt counter and clear any buffered PIN input. | Implemented; host-tested. |
 | REQ-F-021 | A new lockout period shall start from the time the third failed attempt is registered. | Implemented using `lockoutStartMs_`; host-tested for a subsequent lockout. |
-| REQ-F-027 | After a successul unlock, the system shall reset the failed-attempt counter to 0. | Implemented in `ValidatePin()` (`attempts._Reset()`); host-tested (`UnlockResetsAttemptsCounter`).
+| REQ-F-027 | After a successful unlock, the system shall reset the failed-attempt counter to 0. | Implemented in `ValidatePin()` (`attempts_.Reset()`); host-tested (`UnlockResetsAttemptsCounter`). |
 
 ### 3.4 Unlocked state and PIN change
 
@@ -86,7 +86,7 @@ Each requirement has an implementation status and a verification status.
 
 
 
-## 5. Hardware and implementation constraints
+## 4. Hardware and implementation constraints
 
 These describe the current design and target platform. They are not necessarily product-level functional requirements.
 
@@ -105,7 +105,7 @@ These describe the current design and target platform. They are not necessarily 
 | CON-011 | The keypad driver shall not return a detected key event until the key has been released. | Implemented by a blocking release loop in `Keypad_Scan()`; host fake simulates release. Physical behavior open. |
 | CON-012 | The keypad driver shall mask keypad EXTI interrupts while it scans and processes a key event. | Implemented; host-side fake checks masking during GPIO reads. Board-level behavior open. |
 
-## 6. Keypad behavior and known limitations
+## 5. Keypad behavior and known limitations
 
 The following observations are important for architecture, design and test documentation. They should not all be interpreted as desired requirements.
 
@@ -128,7 +128,7 @@ The following observations are important for architecture, design and test docum
 
 These points should be revisited if the keypad driver is redesigned.
 
-## 7. Verification summary
+## 6. Verification summary
 
 | Verification level | Existing evidence | Limitations / next action |
 |---|---|---|
@@ -136,7 +136,7 @@ These points should be revisited if the keypad driver is redesigned.
 | Unity board-test source | Tests check GPIO configuration, pull-ups, SYSCFG/EXTI configuration, NVIC enables and software-triggered EXTI handling. | Source exists, but successful execution on physical hardware must be recorded separately. |
 | Manual hardware tests | No physical execution evidence recorded in this baseline. | Verify real keypad operation, LED outputs, lockout timing, reset behavior and complete user interaction when the board is available. |
 
-## 8. Traceability
+## 7. Traceability
 
 Mapping of requirements and constraints to their tests. Test IDs refer to
 [04-test-specification.md](04-test-specification.md).
@@ -145,8 +145,10 @@ Mapping of requirements and constraints to their tests. Test IDs refer to
 |---|---|
 | REQ-F-001–REQ-F-004 | UT-AC-01, UT-AC-02, UT-PV-01, UT-PV-03, ST-01, ST-10 |
 | REQ-F-005–REQ-F-013 | UT-AC-02 to UT-AC-07, UT-AC-19, UT-PV-02, UT-PV-04 |
-| REQ-F-014–REQ-F-021, REQ-F-027 | UT-AC-03, UT-AC-08 to UT-AC-13, UT-AC-21, UT-AT-01 to UT-AT-03, IT-05, IT-09 |
+| REQ-F-014–REQ-F-021, REQ-F-027 | UT-AC-03, UT-AC-08 to UT-AC-13, UT-AC-21, UT-AT-01 to UT-AT-03, IT-05, IT-09, ST-20 |
 | REQ-F-022–REQ-F-026 | UT-AC-02, UT-AC-14 to UT-AC-18, UT-AC-20, UT-LA-03 |
 | CON-004–CON-007 | IT-06, IT-07, ST-17 (board test source exists; physical run status open) |
 | CON-008–CON-010 | UT-LA-01, UT-SC-01, INS-02 (no confirmed physical timing result) |
 | CON-011–CON-012 | UT-KD-03, UT-KD-04 |
+| CON-002 | INS-01 |
+| CON-003 | UT-KA-01, UT-KD-02 |
