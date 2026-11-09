@@ -22,6 +22,8 @@ misra.log
 # swo outputs
 swo.log
 
+# board tests outputs
+board-tests-swo.log
 
 *.drawio
 *.drawio.bkp

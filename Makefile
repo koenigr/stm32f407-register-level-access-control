@@ -171,6 +171,7 @@ keypad-test:
 	gdb-multiarch -x scripts/keypad_test.gdb $(ELF)
 
 board-tests-run:
+	rm -f board-tests-swo.log
 	gdb-multiarch -batch -x scripts/board-tests-swo.gdb $(BOARD_TEST_ELF)
 
 smoke-test:

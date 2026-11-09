@@ -12,10 +12,24 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Unity)
 
+set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/..)
+
+target_compile_options(unity PRIVATE
+    -mcpu=cortex-m4
+    -mthumb
+    -g
+    -O0
+)
+
+target_compile_definitions(unity PUBLIC UNITY_INCLUDE_CONFIG_H)
+
+target_include_directories(unity PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${PROJECT_ROOT}/Drivers
+)
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
-
-set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 add_executable(board_tests
     board_test_main.cpp

@@ -97,7 +97,7 @@ void EXTI9_5_IRQHandler(void) {
 	if ((EXTI->PR & COL_MASK_8_9) != 0U) {
 		EXTI->PR = COL_MASK_8_9; // (Write-1-to-clear)
 		keypad_irq_flag = 1;
-		ITM_SendChar('5');
+		// ITM_SendChar('5');
 	}
 }
 
@@ -106,7 +106,7 @@ void EXTI15_10_IRQHandler(void) {
 	if ((EXTI->PR & COL_MASK_10_11) != 0U) {
 		EXTI->PR = COL_MASK_10_11;
 		keypad_irq_flag = 1;
-		ITM_SendChar('A');
+		// ITM_SendChar('A');
 	}
 }
 

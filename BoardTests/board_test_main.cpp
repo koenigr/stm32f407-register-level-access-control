@@ -16,6 +16,11 @@ extern "C" {
 			__asm volatile ("nop");
 		}
 	}
+
+	// Dummy implementation to satisfy the linker when -fno-exceptions is used
+    void __aeabi_unwind_cpp_pr0(void) {
+        while (1);
+    }
 }
 
 static void EnableGlobalInterrupts() {
@@ -28,6 +33,8 @@ static void TestExtiInterrupts(void)
 
 	EXTI->PR = (1U << 8);
 	EXTI->SWIER = (1U << 8);
+	__asm volatile ("isb" ::: "memory");
+	__asm volatile ("dsb" ::: "memory");
 
 	TEST_ASSERT_EQUAL_UINT8(1U, Keypad_IrqPending());
 	TEST_ASSERT_EQUAL_UINT8(0U, Keypad_IrqPending());
@@ -35,6 +42,8 @@ static void TestExtiInterrupts(void)
 
 	EXTI->PR = (1U << 10);
 	EXTI->SWIER = (1U << 10);
+	__asm volatile ("isb" ::: "memory");
+	__asm volatile ("dsb" ::: "memory");
 
 	TEST_ASSERT_EQUAL_UINT8(1U, Keypad_IrqPending());
 	TEST_ASSERT_EQUAL_UINT8(0U, Keypad_IrqPending());

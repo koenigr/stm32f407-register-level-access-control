@@ -6,7 +6,8 @@ monitor itm port 0 on
 load
 monitor reset halt
 
-break BoardTests:Done
+break BoardTests_Done
+break Default_Handler
 continue
 
 printf "\nUnity failure count: "
