@@ -177,13 +177,38 @@ no UART, no extra wiring. Output is written to `swo.log`.
 
 More details: [SWO Debugging](Docs/swo.md)
 
+
 ### Crash diagnostics
 
-An unhandled fault ends in `HardFault_Handler`, which prints the stacked registers (`R0-R3`, `R12`, `LR`, `PC`, `xPSR`) and the fault status registers (`CFSR`, `HFSR`, `MMFAR`, `BFAR`) over SWO. The faulting source line is found with:
+An unhandled fault ends in `HardFault_Handler`, which extracts the stacked exception frame and calls `hardfault_c()`. There the stacked `PC` and `LR` and the fault status registers `CFSR` and `HFSR` are read into local variables, followed by `bkpt #0`. With a debugger attached, the CPU halts there and the values can be inspected.
+
+The faulting source line is found with:
 
 ```bash
-arm-none-eabi-addr2line -e build-firmware/stm32f407_access_control.elf <PC>
+arm-none-eabi-addr2line -e build-firmware/stm32f407_access_control <PC>
 ```
+
+#### HardFault test
+
+`make debug-hardfault` builds the firmware with `TEST_HARDFAULT` (separate build directory `build-hardfault`), starts OpenOCD, flashes via GDB and runs. The firmware calls an invalid function pointer (`0x20000000`, Thumb bit missing), and GDB stops at the `bkpt` in `hardfault_c`.
+
+```bash
+make debug-hardfault
+```
+
+In GDB:
+
+```gdb
+(gdb) p/x cfsr    # 0x20000    -> UFSR.INVSTATE
+(gdb) p/x hfsr    # 0x40000000 -> FORCED (escalated UsageFault)
+(gdb) p/x pc      # 0x20000000 -> invalid jump target
+(gdb) p/x lr
+(gdb) info symbol lr
+```
+
+OpenOCD must not be running already (port 3333 is in use). Quitting GDB stops OpenOCD.
+
+More details: [HardFault](Docs/hardfault.md)
 
 More details about startup and memory layout:
 

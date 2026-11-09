@@ -3,6 +3,7 @@ build/
 build-firmware/
 build-tests/
 build_board-tests/
+build-hardfault
 .cache/
 
 # Other directories

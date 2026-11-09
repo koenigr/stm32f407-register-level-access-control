@@ -40,6 +40,11 @@ else()
         App/cpp_runtime.cpp
     )
 
+    option(TEST_HARDFAULT "Build with HardFault test" OFF)
+    if(TEST_HARDFAULT)
+        target_compile_definitions(${PROJECT_NAME} PRIVATE TEST_HARDFAULT)
+    endif()
+
     target_include_directories(${PROJECT_NAME}
         PRIVATE
             Core

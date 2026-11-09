@@ -5,7 +5,8 @@
         rebuild-firmware rebuild-tests rebuild-board-tests \
         gdb openocd size disasm symbols sections elfinfo swo misra tidy \
         reset reboot keypad-test board-tests-run renode clean-robot \
-        smoke-test renode-robot
+        smoke-test renode-robot configure-hardfault test-hardfault \
+        debug-hardfault
 
 # ------------------------------------------------------------------
 # Configuration
@@ -14,6 +15,7 @@
 FIRMWARE_BUILD = build-firmware
 TEST_BUILD     = build-tests
 BOARD_TEST_BUILD = build_board-tests
+HARDFAULT_BUILD = build-hardfault
 PROJECT        = stm32f407_access_control
 ELF            = $(FIRMWARE_BUILD)/$(PROJECT)
 BOARD_TEST_ELF = $(BOARD_TEST_BUILD)/board_tests
@@ -73,6 +75,10 @@ help:
 	@echo "  board-tests         Build Unity tests for STM32 hardware"
 	@echo "  flash-board-tests   Flash Unity tests to STM32"
 	@echo "  board-tests-run     Run board tests and capture SWO output"
+	@echo ""
+	@echo "HardFault Tests:"
+	@echo "  test-hardfault      Build firmware with TEST_HARDFAULT"
+	@echo "  debug-hardfault     Build, flash and debug HardFault test"
 
 # ------------------------------------------------------------------
 # Configure
@@ -204,6 +210,7 @@ clean:
 	cmake --build $(FIRMWARE_BUILD) --target clean || true
 	cmake --build $(TEST_BUILD) --target clean || true
 	cmake --build $(BOARD_TEST_BUILD) --target clean || true
+	cmake --build $(HARDFAULT_BUILD) --target clean || true
 
 clean-all:
 	rm -rf $(FIRMWARE_BUILD)
@@ -211,6 +218,7 @@ clean-all:
 	rm -rf $(BOARD_TEST_BUILD)
 	rm -rf $(ROBOT_DIR)
 	rm -f swo.log
+	rm -rf $(HARDFAULT_BUILD)
 
 
 # ------------------------------------------------------------------
@@ -256,3 +264,28 @@ renode-robot:
 clean-robot:
 	@echo "Cleaning up Robot Framework outputs..."
 	rm -rf $(ROBOT_DIR)
+
+
+# ------------------------------------------------------------------
+# HardFault Analysis
+# ------------------------------------------------------------------
+configure-hardfault:
+	cmake -S . -B $(HARDFAULT_BUILD) \
+		-DCMAKE_TOOLCHAIN_FILE=cmake/arm-gcc-toolchain.cmake \
+		-DTEST_HARDFAULT=ON
+
+test-hardfault: configure-hardfault
+	cmake --build $(HARDFAULT_BUILD)
+
+# Build + start OpenOCD + flash + run in GDB, stop OpenOCD on exit
+debug-hardfault: test-hardfault
+	@$(OPENOCD) -f $(INTERFACE_CFG) -f $(TARGET_CFG) >/dev/null 2>&1 & \
+	OCD=$$!; \
+	sleep 1; \
+	gdb-multiarch $(HARDFAULT_BUILD)/$(PROJECT) \
+		-ex "target remote localhost:3333" \
+		-ex "monitor reset halt" \
+		-ex "load" \
+		-ex "monitor reset halt" \
+		-ex "continue"; \
+	kill $$OCD
