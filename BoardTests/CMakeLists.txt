@@ -66,17 +66,18 @@ target_compile_definitions(board_tests PRIVATE
     UNITY_INCLUDE_CONFIG_H
 )
 
+# Handle bare-metal linking using toolchain specs rather than -nostdlib
 target_link_options(board_tests PRIVATE
     -mcpu=cortex-m4
     -mthumb
     -T${PROJECT_ROOT}/Startup/STM32F407VGTx_FLASH.ld
     -nostartfiles
-    -nostdlib
     -Wl,--gc-sections
 )
 
-target_link_libraries(board_tests PRIVATE unity
-	gcc
-	c
-	nosys
+# Link your internal test framework targets
+target_link_libraries(board_tests PRIVATE 
+    unity
+    --specs=nano.specs        # Uses the lightweight Newlib-nano
+    --specs=nosys.specs       # Provides empty stubs for _write, _close, etc. satisfying the linker
 )

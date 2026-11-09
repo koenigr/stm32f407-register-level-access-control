@@ -174,8 +174,8 @@ board-tests-run:
 	rm -f board-tests-swo.log
 	gdb-multiarch -batch -x scripts/board-tests-swo.gdb $(BOARD_TEST_ELF)
 
-smoke-test:
-	gdb-multiarch -batch -x scripts/smoke_test.gdb $(ELF)
+smoke-test: firmware
+	gdb-multiarch -batch -x scripts/smoke-test.gdb $(ELF)
 
 # ------------------------------------------------------------------
 # Inspection

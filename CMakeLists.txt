@@ -68,20 +68,13 @@ else()
         >
     )
 
-    # Handle bare-metal linking using toolchain specs rather than -nostdlib
-    target_link_options(board_tests PRIVATE
+    target_link_options(${PROJECT_NAME} PRIVATE
         -mcpu=cortex-m4
         -mthumb
-        -T${PROJECT_ROOT}/Startup/STM32F407VGTx_FLASH.ld
+        -T${CMAKE_SOURCE_DIR}/Startup/STM32F407VGTx_FLASH.ld
         -nostartfiles
+        --specs=nano.specs
+        --specs=nosys.specs
         -Wl,--gc-sections
     )
-
-    # Link your internal test framework targets
-    target_link_libraries(board_tests PRIVATE 
-        unity
-        --specs=nano.specs        # Uses the lightweight Newlib-nano
-        --specs=nosys.specs       # Provides empty stubs for _write, _close, etc. satisfying the linker
-    )
-
 endif()
